@@ -11,5 +11,7 @@
     <color name="textPrimaryColor">#2E2E2E</color> <!-- Dark Gray for Text -->
     <color name="textSecondaryColor">#6B6B6B</color> <!-- Light Gray for Text -->
 
+    <color name="hintColor">#808080</color> <!-- A soft grey for hints -->
+
     <color name="white">#FFFFFF</color>
 </resources>

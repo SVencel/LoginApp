@@ -16,6 +16,7 @@
         android:padding="12dp"
         android:background="@drawable/rounded_edittext"
         android:textColor="@color/textPrimaryColor"
+        android:textColorHint="@color/hintColor"
         android:layout_marginBottom="12dp"/>
 
     <EditText
@@ -27,6 +28,7 @@
         android:padding="12dp"
         android:background="@drawable/rounded_edittext"
         android:textColor="@color/textPrimaryColor"
+        android:textColorHint="@color/hintColor"
         android:layout_marginBottom="16dp"/>
 
     <Button
@@ -52,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:text="Forgot Password?"
-        android:textColor="@color/primaryDarkColor"
+        android:textColor="@color/primaryColor"
         android:padding="8dp"
         android:clickable="true"
         android:textSize="14sp"
