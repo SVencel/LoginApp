@@ -43,13 +43,14 @@ class HomeActivity : AppCompatActivity() {
                 }
         }
 
-        // Logout button click
         logoutButton.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this, MainActivity::class.java)
+            auth.signOut()  // Use the initialized FirebaseAuth instance
+            val intent = Intent(this@HomeActivity, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()
         }
+
 
     }
 }
