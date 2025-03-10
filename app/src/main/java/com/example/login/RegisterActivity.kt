@@ -31,7 +31,7 @@ class RegisterActivity : AppCompatActivity() {
         val emailEditText: EditText = findViewById(R.id.etRegisterEmail)
         val passwordEditText: EditText = findViewById(R.id.etRegisterPassword)
         val registerButton: Button = findViewById(R.id.btnRegisterUser)
-
+        val backToLoginButton: Button = findViewById(R.id.btnBackToLogin)
 
         registerButton.setOnClickListener {
             val username = usernameEditText.text.toString().trim()
@@ -71,6 +71,12 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.makeText(this, "Registration Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
+        }
+
+        backToLoginButton.setOnClickListener {  // 🔹 New block
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()  // Closes RegisterActivity to prevent returning to it
         }
     }
 }
