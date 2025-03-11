@@ -1,17 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:gravity="center">
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/backgroundColor">
 
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:hint="Enter username"
-        android:padding="12dp"/>
+        android:padding="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/textPrimaryColor"
+        android:layout_marginBottom="16dp"/>
 
     <EditText
         android:id="@+id/etRegisterEmail"
@@ -19,7 +23,10 @@
         android:layout_height="56dp"
         android:hint="Enter Email"
         android:inputType="textEmailAddress"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/textPrimaryColor"
+        android:layout_marginBottom="16dp"/>
 
     <EditText
         android:id="@+id/etRegisterPassword"
@@ -27,12 +34,32 @@
         android:layout_height="56dp"
         android:hint="Enter Password"
         android:inputType="textPassword"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/textPrimaryColor"
+        android:layout_marginBottom="24dp"/>
 
     <Button
         android:id="@+id/btnRegisterUser"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up" />
+        android:text="Sign Up"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnBackToLogin"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Back to Login"
+        android:textColor="@color/primaryDarkColor"
+        android:padding="12dp"
+        android:clickable="true"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"/>
 
 </LinearLayout>

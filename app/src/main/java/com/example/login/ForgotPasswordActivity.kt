@@ -19,6 +19,8 @@ class ForgotPasswordActivity : ComponentActivity() {
 
         val emailEditText: EditText = findViewById(R.id.etResetEmail)
         val resetPasswordButton: Button = findViewById(R.id.btnResetPassword)
+        val backToLoginButton: Button = findViewById(R.id.btnBackToLogin)
+
 
         resetPasswordButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -28,6 +30,10 @@ class ForgotPasswordActivity : ComponentActivity() {
             } else {
                 Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        backToLoginButton.setOnClickListener {
+            finish()  // Closes the current activity and returns to login
         }
     }
 
