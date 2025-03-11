@@ -1,6 +1,7 @@
 package com.example.login
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -14,6 +15,8 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var registerButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,15 +25,16 @@ class RegisterActivity : AppCompatActivity() {
         try {
             auth = FirebaseAuth.getInstance()
             db = FirebaseFirestore.getInstance()
+            sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
         } catch (e: Exception) {
             Log.e("RegisterActivity", "Firebase init error: ${e.message}")
-            Toast.makeText(this, "Firebase init error: ${e.message}", Toast.LENGTH_SHORT).show()
+            showToast("Firebase initialization failed: ${e.message}")
         }
 
         val usernameEditText: EditText = findViewById(R.id.etUsername)
         val emailEditText: EditText = findViewById(R.id.etRegisterEmail)
         val passwordEditText: EditText = findViewById(R.id.etRegisterPassword)
-        val registerButton: Button = findViewById(R.id.btnRegisterUser)
+        registerButton = findViewById(R.id.btnRegisterUser)
         val backToLoginButton: Button = findViewById(R.id.btnBackToLogin)
 
         registerButton.setOnClickListener {
@@ -38,45 +42,72 @@ class RegisterActivity : AppCompatActivity() {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            if (!validateInput(username, email, password)) return@setOnClickListener
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        val userId = user?.uid
+            registerUser(username, email, password)
+        }
 
-                        // Save username to Firestore
-                        if (userId != null) {
-                            val userMap = hashMapOf(
-                                "username" to username,
-                                "email" to email
-                            )
+        backToLoginButton.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
 
-                            db.collection("users").document(userId).set(userMap)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this, HomeActivity::class.java)
-                                    startActivity(intent)
-                                    finish()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(this, "Failed to save username", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                    } else {
-                        Toast.makeText(this, "Registration Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+    private fun validateInput(username: String, email: String, password: String): Boolean {
+        if (username.isEmpty()) {
+            showToast("Please enter a username")
+            return false
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            showToast("Please enter a valid email")
+            return false
+        }
+        if (password.length < 6) {
+            showToast("Password must be at least 6 characters")
+            return false
+        }
+        return true
+    }
+
+    private fun registerUser(username: String, email: String, password: String) {
+        registerButton.isEnabled = false // 🔹 Disable button to prevent multiple clicks
+        registerButton.text = "Registering..." // 🔹 Show progress indicator
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                registerButton.isEnabled = true // 🔹 Re-enable button
+                registerButton.text = "Sign Up" // 🔹 Reset button text
+
+                if (task.isSuccessful) {
+                    val userId = auth.currentUser?.uid
+                    if (userId != null) {
+                        saveUserToFirestore(userId, username, email)
                     }
+                } else {
+                    showToast("Registration Failed: ${task.exception?.message}")
                 }
-        }
+            }
+    }
 
-        backToLoginButton.setOnClickListener {  // 🔹 New block
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()  // Closes RegisterActivity to prevent returning to it
-        }
+    private fun saveUserToFirestore(userId: String, username: String, email: String) {
+        val userMap = hashMapOf(
+            "username" to username,
+            "email" to email
+        )
+
+        db.collection("users").document(userId).set(userMap)
+            .addOnSuccessListener {
+                sharedPref.edit().putBoolean("isLoggedIn", true).apply() // 🔹 Save login state
+                showToast("Registration successful!")
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            }
+            .addOnFailureListener {
+                showToast("Failed to save user data")
+            }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

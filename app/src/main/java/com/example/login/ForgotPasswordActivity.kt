@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 class ForgotPasswordActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var resetPasswordButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,18 +19,18 @@ class ForgotPasswordActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         val emailEditText: EditText = findViewById(R.id.etResetEmail)
-        val resetPasswordButton: Button = findViewById(R.id.btnResetPassword)
+        resetPasswordButton = findViewById(R.id.btnResetPassword)
         val backToLoginButton: Button = findViewById(R.id.btnBackToLogin)
-
 
         resetPasswordButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
 
-            if (email.isNotEmpty()) {
-                resetPassword(email)
-            } else {
-                Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
+            if (!isValidEmail(email)) {
+                showToast("Enter a valid email")
+                return@setOnClickListener
             }
+
+            resetPassword(email)
         }
 
         backToLoginButton.setOnClickListener {
@@ -37,15 +38,29 @@ class ForgotPasswordActivity : ComponentActivity() {
         }
     }
 
+    private fun isValidEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
     private fun resetPassword(email: String) {
+        resetPasswordButton.isEnabled = false  // 🔹 Disable button to prevent multiple clicks
+        resetPasswordButton.text = "Sending..."
+
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
+                resetPasswordButton.isEnabled = true  // 🔹 Re-enable button
+                resetPasswordButton.text = "Reset Password"  // 🔹 Reset button text
+
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Password reset email sent!", Toast.LENGTH_SHORT).show()
-                    finish() // Go back to login screen
+                    showToast("Password reset email sent!")
+                    finish()  // Close activity after success
                 } else {
-                    Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Error: ${task.exception?.message}")
                 }
             }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
