@@ -66,4 +66,5 @@ dependencies {
     implementation(libs.firebase.auth) // Use the new alias
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.mpandroidchart)
 }

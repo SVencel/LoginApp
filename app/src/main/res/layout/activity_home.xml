@@ -7,17 +7,40 @@
     android:gravity="center"
     android:background="@color/backgroundColor">
 
-    <TextView
-        android:id="@+id/tvWelcome"
+    <!-- Switch to Toggle Views -->
+    <Switch
+        android:id="@+id/switchViewMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Good job, you're logged in!"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@color/primaryColor"
-        android:padding="16dp"
-        android:background="@drawable/rounded_textview"
-        android:layout_marginBottom="24dp"/>
+        android:text="Show Chart View"
+        android:checked="false"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Text View for List Mode -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tvUsageStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading usage stats..."
+            android:textSize="18sp"
+            android:textColor="@color/primaryColor"
+            android:padding="16dp"
+            android:background="@drawable/rounded_textview"
+            android:layout_marginBottom="24dp"
+            android:textAlignment="center"/>
+    </ScrollView>
+
+    <!-- Bar Chart for Graph Mode (Initially Hidden) -->
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/barChart"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
 
     <Button
         android:id="@+id/btnLogout"
@@ -28,6 +51,4 @@
         android:textColor="@color/white"
         android:padding="12dp"
         android:layout_marginTop="16dp"/>
-
-
 </LinearLayout>
