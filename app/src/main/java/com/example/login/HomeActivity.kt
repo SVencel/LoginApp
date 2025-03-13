@@ -1,26 +1,28 @@
 package com.example.login
 
+import android.Manifest
 import android.app.AppOpsManager
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.google.firebase.auth.FirebaseAuth
-import java.text.SimpleDateFormat
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-
 import java.util.*
-
 
 class HomeActivity : AppCompatActivity() {
 
@@ -29,28 +31,39 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var logoutButton: Button
     private lateinit var switchViewMode: Switch
     private lateinit var barChart: BarChart
+    private lateinit var enableMonitoringButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        // Initialize UI Elements
         auth = FirebaseAuth.getInstance()
         usageTextView = findViewById(R.id.tvUsageStats)
         logoutButton = findViewById(R.id.btnLogout)
         switchViewMode = findViewById(R.id.switchViewMode)
         barChart = findViewById(R.id.barChart)
+        enableMonitoringButton = findViewById(R.id.btnEnableAccessibility)
 
-        // Check permission
+        // Request Notification Permission (Android 13+)
+        requestNotificationPermission()
+
+        // Check and Request Permissions
         if (!hasUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
             displayUsageStats()
         }
 
+        // Handle Button Clicks
         logoutButton.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
+        }
+
+        enableMonitoringButton.setOnClickListener {
+            requestAccessibilityPermission()
         }
 
         switchViewMode.setOnCheckedChangeListener { _, isChecked ->
@@ -65,6 +78,33 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /** ✅ REQUEST NOTIFICATION PERMISSION (Android 13+) **/
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
+    }
+
+    /** ✅ HANDLE PERMISSION RESULT **/
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Notification Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notification Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** ✅ CHECKING PERMISSIONS **/
     private fun hasUsageStatsPermission(): Boolean {
         val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(
@@ -80,6 +120,13 @@ class HomeActivity : AppCompatActivity() {
         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
     }
 
+    private fun requestAccessibilityPermission() {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        startActivity(intent)
+        Toast.makeText(this, "Please enable the Accessibility Service for app tracking.", Toast.LENGTH_LONG).show()
+    }
+
+    /** ✅ DISPLAYING APP USAGE **/
     private fun displayUsageStats() {
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = Calendar.getInstance()
@@ -107,7 +154,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val sortedUsage = usageMap.toList().sortedByDescending { (_, time) -> time }.toMap()
-
         val usageText = StringBuilder("App Usage in Last 24 Hours:\n\n")
 
         for ((app, time) in sortedUsage) {
@@ -117,6 +163,7 @@ class HomeActivity : AppCompatActivity() {
         usageTextView.text = usageText.toString()
     }
 
+    /** ✅ POPULATING BAR CHART **/
     private fun populateBarChart() {
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = Calendar.getInstance()
@@ -140,15 +187,15 @@ class HomeActivity : AppCompatActivity() {
         val labels = mutableListOf<String>()
         var index = 0
 
-        // Sort apps by usage time and pick the top 10 to prevent overcrowding
+        // Sort and filter apps to exclude system apps
         for ((app, time) in usageMap.toList()
             .sortedByDescending { it.second }
             .filterNot { (packageName, _) -> packageName.contains("launcher") || packageName.contains("systemui") }
             .take(10)) {
 
             entries.add(BarEntry(index.toFloat(), (time / 60000).toFloat()))
-                labels.add(app)
-                index++
+            labels.add(app)
+            index++
         }
 
         val dataSet = BarDataSet(entries, "App Usage (Minutes)")
@@ -175,7 +222,6 @@ class HomeActivity : AppCompatActivity() {
         barChart.setFitBars(true) // Make bars fit properly
         barChart.invalidate() // Refresh chart
     }
-
 
     private fun formatTime(milliseconds: Long): String {
         val minutes = (milliseconds / 60000)

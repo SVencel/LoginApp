@@ -10,12 +10,14 @@
     <!-- Switch to Toggle Views -->
     <Switch
         android:id="@+id/switchViewMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:text="Show Chart View"
         android:checked="false"
         android:textSize="16sp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="20dp"
+        android:padding="10dp"/>
+
 
     <!-- Text View for List Mode -->
     <ScrollView
@@ -51,4 +53,15 @@
         android:textColor="@color/white"
         android:padding="12dp"
         android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnEnableAccessibility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable Monitoring"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
 </LinearLayout>
