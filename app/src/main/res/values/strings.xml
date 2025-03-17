@@ -5,5 +5,7 @@
     <string name="enter_email">Enter Email</string>
     <string name="enter_password">Enter Password</string>
     <string name="accessibility_service_description">This service helps monitor app usage for tracking screen time.</string>
+    <string name="navigation_drawer_open">Open Navigation</string>
+    <string name="navigation_drawer_close">Close Navigation</string>
 
 </resources>

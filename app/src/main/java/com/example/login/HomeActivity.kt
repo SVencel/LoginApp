@@ -10,17 +10,19 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.MenuItem
 import android.widget.*
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
+import com.google.firebase.auth.FirebaseUser
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.util.*
 
@@ -33,12 +35,57 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var barChart: BarChart
     private lateinit var enableMonitoringButton: Button
 
+    // ✅ Navigation Drawer Components
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toggle: ActionBarDrawerToggle
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
         // Initialize UI Elements
         auth = FirebaseAuth.getInstance()
+        usageTextView = findViewById(R.id.tvUsageStats)
+        logoutButton = findViewById(R.id.btnLogout)
+        switchViewMode = findViewById(R.id.switchViewMode)
+        barChart = findViewById(R.id.barChart)
+        enableMonitoringButton = findViewById(R.id.btnEnableAccessibility)
+
+
+        // ✅ Initialize Navigation Drawer
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.nav_view)
+
+        // ✅ Setup Toggle for the Drawer
+        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        // ✅ Set Username in Drawer Header
+        val user: FirebaseUser? = auth.currentUser
+        val headerView = navigationView.getHeaderView(0)
+        val navUsername = headerView.findViewById<TextView>(R.id.tvUsername)
+        navUsername.text = user?.displayName ?: "Guest"
+
+        // ✅ Handle Navigation Menu Clicks
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show()
+                R.id.nav_profile -> Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show()
+                R.id.nav_settings -> Toast.makeText(this, "Settings Clicked", Toast.LENGTH_SHORT).show()
+                R.id.nav_logout -> {
+                    auth.signOut()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
+            }
+            drawerLayout.closeDrawers()
+            true
+        }
+
+        // ✅ Initialize Other UI Elements
         usageTextView = findViewById(R.id.tvUsageStats)
         logoutButton = findViewById(R.id.btnLogout)
         switchViewMode = findViewById(R.id.switchViewMode)
@@ -76,6 +123,10 @@ class HomeActivity : AppCompatActivity() {
                 usageTextView.visibility = TextView.VISIBLE
             }
         }
+    }
+    // ✅ Handle Toolbar Button Clicks (Drawer Toggle)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
     }
 
     /** ✅ REQUEST NOTIFICATION PERMISSION (Android 13+) **/
