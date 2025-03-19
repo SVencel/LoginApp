@@ -10,6 +10,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -28,7 +32,7 @@ class RegisterActivity : AppCompatActivity() {
             sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
         } catch (e: Exception) {
             Log.e("RegisterActivity", "Firebase init error: ${e.message}")
-            showToast("Firebase initialization failed: ${e.message}")
+            showToast("Firebase initialization failed. Try restarting the app.")
         }
 
         val usernameEditText: EditText = findViewById(R.id.etUsername)
@@ -42,6 +46,11 @@ class RegisterActivity : AppCompatActivity() {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
+            if (!isInternetAvailable(this)) {
+                showToast("No internet connection. Please check your network and try again.")
+                return@setOnClickListener
+            }
+
             if (!validateInput(username, email, password)) return@setOnClickListener
 
             registerUser(username, email, password)
@@ -53,13 +62,14 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /** ✅ VALIDATE USER INPUT **/
     private fun validateInput(username: String, email: String, password: String): Boolean {
         if (username.isEmpty()) {
             showToast("Please enter a username")
             return false
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showToast("Please enter a valid email")
+            showToast("Please enter a valid email address")
             return false
         }
         if (password.length < 6) {
@@ -69,9 +79,10 @@ class RegisterActivity : AppCompatActivity() {
         return true
     }
 
+    /** ✅ REGISTER USER IN FIREBASE **/
     private fun registerUser(username: String, email: String, password: String) {
-        registerButton.isEnabled = false // 🔹 Disable button to prevent multiple clicks
-        registerButton.text = "Registering..." // 🔹 Show progress indicator
+        registerButton.isEnabled = false // 🔹 Prevent multiple clicks
+        registerButton.text = "Registering..." // 🔹 Show progress
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -89,6 +100,7 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    /** ✅ SAVE USER TO FIRESTORE **/
     private fun saveUserToFirestore(userId: String, username: String, email: String) {
         val userMap = hashMapOf(
             "username" to username,
@@ -103,10 +115,27 @@ class RegisterActivity : AppCompatActivity() {
                 finish()
             }
             .addOnFailureListener {
-                showToast("Failed to save user data")
+                showToast("Failed to save user data. Please try again.")
             }
     }
 
+    /** ✅ CHECK INTERNET CONNECTION **/
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
+        }
+    }
+
+    /** ✅ SHOW TOAST MESSAGE **/
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

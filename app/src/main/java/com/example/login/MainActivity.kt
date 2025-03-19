@@ -7,6 +7,10 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +48,12 @@ class MainActivity : AppCompatActivity() {
         emailSignInButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
+
+            // ✅ Check for internet connection before attempting sign-in
+            if (!isInternetAvailable(this)) {
+                showToast("No internet connection! Please connect to WiFi or Mobile Data.")
+                return@setOnClickListener
+            }
 
             if (!isValidEmail(email)) {
                 showToast("Enter a valid email")
@@ -84,6 +94,22 @@ class MainActivity : AppCompatActivity() {
                     showToast("Login Failed: ${task.exception?.message}")
                 }
             }
+    }
+
+    // ✅ Check Internet Connection Before Signing In
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
+        }
     }
 
     private fun showToast(message: String) {

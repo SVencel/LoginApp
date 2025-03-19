@@ -1,5 +1,9 @@
 package com.example.login
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -25,6 +29,11 @@ class ForgotPasswordActivity : ComponentActivity() {
         resetPasswordButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
 
+            if (!isInternetAvailable(this)) {
+                showToast("No internet connection. Please check your network and try again.")
+                return@setOnClickListener
+            }
+
             if (!isValidEmail(email)) {
                 showToast("Enter a valid email")
                 return@setOnClickListener
@@ -38,10 +47,12 @@ class ForgotPasswordActivity : ComponentActivity() {
         }
     }
 
+    /** ✅ CHECK IF EMAIL IS VALID **/
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    /** ✅ RESET PASSWORD **/
     private fun resetPassword(email: String) {
         resetPasswordButton.isEnabled = false  // 🔹 Disable button to prevent multiple clicks
         resetPasswordButton.text = "Sending..."
@@ -60,6 +71,23 @@ class ForgotPasswordActivity : ComponentActivity() {
             }
     }
 
+    /** ✅ CHECK INTERNET CONNECTION **/
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
+        }
+    }
+
+    /** ✅ SHOW TOAST MESSAGE **/
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
