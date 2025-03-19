@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -15,12 +14,12 @@ import java.util.*
 
 class AppUsageService : AccessibilityService() {
 
+    private val handler = Handler(Looper.getMainLooper())  // Handler for UI interactions
     private var scrollCount = 0  // Track scroll events
     private val scrollThreshold = 5  // Number of fast scrolls before alert
     private var lastScrollTime = 0L  // Track last scroll event timestamp
     private val minScrollInterval = 1000L  // 1-second cooldown between scroll counts
     private val resetDelay = 5000L  // 5 seconds before resetting scroll count
-    private val handler = Handler(Looper.getMainLooper())  // Handler for delayed reset
 
     private val resetScrollCountRunnable = Runnable {
         Log.d("AppUsageService", "Resetting scroll count due to inactivity.")
@@ -32,17 +31,21 @@ class AppUsageService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
 
-        // ✅ **Check if app is locked before allowing any action**
-        if (packageName == "com.instagram.android" && isAppLocked()) {
-            Log.w("AppUsageService", "🚫 Instagram is locked during this time!")
-            showNotification("Instagram is locked during this time!")
-            performGlobalAction(GLOBAL_ACTION_HOME)  // 🚀 **Send user to home screen**
+        // ✅ **Check if the opened app is locked**
+        if (isAppLocked(packageName)) {
+            Log.w("AppUsageService", "🚫 $packageName is locked! Redirecting user...")
+            showNotification("$packageName is locked during this time!")
+
+            // 🚀 **Send user to home screen**
+            handler.postDelayed({
+                performGlobalAction(GLOBAL_ACTION_HOME)
+            }, 500)
             return
         }
 
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                if (packageName == "com.instagram.android") {
+                if (packageName in getBlockedApps()) {
                     val currentTime = System.currentTimeMillis()
 
                     // ✅ Only count if at least 1 second has passed since last scroll
@@ -50,11 +53,11 @@ class AppUsageService : AccessibilityService() {
                         scrollCount++
                         lastScrollTime = currentTime  // Update timestamp
 
-                        Log.d("AppUsageService", "Instagram scroll detected. Recent scrolls: $scrollCount")
+                        Log.d("AppUsageService", "$packageName scroll detected. Recent scrolls: $scrollCount")
 
                         if (scrollCount >= scrollThreshold) {
                             Log.w("AppUsageService", "🚨 Possible doomscrolling detected!")
-                            showNotification("You might be doomscrolling on Instagram! Take a break.")
+                            showNotification("You might be doomscrolling on $packageName! Take a break.")
                         }
 
                         // Reset scroll count after inactivity (5 seconds)
@@ -101,9 +104,13 @@ class AppUsageService : AccessibilityService() {
         notificationManager.notify(2, notification)
     }
 
-    // ✅ **Check if Instagram is currently locked**
-    private fun isAppLocked(): Boolean {
+    // ✅ **Check if an app is currently locked**
+    private fun isAppLocked(packageName: String): Boolean {
         val sharedPref = getSharedPreferences("LockSchedulePrefs", Context.MODE_PRIVATE)
+        val blockedApps = getBlockedApps()
+
+        if (packageName !in blockedApps) return false
+
         val startHour = sharedPref.getInt("startHour", 20) // Default 20:00
         val startMinute = sharedPref.getInt("startMinute", 0)
         val endHour = sharedPref.getInt("endHour", 8) // Default 08:00
@@ -122,5 +129,11 @@ class AppUsageService : AccessibilityService() {
         } else {
             currentTime >= startTime || currentTime < endTime
         }
+    }
+
+    // ✅ **Retrieve the list of blocked apps**
+    private fun getBlockedApps(): Set<String> {
+        val sharedPref = getSharedPreferences("LockSchedulePrefs", Context.MODE_PRIVATE)
+        return sharedPref.getStringSet("blockedApps", setOf()) ?: setOf()
     }
 }

@@ -42,6 +42,9 @@
 
         <activity android:name=".LockScheduleActivity" />
 
+        <activity android:name=".AppBlockSelectionActivity" />
+
+
         <service
             android:name=".AppUsageService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
