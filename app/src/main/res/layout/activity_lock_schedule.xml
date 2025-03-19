@@ -3,45 +3,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center_horizontal">
 
+    <!-- Time Selection Buttons -->
     <Button
         android:id="@+id/btnStartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select Start Time"/>
+        android:text="Select Start Time"
+        android:layout_marginBottom="8dp"/>
 
     <Button
         android:id="@+id/btnEndTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select End Time"/>
+        android:text="Select End Time"
+        android:layout_marginBottom="16dp"/>
 
-    <Button
-        android:id="@+id/btnSaveSchedule"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save Schedule"/>
-
-
+    <!-- App List Header -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Select Apps to Block"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="10dp"/>
+        android:gravity="center"
+        android:layout_marginBottom="8dp"/>
 
+    <!-- App ListView -->
     <ListView
         android:id="@+id/appListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:padding="8dp"/>
 
+    <!-- Single Save Button -->
     <Button
-        android:id="@+id/btnSaveApps"
+        android:id="@+id/btnSaveSchedule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save Selection"
-        android:layout_marginTop="10dp"/>
+        android:text="SAVE"
+        android:textAllCaps="true"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"/>
 </LinearLayout>

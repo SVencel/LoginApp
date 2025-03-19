@@ -2,8 +2,12 @@ package com.example.login
 
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.provider.Settings
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -39,10 +43,10 @@ class LockScheduleActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             saveSchedule()
         }
+        requestUsageAccessPermission()
     }
 
     private fun pickTime(isStart: Boolean) {
-        val calendar = Calendar.getInstance()
         val hour = if (isStart) startHour else endHour
         val minute = if (isStart) startMinute else endMinute
 
@@ -76,39 +80,37 @@ class LockScheduleActivity : AppCompatActivity() {
         val packageManager = packageManager
         val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
-        val appNames = mutableListOf<String>()
-        val appPackageNames = mutableListOf<String>()
+        val appsList = mutableListOf<Pair<String, String>>() // Pair<AppName, PackageName>
 
         for (app in installedApps) {
             val appName = packageManager.getApplicationLabel(app).toString()
             val packageName = app.packageName
 
-            if (packageManager.getLaunchIntentForPackage(packageName) != null) { // Exclude system apps
-                appNames.add(appName)
-                appPackageNames.add(packageName)
+            if (packageManager.getLaunchIntentForPackage(packageName) != null) {
+                appsList.add(Pair(appName, packageName))
             }
         }
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, appNames)
-        appListView.adapter = adapter
-        appListView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+        appListView.adapter = AppListAdapter(this, appsList, selectedApps)
+    }
 
-        // Restore previously selected apps
-        for (i in appPackageNames.indices) {
-            if (selectedApps.contains(appPackageNames[i])) {
-                appListView.setItemChecked(i, true)
-            }
-        }
 
-        appListView.setOnItemClickListener { _, _, position, _ ->
-            val packageName = appPackageNames[position]
-            if (selectedApps.contains(packageName)) {
-                selectedApps.remove(packageName)
-            } else {
-                selectedApps.add(packageName)
-            }
+    private fun requestUsageAccessPermission() {
+        val appOps = getSystemService(Context.APP_OPS_SERVICE) as android.app.AppOpsManager
+        val mode = appOps.checkOpNoThrow(
+            android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(), packageName
+        )
+
+        if (mode != android.app.AppOpsManager.MODE_ALLOWED) {
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            startActivity(intent)
+            Toast.makeText(this, "Please grant Usage Access permission", Toast.LENGTH_LONG).show()
         }
     }
+
+
+
 
     private fun saveSchedule() {
         val sharedPref = getSharedPreferences("LockSchedulePrefs", Context.MODE_PRIVATE)
