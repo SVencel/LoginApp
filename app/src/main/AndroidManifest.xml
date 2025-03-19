@@ -40,6 +40,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".LockScheduleActivity" />
+
         <service
             android:name=".AppUsageService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

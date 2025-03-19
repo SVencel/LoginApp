@@ -30,10 +30,10 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var usageTextView: TextView
-    private lateinit var logoutButton: Button
     private lateinit var switchViewMode: Switch
     private lateinit var barChart: BarChart
     private lateinit var enableMonitoringButton: Button
+    private lateinit var setLockScheduleButton: Button
 
     // ✅ Navigation Drawer Components
     private lateinit var drawerLayout: DrawerLayout
@@ -47,11 +47,10 @@ class HomeActivity : AppCompatActivity() {
         // Initialize UI Elements
         auth = FirebaseAuth.getInstance()
         usageTextView = findViewById(R.id.tvUsageStats)
-        logoutButton = findViewById(R.id.btnLogout)
         switchViewMode = findViewById(R.id.switchViewMode)
         barChart = findViewById(R.id.barChart)
         enableMonitoringButton = findViewById(R.id.btnEnableAccessibility)
-
+        setLockScheduleButton = findViewById(R.id.btnSetLockSchedule)
 
         // ✅ Initialize Navigation Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -85,14 +84,12 @@ class HomeActivity : AppCompatActivity() {
             true
         }
 
-        // ✅ Initialize Other UI Elements
-        usageTextView = findViewById(R.id.tvUsageStats)
-        logoutButton = findViewById(R.id.btnLogout)
-        switchViewMode = findViewById(R.id.switchViewMode)
-        barChart = findViewById(R.id.barChart)
-        enableMonitoringButton = findViewById(R.id.btnEnableAccessibility)
+        // ✅ Handle Set Lock Schedule Button Click
+        setLockScheduleButton.setOnClickListener {
+            startActivity(Intent(this, LockScheduleActivity::class.java))
+        }
 
-        // Request Notification Permission (Android 13+)
+        // ✅ Request Notification Permission (Android 13+)
         requestNotificationPermission()
 
         // Check and Request Permissions
@@ -102,13 +99,7 @@ class HomeActivity : AppCompatActivity() {
             displayUsageStats()
         }
 
-        // Handle Button Clicks
-        logoutButton.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-
+        // Handle Enable Monitoring Button Click
         enableMonitoringButton.setOnClickListener {
             requestAccessibilityPermission()
         }
@@ -124,6 +115,7 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
+
     // ✅ Handle Toolbar Button Clicks (Drawer Toggle)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
@@ -139,18 +131,6 @@ class HomeActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                     1001
                 )
-            }
-        }
-    }
-
-    /** ✅ HANDLE PERMISSION RESULT **/
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Notification Permission Granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Notification Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -238,39 +218,15 @@ class HomeActivity : AppCompatActivity() {
         val labels = mutableListOf<String>()
         var index = 0
 
-        // Sort and filter apps to exclude system apps
-        for ((app, time) in usageMap.toList()
-            .sortedByDescending { it.second }
-            .filterNot { (packageName, _) -> packageName.contains("launcher") || packageName.contains("systemui") }
-            .take(10)) {
-
+        for ((app, time) in usageMap.toList().sortedByDescending { it.second }.take(10)) {
             entries.add(BarEntry(index.toFloat(), (time / 60000).toFloat()))
             labels.add(app)
             index++
         }
 
         val dataSet = BarDataSet(entries, "App Usage (Minutes)")
-        dataSet.color = resources.getColor(R.color.primaryColor, null) // Customize Bar Color
-        dataSet.valueTextSize = 12f // Increase text size
-
         val barData = BarData(dataSet)
         barChart.data = barData
-
-        // Configure X-Axis
-        val xAxis = barChart.xAxis
-        xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.granularity = 1f // Ensure every label is displayed
-        xAxis.textSize = 12f // Make text larger
-        xAxis.labelRotationAngle = -45f // 🔹 Rotate labels to prevent overlap
-
-        // Configure Y-Axis
-        barChart.axisLeft.axisMinimum = 0f // Start Y-axis at zero
-        barChart.axisRight.isEnabled = false // Disable right Y-axis
-
-        // Bar chart appearance
-        barChart.description.isEnabled = false // Remove description text
-        barChart.setFitBars(true) // Make bars fit properly
         barChart.invalidate() // Refresh chart
     }
 
