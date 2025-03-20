@@ -60,6 +60,11 @@
             android:name=".AppBlockSelectionActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+
         <service
             android:name=".AppUsageService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

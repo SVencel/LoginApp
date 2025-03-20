@@ -18,12 +18,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
@@ -32,10 +32,10 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var usageTextView: TextView
     private lateinit var switchViewMode: Switch
     private lateinit var barChart: BarChart
-    private lateinit var enableMonitoringButton: Button
     private lateinit var setLockScheduleButton: Button
+    private lateinit var infoBox: LinearLayout
+    private lateinit var goToSettingsButton: Button
 
-    // ✅ Navigation Drawer Components
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
@@ -44,36 +44,34 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // Initialize UI Elements
         auth = FirebaseAuth.getInstance()
         usageTextView = findViewById(R.id.tvUsageStats)
         switchViewMode = findViewById(R.id.switchViewMode)
         barChart = findViewById(R.id.barChart)
-        enableMonitoringButton = findViewById(R.id.btnEnableAccessibility)
         setLockScheduleButton = findViewById(R.id.btnSetLockSchedule)
+        infoBox = findViewById(R.id.infoBox)
+        goToSettingsButton = findViewById(R.id.btnGoToSettings)
 
-        // ✅ Initialize Navigation Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
 
-        // ✅ Setup Toggle for the Drawer
         toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // ✅ Set Username in Drawer Header
         val user: FirebaseUser? = auth.currentUser
         val headerView = navigationView.getHeaderView(0)
         val navUsername = headerView.findViewById<TextView>(R.id.tvUsername)
         navUsername.text = user?.displayName ?: "Guest"
 
-        // ✅ Handle Navigation Menu Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show()
                 R.id.nav_profile -> Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show()
-                R.id.nav_settings -> Toast.makeText(this, "Settings Clicked", Toast.LENGTH_SHORT).show()
+                R.id.nav_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                }
                 R.id.nav_logout -> {
                     auth.signOut()
                     startActivity(Intent(this, MainActivity::class.java))
@@ -84,25 +82,16 @@ class HomeActivity : AppCompatActivity() {
             true
         }
 
-        // ✅ Handle Set Lock Schedule Button Click
         setLockScheduleButton.setOnClickListener {
             startActivity(Intent(this, LockScheduleActivity::class.java))
         }
 
-        // ✅ Request Notification Permission (Android 13+)
+        goToSettingsButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
         requestNotificationPermission()
-
-        // Check and Request Permissions
-        if (!hasUsageStatsPermission()) {
-            requestUsageStatsPermission()
-        } else {
-            displayUsageStats()
-        }
-
-        // Handle Enable Monitoring Button Click
-        enableMonitoringButton.setOnClickListener {
-            requestAccessibilityPermission()
-        }
+        checkMonitoringStatus()
 
         switchViewMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -116,12 +105,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    // ✅ Handle Toolbar Button Clicks (Drawer Toggle)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
     }
 
-    /** ✅ REQUEST NOTIFICATION PERMISSION (Android 13+) **/
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -135,8 +122,15 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    /** ✅ CHECKING PERMISSIONS **/
-    private fun hasUsageStatsPermission(): Boolean {
+    private fun checkMonitoringStatus() {
+        if (!isAccessibilityServiceEnabled()) {
+            infoBox.visibility = LinearLayout.VISIBLE
+        } else {
+            infoBox.visibility = LinearLayout.GONE
+        }
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
         val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -146,55 +140,6 @@ class HomeActivity : AppCompatActivity() {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    private fun requestUsageStatsPermission() {
-        Toast.makeText(this, "Please enable usage access permission", Toast.LENGTH_LONG).show()
-        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-    }
-
-    private fun requestAccessibilityPermission() {
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-        startActivity(intent)
-        Toast.makeText(this, "Please enable the Accessibility Service for app tracking.", Toast.LENGTH_LONG).show()
-    }
-
-    /** ✅ DISPLAYING APP USAGE **/
-    private fun displayUsageStats() {
-        val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val calendar = Calendar.getInstance()
-        val endTime = calendar.timeInMillis
-        calendar.add(Calendar.DAY_OF_YEAR, -1) // Get last 24 hours
-        val startTime = calendar.timeInMillis
-
-        val stats: List<UsageStats> = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY, startTime, endTime
-        )
-
-        if (stats.isEmpty()) {
-            usageTextView.text = "No usage data available. Please grant permission."
-            return
-        }
-
-        val usageMap = mutableMapOf<String, Long>()
-
-        for (usageStat in stats) {
-            val packageName = usageStat.packageName
-            val totalTime = usageStat.totalTimeInForeground
-            if (totalTime > 0) {
-                usageMap[packageName] = (usageMap[packageName] ?: 0) + totalTime
-            }
-        }
-
-        val sortedUsage = usageMap.toList().sortedByDescending { (_, time) -> time }.toMap()
-        val usageText = StringBuilder("App Usage in Last 24 Hours:\n\n")
-
-        for ((app, time) in sortedUsage) {
-            usageText.append("${app}: ${formatTime(time)}\n")
-        }
-
-        usageTextView.text = usageText.toString()
-    }
-
-    /** ✅ POPULATING BAR CHART **/
     private fun populateBarChart() {
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = Calendar.getInstance()
@@ -215,23 +160,16 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val entries = mutableListOf<BarEntry>()
-        val labels = mutableListOf<String>()
         var index = 0
 
         for ((app, time) in usageMap.toList().sortedByDescending { it.second }.take(10)) {
             entries.add(BarEntry(index.toFloat(), (time / 60000).toFloat()))
-            labels.add(app)
             index++
         }
 
         val dataSet = BarDataSet(entries, "App Usage (Minutes)")
         val barData = BarData(dataSet)
         barChart.data = barData
-        barChart.invalidate() // Refresh chart
-    }
-
-    private fun formatTime(milliseconds: Long): String {
-        val minutes = (milliseconds / 60000)
-        return "$minutes min"
+        barChart.invalidate()
     }
 }
