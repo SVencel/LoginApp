@@ -31,14 +31,25 @@
         android:gravity="center"
         android:layout_marginBottom="8dp"/>
 
-    <!-- App ListView -->
-    <ListView
-        android:id="@+id/appListView"
+    <!-- 🔍 Search Bar for Filtering Apps -->
+    <EditText
+        android:id="@+id/searchAppInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search apps..."
+        android:padding="10dp"
+        android:background="@android:drawable/editbox_background"
+        android:textSize="16sp"
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- 📋 RecyclerView Instead of ListView for Future Improvements -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/appRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
         android:padding="8dp"/>
 
     <!-- Single Save Button -->

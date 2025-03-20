@@ -1,44 +1,36 @@
 package com.example.login
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.ImageView
 import android.widget.TextView
-import android.widget.BaseAdapter
-import android.content.pm.PackageManager
+import androidx.recyclerview.widget.RecyclerView
 
 class AppListAdapter(
-    private val context: Context,
-    private val apps: List<Pair<String, String>>, // Pair<AppName, PackageName>
+    private val apps: List<AppInfo>,
     private val selectedApps: MutableSet<String>
-) : BaseAdapter() {
+) : RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
 
-    private val inflater: LayoutInflater = LayoutInflater.from(context)
-    private val packageManager: PackageManager = context.packageManager
-
-    override fun getCount(): Int = apps.size
-    override fun getItem(position: Int): Any = apps[position]
-    override fun getItemId(position: Int): Long = position.toLong()
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(R.layout.list_item_app, parent, false)
-        val appNameText: TextView = view.findViewById(R.id.appName)
-        val appIcon: ImageView = view.findViewById(R.id.appIcon)
-        val checkBox: CheckBox = view.findViewById(R.id.appCheckbox)
-
-        val (appName, packageName) = apps[position]
-
-        appNameText.text = appName
-        appIcon.setImageDrawable(packageManager.getApplicationIcon(packageName))
-        checkBox.isChecked = selectedApps.contains(packageName)
-
-        checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) selectedApps.add(packageName) else selectedApps.remove(packageName)
-        }
-
-        return view
+    inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val appName: TextView = itemView.findViewById(R.id.appNameText)
+        val appCheckbox: CheckBox = itemView.findViewById(R.id.appCheckbox)
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false)
+        return AppViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
+        val app = apps[position]
+        holder.appName.text = app.name
+        holder.appCheckbox.isChecked = selectedApps.contains(app.packageName)
+
+        holder.appCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) selectedApps.add(app.packageName) else selectedApps.remove(app.packageName)
+        }
+    }
+
+    override fun getItemCount(): Int = apps.size
 }
