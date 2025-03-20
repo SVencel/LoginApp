@@ -33,6 +33,10 @@ class SettingsActivity : AppCompatActivity() {
         // ✅ Initialize Toolbar and Menu
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.primaryColor))
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, android.R.color.white)) // White title
+
+
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
