@@ -14,4 +14,7 @@
     <color name="hintColor">#808080</color> <!-- A soft grey for hints -->
 
     <color name="white">#FFFFFF</color>
+
+    <color name="warningColor">#FF7F7F</color> <!-- Light Red -->
+
 </resources>
