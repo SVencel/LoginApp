@@ -29,19 +29,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.firestore.DocumentReference
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var usageTextView: TextView
-    private lateinit var switchViewMode: Switch
     private lateinit var barChart: BarChart
     private lateinit var streakChart: BarChart
     private lateinit var setLockScheduleButton: Button
     private lateinit var infoBox: LinearLayout
     private lateinit var goToSettingsButton: Button
     private lateinit var streakTextView: TextView
+    private lateinit var chartViewPager: ViewPager2
+    private lateinit var tabIndicator: TabLayout
     private lateinit var rootLayout: ViewGroup
 
     private lateinit var drawerLayout: DrawerLayout
@@ -53,10 +57,9 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
         auth = FirebaseAuth.getInstance()
-        usageTextView = findViewById(R.id.tvUsageStats)
-        switchViewMode = findViewById(R.id.switchViewMode)
-        barChart = findViewById(R.id.barChart)
-        streakChart = findViewById(R.id.streakChart)
+        streakTextView = findViewById(R.id.tvStreakCount)
+        chartViewPager = findViewById(R.id.chartViewPager)
+        tabIndicator = findViewById(R.id.chartTabIndicator)
         setLockScheduleButton = findViewById(R.id.btnSetLockSchedule)
         infoBox = findViewById(R.id.infoBox)
         goToSettingsButton = findViewById(R.id.btnGoToSettings)
@@ -104,16 +107,14 @@ class HomeActivity : AppCompatActivity() {
         requestNotificationPermission()
         checkMonitoringStatus()
 
-        switchViewMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                usageTextView.visibility = TextView.GONE
-                barChart.visibility = BarChart.VISIBLE
-                populateBarChart()
-            } else {
-                barChart.visibility = BarChart.GONE
-                usageTextView.visibility = TextView.VISIBLE
-            }
-        }
+        // Setup ViewPager Adapter for Swiping Between Charts
+        val chartAdapter = ChartPagerAdapter(this)
+        chartViewPager.adapter = chartAdapter
+
+        // Attach Tab Indicator to ViewPager2
+        TabLayoutMediator(tabIndicator, chartViewPager) { tab, position ->
+            tab.text = if (position == 0) "Streak History" else "App Usage"
+        }.attach()
 
         fetchStreakFromFirebase()
         fetchStreakHistory()
@@ -175,6 +176,16 @@ class HomeActivity : AppCompatActivity() {
         val barData = BarData(dataSet)
         barChart.data = barData
         barChart.invalidate()
+
+        if (entries.isEmpty()) {
+            barChart.setNoDataText("No usage data available")
+            barChart.setNoDataTextColor(Color.GRAY) // Make it look better
+        } else {
+            val dataSet = BarDataSet(entries, "App Usage (Minutes)")
+            val barData = BarData(dataSet)
+            barChart.data = barData
+            barChart.invalidate()
+        }
     }
 
 
@@ -191,15 +202,72 @@ class HomeActivity : AppCompatActivity() {
     private fun fetchStreakFromFirebase() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val db = FirebaseFirestore.getInstance()
+        val userDocRef = db.collection("users").document(user.uid)
 
-        db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { document ->
-                val currentStreak = document.getLong("streakCount")?.toInt() ?: 0
-                streakTextView.text = "Current Streak: $currentStreak Days"
-                checkStreakRewards(currentStreak)
+        userDocRef.get().addOnSuccessListener { document ->
+            val currentStreak = document.getLong("streakCount")?.toInt() ?: 0
+            val lastUpdatedDate = document.getString("lastStreakUpdate") ?: ""
+
+            // Get today's date
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+            // ✅ If streak was already updated today, do nothing
+            if (lastUpdatedDate == today) {
+                println("✅ Debug: Streak already updated today ($today), skipping update.")
+                return@addOnSuccessListener
+            }
+
+            // ✅ Check if user met streak criteria
+            checkUserStreakCriteria(userDocRef, currentStreak, today)
+        }
+    }
+
+    /**
+     * ✅ Checks if user met the streak criteria and updates accordingly.
+     */
+    private fun checkUserStreakCriteria(userDocRef: DocumentReference, currentStreak: Int, today: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Retrieve stored usage stats
+        userDocRef.collection("usageStats").document(today).get()
+            .addOnSuccessListener { usageDoc ->
+                val totalScreenTime = usageDoc.getLong("totalScreenTime") ?: 0L  // In minutes
+                val doomscrollAlerts = usageDoc.getLong("doomscrollAlerts") ?: 0L
+
+                println("📊 Debug: Screen time = $totalScreenTime mins, Doomscroll alerts = $doomscrollAlerts")
+
+                if (totalScreenTime < 120 && doomscrollAlerts <= 3) {
+                    // ✅ User met the criteria → Increase streak
+                    val newStreak = currentStreak + 1
+                    updateStreak(userDocRef, newStreak, today)
+                } else {
+                    // ❌ User failed the criteria → Reset streak
+                    updateStreak(userDocRef, 0, today)
+                }
             }
     }
+
+    /**
+     * 🔥 Updates the streak count and last updated date.
+     */
+    private fun updateStreak(userDocRef: DocumentReference, newStreak: Int, today: String) {
+        val updates = mapOf(
+            "streakCount" to newStreak,
+            "lastStreakUpdate" to today
+        )
+
+        userDocRef.update(updates)
+            .addOnSuccessListener {
+                println("🔥 Debug: Streak updated to $newStreak on $today")
+                streakTextView.text = "Current Streak: $newStreak Days"
+                checkStreakRewards(newStreak)
+            }
+            .addOnFailureListener { e ->
+                println("❌ Error updating streak: ${e.message}")
+            }
+    }
+
+
 
     private fun fetchStreakHistory() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
