@@ -3,6 +3,8 @@ package com.example.login
 import android.accessibilityservice.AccessibilityService
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -10,16 +12,22 @@ import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.*
 
 class AppUsageService : AccessibilityService() {
 
-    private val handler = Handler(Looper.getMainLooper())  // Handler for UI interactions
-    private var scrollCount = 0  // Track scroll events
-    private val scrollThreshold = 5  // Number of fast scrolls before alert
-    private var lastScrollTime = 0L  // Track last scroll event timestamp
-    private val minScrollInterval = 1000L  // 1-second cooldown between scroll counts
-    private val resetDelay = 5000L  // 5 seconds before resetting scroll count
+    private val handler = Handler(Looper.getMainLooper())
+    private var scrollCount = 0
+    private val scrollThreshold = 5
+    private var lastScrollTime = 0L
+    private val minScrollInterval = 1000L
+    private val resetDelay = 5000L
+
+    private val usageLimit = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
+    private val doomscrollLimit = 3
 
     private val resetScrollCountRunnable = Runnable {
         Log.d("AppUsageService", "Resetting scroll count due to inactivity.")
@@ -33,10 +41,10 @@ class AppUsageService : AccessibilityService() {
 
         // ✅ **Check if the opened app is locked**
         if (isAppLocked(packageName)) {
-            Log.w("AppUsageService", "🚫 $packageName is locked! Redirecting user...")
-            showNotification("$packageName is locked during this time!")
+            Log.w("AppUsageService", "🚫 $packageName is locked! Resetting streak.")
+            resetStreakInFirebase()
+            showNotification("$packageName is locked! Your streak has been reset.")
 
-            // 🚀 **Send user to home screen**
             handler.postDelayed({
                 performGlobalAction(GLOBAL_ACTION_HOME)
             }, 500)
@@ -47,41 +55,105 @@ class AppUsageService : AccessibilityService() {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
                 if (packageName in getBlockedApps()) {
                     val currentTime = System.currentTimeMillis()
-
-                    // ✅ Only count if at least 1 second has passed since last scroll
                     if (currentTime - lastScrollTime >= minScrollInterval) {
                         scrollCount++
-                        lastScrollTime = currentTime  // Update timestamp
+                        lastScrollTime = currentTime
 
                         Log.d("AppUsageService", "$packageName scroll detected. Recent scrolls: $scrollCount")
 
                         if (scrollCount >= scrollThreshold) {
                             Log.w("AppUsageService", "🚨 Possible doomscrolling detected!")
                             showNotification("You might be doomscrolling on $packageName! Take a break.")
+                            incrementDoomscrollCount()
                         }
 
-                        // Reset scroll count after inactivity (5 seconds)
-                        handler.removeCallbacks(resetScrollCountRunnable)  // Cancel any previous reset
+                        handler.removeCallbacks(resetScrollCountRunnable)
                         handler.postDelayed(resetScrollCountRunnable, resetDelay)
-                    } else {
-                        Log.d("AppUsageService", "Ignored duplicate scroll (too fast)")
                     }
                 }
             }
 
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 Log.d("AppUsageService", "Page changed in: $packageName")
-                scrollCount = 0  // Reset scroll counter if page changes
-                handler.removeCallbacks(resetScrollCountRunnable)  // Stop any pending reset
+                scrollCount = 0
+                handler.removeCallbacks(resetScrollCountRunnable)
             }
+        }
 
-            else -> {
-                Log.d("AppUsageService", "Unhandled event type: ${event.eventType}")
+        // ✅ Track total usage time & update streak
+        trackDailyUsage()
+    }
+
+    override fun onInterrupt() {}
+
+    // ✅ **Track Total Usage Time**
+    private fun trackDailyUsage() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val stats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_DAILY, System.currentTimeMillis() - usageLimit, System.currentTimeMillis()
+        )
+
+        var totalTime = 0L
+        for (stat in stats) {
+            totalTime += stat.totalTimeInForeground
+        }
+
+        userRef.get().addOnSuccessListener { document ->
+            val lastCheckedDate = document.getString("lastCheckedDate") ?: ""
+            val doomscrollAlerts = document.getLong("doomscrollAlerts")?.toInt() ?: 0
+            val currentStreak = document.getLong("streakCount")?.toInt() ?: 0
+
+            if (lastCheckedDate != currentDate) {
+                if (totalTime < usageLimit && doomscrollAlerts <= doomscrollLimit) {
+                    userRef.update(
+                        mapOf(
+                            "streakCount" to (currentStreak + 1),
+                            "lastCheckedDate" to currentDate,
+                            "doomscrollAlerts" to 0 // Reset daily doomscroll alerts
+                        )
+                    )
+                    Log.d("StreakFeature", "Streak increased! Current streak: ${currentStreak + 1}")
+                } else {
+                    resetStreakInFirebase()
+                }
             }
         }
     }
 
-    override fun onInterrupt() {}
+    // ✅ **Increment Doomscroll Count in Firebase**
+    private fun incrementDoomscrollCount() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+
+        userRef.get().addOnSuccessListener { document ->
+            val doomscrollAlerts = document.getLong("doomscrollAlerts")?.toInt() ?: 0
+            userRef.update("doomscrollAlerts", doomscrollAlerts + 1)
+        }
+    }
+
+    // ✅ **Reset Streak in Firebase**
+    private fun resetStreakInFirebase() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(user.uid)
+            .update(
+                mapOf(
+                    "streakCount" to 0,
+                    "doomscrollAlerts" to 0
+                )
+            )
+            .addOnSuccessListener {
+                Log.d("StreakFeature", "Streak reset to 0.")
+            }
+    }
 
     // ✅ **Show Notifications**
     private fun showNotification(message: String) {
@@ -111,9 +183,9 @@ class AppUsageService : AccessibilityService() {
 
         if (packageName !in blockedApps) return false
 
-        val startHour = sharedPref.getInt("startHour", 20) // Default 20:00
+        val startHour = sharedPref.getInt("startHour", 20)
         val startMinute = sharedPref.getInt("startMinute", 0)
-        val endHour = sharedPref.getInt("endHour", 8) // Default 08:00
+        val endHour = sharedPref.getInt("endHour", 8)
         val endMinute = sharedPref.getInt("endMinute", 0)
 
         val cal = Calendar.getInstance()
