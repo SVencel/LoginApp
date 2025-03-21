@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -15,6 +16,7 @@ class AppListAdapter(
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appName: TextView = itemView.findViewById(R.id.appNameText)
         val appCheckbox: CheckBox = itemView.findViewById(R.id.appCheckbox)
+        val appIcon: ImageView = itemView.findViewById(R.id.appIcon) // 🔹 Add this line
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -27,9 +29,9 @@ class AppListAdapter(
         holder.appName.text = app.name
         holder.appCheckbox.isChecked = selectedApps.contains(app.packageName)
 
-        holder.appCheckbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) selectedApps.add(app.packageName) else selectedApps.remove(app.packageName)
-        }
+        val packageManager = holder.itemView.context.packageManager
+        val appIcon = packageManager.getApplicationIcon(app.packageName)
+        holder.appIcon.setImageDrawable(appIcon)
     }
 
     override fun getItemCount(): Int = apps.size
