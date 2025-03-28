@@ -67,4 +67,5 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.mpandroidchart)
+    implementation(libs.confetti)
 }

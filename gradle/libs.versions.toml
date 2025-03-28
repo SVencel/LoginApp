@@ -1,6 +1,6 @@
 [versions]
 agp = "8.8.2"
-firebaseBom = "33.10.0"
+firebaseBom = "33.11.0"
 firebase-auth = "23.2.0"
 play-services-auth = "21.3.0"
 kotlin = "2.0.0"
@@ -10,14 +10,14 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.02.00"
+composeBom = "2025.03.00"
 appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
-firebase-firestore = "25.1.2"
+firebase-firestore = "25.1.3"
 mpandroidchart = "v3.1.0"
-
+confetti = "1.1.2"
 
 
 [libraries]
@@ -45,7 +45,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebase-firestore" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
-
+confetti = { module = "com.github.jinatonic.confetti:confetti", version.ref = "confetti" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
