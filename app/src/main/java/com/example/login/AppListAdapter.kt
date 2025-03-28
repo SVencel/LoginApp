@@ -27,8 +27,19 @@ class AppListAdapter(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         val app = apps[position]
         holder.appName.text = app.name
+        holder.appCheckbox.setOnCheckedChangeListener(null) // prevent unwanted callbacks
         holder.appCheckbox.isChecked = selectedApps.contains(app.packageName)
 
+        // ✅ Update selected apps when checkbox is clicked
+        holder.appCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                selectedApps.add(app.packageName)
+            } else {
+                selectedApps.remove(app.packageName)
+            }
+        }
+
+        // Set the app icon
         val packageManager = holder.itemView.context.packageManager
         val appIcon = packageManager.getApplicationIcon(app.packageName)
         holder.appIcon.setImageDrawable(appIcon)

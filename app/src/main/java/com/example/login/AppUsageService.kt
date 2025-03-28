@@ -53,7 +53,7 @@ class AppUsageService : AccessibilityService() {
 
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                if (packageName in getBlockedApps()) {
+                if (isMonitoredForDoomscrolling(packageName)) {
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastScrollTime >= minScrollInterval) {
                         scrollCount++
@@ -208,4 +208,18 @@ class AppUsageService : AccessibilityService() {
         val sharedPref = getSharedPreferences("LockSchedulePrefs", Context.MODE_PRIVATE)
         return sharedPref.getStringSet("blockedApps", setOf()) ?: setOf()
     }
+
+    private fun isMonitoredForDoomscrolling(packageName: String): Boolean {
+        val monitoredPackages = listOf(
+            "com.instagram.android",
+            "com.facebook.katana",
+            "com.twitter.android",
+            "com.tiktok.android",
+            "com.reddit.frontpage",
+            "com.snapchat.android"
+            // ✅ Add any others you want to monitor here
+        )
+        return packageName in monitoredPackages
+    }
+
 }
