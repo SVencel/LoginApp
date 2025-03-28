@@ -65,6 +65,8 @@
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <activity android:name=".ProfileActivity"
+            android:exported="false"/>
 
         <service
             android:name=".AppUsageService"
