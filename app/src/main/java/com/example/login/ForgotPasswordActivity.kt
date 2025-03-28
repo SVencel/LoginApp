@@ -54,22 +54,40 @@ class ForgotPasswordActivity : ComponentActivity() {
 
     /** ✅ RESET PASSWORD **/
     private fun resetPassword(email: String) {
-        resetPasswordButton.isEnabled = false  // 🔹 Disable button to prevent multiple clicks
-        resetPasswordButton.text = "Sending..."
+        resetPasswordButton.isEnabled = false
+        resetPasswordButton.text = "Checking..."
 
-        auth.sendPasswordResetEmail(email)
+        auth.fetchSignInMethodsForEmail(email)
             .addOnCompleteListener { task ->
-                resetPasswordButton.isEnabled = true  // 🔹 Re-enable button
-                resetPasswordButton.text = "Reset Password"  // 🔹 Reset button text
-
                 if (task.isSuccessful) {
-                    showToast("Password reset email sent!")
-                    finish()  // Close activity after success
+                    val signInMethods = task.result?.signInMethods
+                    if (signInMethods.isNullOrEmpty()) {
+                        showToast("No account found with that email.")
+                        resetPasswordButton.isEnabled = true
+                        resetPasswordButton.text = "Reset Password"
+                    } else {
+                        // Email exists, send reset
+                        auth.sendPasswordResetEmail(email)
+                            .addOnCompleteListener { resetTask ->
+                                resetPasswordButton.isEnabled = true
+                                resetPasswordButton.text = "Reset Password"
+
+                                if (resetTask.isSuccessful) {
+                                    showToast("Password reset email sent!")
+                                    finish()
+                                } else {
+                                    showToast("Error: ${resetTask.exception?.message}")
+                                }
+                            }
+                    }
                 } else {
-                    showToast("Error: ${task.exception?.message}")
+                    showToast("Error checking email: ${task.exception?.message}")
+                    resetPasswordButton.isEnabled = true
+                    resetPasswordButton.text = "Reset Password"
                 }
             }
     }
+
 
     /** ✅ CHECK INTERNET CONNECTION **/
     private fun isInternetAvailable(context: Context): Boolean {

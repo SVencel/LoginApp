@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -110,11 +111,52 @@ class HomeActivity : AppCompatActivity() {
         // Setup ViewPager Adapter for Swiping Between Charts
         val chartAdapter = ChartPagerAdapter(this)
         chartViewPager.adapter = chartAdapter
+        chartViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+                // Try to find the currently visible chart's ViewHolder
+                val recyclerView = chartViewPager.getChildAt(0) as? RecyclerView
+                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
+                        as? ChartPagerAdapter.ChartViewHolder
+
+                // Clear the marker tooltip if any is visible
+                chartViewPager.postDelayed({
+                    val recyclerView = chartViewPager.getChildAt(0) as? RecyclerView
+                    val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
+                            as? ChartPagerAdapter.ChartViewHolder
+
+                    viewHolder?.clearHighlight()
+                }, 50)
+
+            }
+        })
+
 
         // Attach Tab Indicator to ViewPager2
         TabLayoutMediator(tabIndicator, chartViewPager) { tab, position ->
-            tab.text = if (position == 0) "Streak History" else "App Usage"
+            tab.text = when (position) {
+                0 -> "Streak History"
+                1 -> "Daily Usage"
+                2 -> "Weekly Usage"
+                3 -> "Monthly Usage"
+                else -> ""
+            }
         }.attach()
+
+        tabIndicator.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                val position = tab.position
+                val recyclerView = chartViewPager.getChildAt(0) as? RecyclerView
+                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
+                        as? ChartPagerAdapter.ChartViewHolder
+
+                viewHolder?.clearHighlight()
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
 
         fetchStreakFromFirebase()
         fetchStreakHistory()
