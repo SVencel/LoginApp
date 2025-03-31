@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Question 1 -->
+        <TextView
+            android:text="1. On average, how many hours do you spend on your phone each day?"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/rgPhoneHours"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="1–2 hours" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="2–4 hours" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="4–6 hours" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="6+ hours" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="I don't know / I’d like to find out" />
+        </RadioGroup>
+
+        <!-- Question 2 -->
+        <TextView
+            android:text="2. During which part of the day do you use your phone the most?"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/rgTimeOfDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="In the morning, after waking up" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="During the day, while working or studying" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="In the evening, before going to bed" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Throughout the whole day" />
+        </RadioGroup>
+
+        <!-- Question 3 -->
+        <TextView
+            android:text="3. What’s the most common reason you reach for your phone?"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/rgMainReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Boredom" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Escaping stress" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Staying in touch with friends/family" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Social media" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Entertainment / videos / games" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="Work / studying" />
+            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp" android:text="It's just a habit—I don't even realize it" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnNextStep1"
+            android:text="Next"
+            android:layout_marginTop="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
+</ScrollView>
