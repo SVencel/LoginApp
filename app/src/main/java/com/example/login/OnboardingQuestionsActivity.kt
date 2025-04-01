@@ -1,5 +1,6 @@
 package com.example.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -56,7 +57,11 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
             .document("initialSurvey").set(answers)
             .addOnSuccessListener {
                 Toast.makeText(this, "🎉 Answers saved successfully!", Toast.LENGTH_SHORT).show()
-                finish() // Close the activity
+
+                // ✅ Launch HomeActivity and clear the backstack
+                val intent = Intent(this, HomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
             }
             .addOnFailureListener {
                 Toast.makeText(this, "❌ Failed to save answers.", Toast.LENGTH_SHORT).show()

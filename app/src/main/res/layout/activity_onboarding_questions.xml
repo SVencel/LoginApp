@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -17,6 +18,8 @@
             android:id="@+id/progressStep1"
             android:text="●"
             android:textSize="24sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="#2196F3"/>
@@ -25,6 +28,8 @@
             android:id="@+id/progressStep2"
             android:text="○"
             android:textSize="24sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="#B0BEC5"/>
@@ -33,14 +38,17 @@
             android:id="@+id/progressStep3"
             android:text="○"
             android:textSize="24sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="#B0BEC5"/>
     </LinearLayout>
 
-    <!-- 🔻 Fragment content goes here -->
+    <!-- 🔻 Fragment container (takes the rest of the screen) -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 </LinearLayout>
