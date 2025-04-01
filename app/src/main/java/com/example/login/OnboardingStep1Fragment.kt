@@ -5,38 +5,55 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 
 class OnboardingStep1Fragment : Fragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_onboarding_step1, container, false)
-    }
+    private lateinit var viewModel: OnboardingViewModel
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_onboarding_step1, container, false)
+
+        // 🔹 Get the shared ViewModel from the Activity
+        viewModel = ViewModelProvider(requireActivity())[OnboardingViewModel::class.java]
+
         val btnNext = view.findViewById<Button>(R.id.btnNextStep1)
 
-        val rgPhoneHours = view.findViewById<RadioGroup>(R.id.rgPhoneHours)
-        val rgTimeOfDay = view.findViewById<RadioGroup>(R.id.rgTimeOfDay)
-        val rgMainReason = view.findViewById<RadioGroup>(R.id.rgMainReason)
-
         btnNext.setOnClickListener {
-            val selectedHours = rgPhoneHours.checkedRadioButtonId
-            val selectedTime = rgTimeOfDay.checkedRadioButtonId
-            val selectedReason = rgMainReason.checkedRadioButtonId
+            // Collect user answers from the RadioGroups
+            val usageGroup = view.findViewById<RadioGroup>(R.id.rgPhoneUsage)
+            val timeGroup = view.findViewById<RadioGroup>(R.id.rgTimeOfDay)
+            val reasonGroup = view.findViewById<RadioGroup>(R.id.rgPhoneReason)
 
-            if (selectedHours == -1 || selectedTime == -1 || selectedReason == -1) {
-                Toast.makeText(requireContext(), "Please answer all questions", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            val usageAnswer = getSelectedText(usageGroup)
+            val timeAnswer = getSelectedText(timeGroup)
+            val reasonAnswer = getSelectedText(reasonGroup)
 
-            // TODO: Store answers using shared ViewModel or pass via Bundle
+            // Save answers to ViewModel
+            viewModel.setAnswer("average_phone_usage", usageAnswer)
+            viewModel.setAnswer("most_used_time_of_day", timeAnswer)
+            viewModel.setAnswer("common_phone_reason", reasonAnswer)
 
-            //(activity as? OnboardingQuestionsActivity)?.goToNext(OnboardingStep2Fragment())
+            // Move to next screen
+            (activity as? OnboardingQuestionsActivity)?.goToNext(OnboardingStep2Fragment())
+        }
+
+        return view
+    }
+
+    // Helper function to get text from selected RadioButton
+    private fun getSelectedText(radioGroup: RadioGroup): String {
+        val selectedId = radioGroup.checkedRadioButtonId
+        return if (selectedId != -1) {
+            radioGroup.findViewById<RadioButton>(selectedId)?.text?.toString() ?: ""
+        } else {
+            ""
         }
     }
 }

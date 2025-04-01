@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Q7 -->
+        <TextView
+            android:text="7. Why did you download BeAlive?"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/cbReasonLessPhone"
+            android:text="To spend less time on my phone"
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/cbReasonBetterSleep"
+            android:text="To sleep better"
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/cbReasonAddiction"
+            android:text="To overcome social media addiction"
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/cbReasonRealLife"
+            android:text="To focus more on real life"
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Q8 -->
+        <TextView
+            android:text="8. What would success look like in 30 days?"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/etGoalText"
+            android:hint="Type your goal..."
+            android:padding="8dp"
+            android:minHeight="48dp"
+            android:importantForAccessibility="yes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Finish -->
+        <Button
+            android:id="@+id/btnFinishOnboarding"
+            android:text="Finish"
+            android:layout_marginTop="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</ScrollView>

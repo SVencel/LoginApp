@@ -111,7 +111,7 @@ class RegisterActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 sharedPref.edit().putBoolean("isLoggedIn", true).apply() // 🔹 Save login state
                 showToast("Registration successful!")
-                startActivity(Intent(this, HomeActivity::class.java))
+                startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
                 finish()
             }
             .addOnFailureListener {
