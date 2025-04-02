@@ -71,6 +71,9 @@
         <activity android:name=".OnboardingQuestionsActivity"
             android:exported="false"/>
 
+        <activity android:name=".AddFriendActivity"
+            android:exported="false"/>
+
 
         <service
             android:name=".AppUsageService"

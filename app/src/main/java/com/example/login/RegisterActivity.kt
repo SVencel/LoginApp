@@ -81,13 +81,38 @@ class RegisterActivity : AppCompatActivity() {
 
     /** ✅ REGISTER USER IN FIREBASE **/
     private fun registerUser(username: String, email: String, password: String) {
-        registerButton.isEnabled = false // 🔹 Prevent multiple clicks
-        registerButton.text = "Registering..." // 🔹 Show progress
+        registerButton.isEnabled = false
+        registerButton.text = "Checking username..."
+
+        // Step 1: Check if username is already taken
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    // ❌ Username taken
+                    showToast("❌ Username already taken. Please choose another.")
+                    registerButton.isEnabled = true
+                    registerButton.text = "Sign Up"
+                } else {
+                    // ✅ Username is available → now create user
+                    createFirebaseUser(username, email, password)
+                }
+            }
+            .addOnFailureListener {
+                showToast("❌ Failed to check username availability.")
+                registerButton.isEnabled = true
+                registerButton.text = "Sign Up"
+            }
+    }
+
+    private fun createFirebaseUser(username: String, email: String, password: String) {
+        registerButton.text = "Registering..."
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
-                registerButton.isEnabled = true // 🔹 Re-enable button
-                registerButton.text = "Sign Up" // 🔹 Reset button text
+                registerButton.isEnabled = true
+                registerButton.text = "Sign Up"
 
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
@@ -100,24 +125,30 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+
     /** ✅ SAVE USER TO FIRESTORE **/
     private fun saveUserToFirestore(userId: String, username: String, email: String) {
         val userMap = hashMapOf(
             "username" to username,
-            "email" to email
+            "email" to email,
+            "friends" to listOf<String>()
         )
 
         db.collection("users").document(userId).set(userMap)
             .addOnSuccessListener {
-                sharedPref.edit().putBoolean("isLoggedIn", true).apply() // 🔹 Save login state
-                showToast("Registration successful!")
+                sharedPref.edit().putBoolean("isLoggedIn", true).apply()
+                showToast("✅ Registration successful!")
                 startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
                 finish()
             }
             .addOnFailureListener {
-                showToast("Failed to save user data. Please try again.")
+                showToast("❌ Failed to save user data. Please try again.")
+                registerButton.isEnabled = true
+                registerButton.text = "Sign Up"
             }
     }
+
+
 
     /** ✅ CHECK INTERNET CONNECTION **/
     private fun isInternetAvailable(context: Context): Boolean {
