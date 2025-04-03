@@ -74,6 +74,9 @@
         <activity android:name=".AddFriendActivity"
             android:exported="false"/>
 
+        <activity android:name=".CreateSectionActivity"
+            android:exported="false"/>
+
 
         <service
             android:name=".AppUsageService"

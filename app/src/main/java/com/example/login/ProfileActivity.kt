@@ -52,6 +52,11 @@ class ProfileActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed to save threshold", Toast.LENGTH_SHORT).show()
                 }
         }
+        val sectionButton: Button = findViewById(R.id.btnManageSections)
+        sectionButton.setOnClickListener {
+            startActivity(Intent(this, CreateSectionActivity::class.java))
+        }
+
 
         loadExistingValue()
         loadFriendCount()

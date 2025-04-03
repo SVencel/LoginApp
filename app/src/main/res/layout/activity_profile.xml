@@ -63,4 +63,14 @@
         android:backgroundTint="@color/primaryColor"
         android:textColor="@color/white" />
 
+    <Button
+        android:id="@+id/btnManageSections"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage Sections"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"/>
+
+
 </LinearLayout>
