@@ -1,64 +1,24 @@
+<!-- activity_main.xml -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@color/backgroundColor">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/etEmail"
+    <!-- Fragment container -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter Email"
-        android:inputType="textEmailAddress"
-        android:padding="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:textColor="@color/textPrimaryColor"
-        android:textColorHint="@color/hintColor"
-        android:layout_marginBottom="12dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter Password"
-        android:inputType="textPassword"
-        android:padding="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:textColor="@color/textPrimaryColor"
-        android:textColorHint="@color/hintColor"
-        android:layout_marginBottom="16dp"/>
-
-    <Button
-        android:id="@+id/btnEmailSignIn"
+    <!-- Bottom nav -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign in with Email"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white"
-        android:layout_marginBottom="12dp"/>
-
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register"
-        android:backgroundTint="@color/secondaryColor"
-        android:textColor="@color/white"
-        android:layout_marginBottom="24dp"/>
-
-    <Button
-        android:id="@+id/btnForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="Forgot Password?"
-        android:textColor="@color/primaryColor"
-        android:padding="8dp"
-        android:clickable="true"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:layout_marginTop="24dp"/>
-
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled" />
 </LinearLayout>
