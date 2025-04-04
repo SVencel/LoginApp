@@ -19,6 +19,9 @@ class FriendsFragment : Fragment() {
     private val friendList = mutableListOf<Friend>()
     private val db = FirebaseFirestore.getInstance()
     private val currentUser = FirebaseAuth.getInstance().currentUser
+    private lateinit var friendCountText: TextView
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,6 +34,8 @@ class FriendsFragment : Fragment() {
         recyclerView.adapter = adapter
 
         loadFriends()
+        friendCountText = view.findViewById(R.id.tvFriendCount)
+
 
         view.findViewById<Button>(R.id.btnAddNewFriend).setOnClickListener {
             startActivity(Intent(requireContext(), AddFriendActivity::class.java))
@@ -56,6 +61,8 @@ class FriendsFragment : Fragment() {
                             friendList.add(Friend(friendId.toString(), name, streak, cheer))
                             friendList.sortByDescending { it.streakCount }
                             adapter.notifyDataSetChanged()
+                            friendCountText.text = "Friends: ${friends.size}"
+
                         }
                 }
             }

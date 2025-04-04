@@ -19,6 +19,10 @@ class ProfileFragment : Fragment() {
     private lateinit var logoutButton: Button
     private lateinit var quoteInput: EditText
     private lateinit var userInfoText: TextView
+    private lateinit var friendCountText: TextView
+
+
+
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()

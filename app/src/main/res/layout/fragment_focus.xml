@@ -29,5 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="📆 Open Lock Schedule"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@android:color/white"
         android:layout_marginTop="24dp" />
+
+    <Button
+        android:id="@+id/btnManageSections"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Manage Focus Sections"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@android:color/white"/>
 </LinearLayout>

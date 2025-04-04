@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.example.login.CreateSectionActivity
 import com.example.login.LockScheduleActivity
 import com.example.login.R
 
@@ -13,6 +14,7 @@ class FocusFragment : Fragment() {
 
     private lateinit var toggleOffline: Switch
     private lateinit var btnSchedule: Button
+    private lateinit var btnManageSections: Button
     private lateinit var quoteText: TextView
 
     private val quotes = listOf(
@@ -31,6 +33,7 @@ class FocusFragment : Fragment() {
 
         toggleOffline = view.findViewById(R.id.switchGoOffline)
         btnSchedule = view.findViewById(R.id.btnLockScheduler)
+        btnManageSections = view.findViewById(R.id.btnManageSections) // ✅ NEW button
         quoteText = view.findViewById(R.id.tvMotivationQuote)
 
         // Show motivational quote
@@ -39,6 +42,11 @@ class FocusFragment : Fragment() {
         // Lock schedule button
         btnSchedule.setOnClickListener {
             startActivity(Intent(requireContext(), LockScheduleActivity::class.java))
+        }
+
+        // Manage Sections button
+        btnManageSections.setOnClickListener {
+            startActivity(Intent(requireContext(), CreateSectionActivity::class.java))
         }
 
         // Load saved offline toggle from SharedPreferences
