@@ -59,7 +59,7 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
                 Toast.makeText(this, "🎉 Answers saved successfully!", Toast.LENGTH_SHORT).show()
 
                 // ✅ Launch HomeActivity and clear the backstack
-                val intent = Intent(this, HomeActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }

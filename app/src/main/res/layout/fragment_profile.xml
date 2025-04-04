@@ -1,61 +1,52 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="24dp">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center"
-        android:background="@color/backgroundColor"
-        tools:context=".fragments.ProfileFragment">
-
-
-        <TextView android:text="Custom Productivity Reminder"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <EditText
-            android:id="@+id/etCustomThreshold"
-            android:hint="Minutes"
-            android:inputType="number"
-            android:layout_width="match_parent"
-            android:minHeight="48dp"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/btnSaveThreshold"
-            android:text="Save Threshold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tvFriendCount"
-            android:text="Friends: 0"
+            android:id="@+id/tvUserInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logged in as: "
             android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_marginBottom="24dp" />
 
-        <Button
-            android:id="@+id/btnAddFriends"
-            android:text="Add Friends"
+        <EditText
+            android:id="@+id/etThreshold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:hint="Productivity threshold (minutes)"
+            android:inputType="number"
+            android:minHeight="48dp"
+            android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/btnManageSections"
-            android:text="Manage Sections"
+        <EditText
+            android:id="@+id/etQuote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:minHeight="48dp"
+            android:hint="Custom motivational message"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💾 Save" />
+
+        <View android:layout_height="32dp" android:layout_width="match_parent" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚪 Logout"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </ScrollView>

@@ -3,12 +3,11 @@ package com.example.login
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.login.fragments.HomeFragment
-import com.example.login.fragments.ProfileFragment
-import com.example.login.fragments.SettingsFragment
+import com.example.login.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,33 +16,31 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav = findViewById(R.id.bottomNavigationView)
 
-        // Load the default fragment
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, HomeFragment())
-            .commit()
+        // Load HomeFragment by default
+        if (savedInstanceState == null) {
+            loadFragment(HomeFragment())
+        }
 
         bottomNav.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_home -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, HomeFragment())
-                        .commit()
-                    true
-                }
-                R.id.nav_profile -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, ProfileFragment())
-                        .commit()
-                    true
-                }
-                R.id.nav_settings -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, SettingsFragment())
-                        .commit()
-                    true
-                }
-                else -> false
+            val selectedFragment = when (it.itemId) {
+                R.id.nav_home -> HomeFragment()
+                R.id.nav_focus -> FocusFragment()
+                R.id.nav_progress -> ProgressFragment()
+                R.id.nav_friends -> FriendsFragment()
+                R.id.nav_profile -> ProfileFragment()
+                else -> null
             }
+
+            selectedFragment?.let { fragment ->
+                loadFragment(fragment)
+                true
+            } ?: false
         }
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .commit()
     }
 }

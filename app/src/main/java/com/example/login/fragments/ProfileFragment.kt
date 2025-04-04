@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.example.login.AddFriendActivity
-import com.example.login.CreateSectionActivity
+import com.example.login.MainActivity
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,76 +14,77 @@ class ProfileFragment : Fragment() {
 
     private lateinit var thresholdInput: EditText
     private lateinit var saveButton: Button
-    private lateinit var friendCountText: TextView
-    private lateinit var addFriendButton: Button
-    private lateinit var sectionButton: Button
+    private lateinit var logoutButton: Button
+    private lateinit var quoteInput: EditText
+    private lateinit var userInfoText: TextView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        thresholdInput = view.findViewById(R.id.etCustomThreshold)
-        saveButton = view.findViewById(R.id.btnSaveThreshold)
-        friendCountText = view.findViewById(R.id.tvFriendCount)
-        addFriendButton = view.findViewById(R.id.btnAddFriends)
-        sectionButton = view.findViewById(R.id.btnManageSections)
+        thresholdInput = view.findViewById(R.id.etThreshold)
+        saveButton = view.findViewById(R.id.btnSaveSettings)
+        logoutButton = view.findViewById(R.id.btnLogout)
+        quoteInput = view.findViewById(R.id.etQuote)
+        userInfoText = view.findViewById(R.id.tvUserInfo)
+
+        loadUserSettings()
 
         saveButton.setOnClickListener {
-            val minutes = thresholdInput.text.toString().toIntOrNull()
-            if (minutes == null || minutes < 1) {
-                Toast.makeText(requireContext(), "Enter a number ≥ 5", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val user = FirebaseAuth.getInstance().currentUser ?: return@setOnClickListener
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(user.uid)
-                .update("productivityPromptMinutes", minutes)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Saved! You’ll be reminded every $minutes minutes", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to save threshold", Toast.LENGTH_SHORT).show()
-                }
+            saveSettings()
         }
 
-        addFriendButton.setOnClickListener {
-            startActivity(Intent(requireContext(), AddFriendActivity::class.java))
+        logoutButton.setOnClickListener {
+            auth.signOut()
+            startActivity(Intent(requireContext(), MainActivity::class.java))
+            requireActivity().finish()
         }
-
-        sectionButton.setOnClickListener {
-            startActivity(Intent(requireContext(), CreateSectionActivity::class.java))
-        }
-
-        loadExistingValue()
-        loadFriendCount()
 
         return view
     }
 
-    private fun loadExistingValue() {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
+    private fun loadUserSettings() {
+        val user = auth.currentUser ?: return
+        userInfoText.text = "Logged in as: ${user.email}"
 
         db.collection("users").document(user.uid)
             .get()
-            .addOnSuccessListener { document ->
-                val value = document.getLong("productivityPromptMinutes")?.toInt()
-                if (value != null) {
-                    thresholdInput.setText(value.toString())
-                }
+            .addOnSuccessListener { doc ->
+                val threshold = doc.getLong("productivityPromptMinutes")?.toInt() ?: 60
+                val quote = doc.getString("customMotivation") ?: ""
+
+                thresholdInput.setText(threshold.toString())
+                quoteInput.setText(quote)
             }
     }
 
-    private fun loadFriendCount() {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
+    private fun saveSettings() {
+        val user = auth.currentUser ?: return
+        val thresholdStr = thresholdInput.text.toString().trim()
+        val customQuote = quoteInput.text.toString().trim()
+
+        val threshold = thresholdStr.toIntOrNull()
+        if (threshold == null || threshold <= 0) {
+            Toast.makeText(requireContext(), "Enter a valid number", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { document ->
-                val friends = document.get("friends") as? List<*>
-                val count = friends?.size ?: 0
-                friendCountText.text = "Friends: $count"
+            .update(
+                mapOf(
+                    "productivityPromptMinutes" to threshold,
+                    "customMotivation" to customQuote
+                )
+            )
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "✅ Saved", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "❌ Error saving", Toast.LENGTH_SHORT).show()
             }
     }
 }
