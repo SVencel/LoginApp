@@ -1,5 +1,9 @@
 package com.example.login.fragments
 
+import android.app.AlertDialog
+import android.app.AppOpsManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -8,6 +12,7 @@ import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import android.provider.Settings
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -35,6 +40,7 @@ class HomeFragment : Fragment() {
 
         tvQuote.text = quotes.random()
         fetchStreak()
+        checkMonitoringStatus()
 
         return view
     }
@@ -56,4 +62,37 @@ class HomeFragment : Fragment() {
                 }
             }
     }
+
+    private fun checkMonitoringStatus() {
+        val context = requireContext()
+
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(),
+            context.packageName
+        )
+
+        val usageAccessGranted = mode == AppOpsManager.MODE_ALLOWED
+
+        val enabledServices = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        val accessibilityGranted = enabledServices?.contains(context.packageName) == true
+
+        val shouldPrompt = !usageAccessGranted && !accessibilityGranted
+
+        if (shouldPrompt) {
+            AlertDialog.Builder(context)
+                .setTitle("Enable Monitoring")
+                .setMessage("To track app usage and limit distractions, please enable Usage Access and Accessibility permissions.")
+                .setPositiveButton("Go to Settings") { _, _ ->
+                    startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
 }

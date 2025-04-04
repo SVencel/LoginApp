@@ -1,10 +1,12 @@
 package com.example.login.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.example.login.LoginActivity
 import com.example.login.MainActivity
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
@@ -39,10 +41,18 @@ class ProfileFragment : Fragment() {
         }
 
         logoutButton.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(requireContext(), MainActivity::class.java))
-            requireActivity().finish()
+            FirebaseAuth.getInstance().signOut()
+
+            // 🔄 Optional: clear any saved login state if you use SharedPreferences
+            val prefs = requireActivity().getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+
+            // 🚀 Navigate back to login screen
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
+
 
         return view
     }
@@ -87,4 +97,5 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "❌ Error saving", Toast.LENGTH_SHORT).show()
             }
     }
+
 }

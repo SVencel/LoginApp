@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav = findViewById(R.id.bottomNavigationView)
 
-        // Load HomeFragment by default
         if (savedInstanceState == null) {
             loadFragment(HomeFragment())
         }
