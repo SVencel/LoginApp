@@ -3,8 +3,10 @@ package com.example.login
 import android.Manifest
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -35,6 +37,13 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.DocumentReference
 import java.util.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+
+
 
 class HomeActivity : AppCompatActivity() {
 
@@ -53,9 +62,37 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
 
+    private var sessionMinutes = 0
+    private var lastPromptTime = 0L
+    private var productivityThresholdMinutes = 60 // default
+    private val sessionHandler = android.os.Handler()
+    private lateinit var screenReceiver: BroadcastReceiver
+
+
+    private val sessionRunnable = object : Runnable {
+        override fun run() {
+            sessionMinutes++
+            if (sessionMinutes >= productivityThresholdMinutes) {
+                val now = System.currentTimeMillis()
+                if (now - lastPromptTime > productivityThresholdMinutes * 60 * 1000) {
+                    lastPromptTime = now
+                    showProductivityDialog()
+                    sessionMinutes = 0
+                }
+            }
+            sessionHandler.postDelayed(this, 60_000)
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        // 👇 If notification was tapped
+        if (intent?.getBooleanExtra("SHOW_PRODUCTIVITY_DIALOG", false) == true) {
+            showProductivityDialog()
+        }
 
         auth = FirebaseAuth.getInstance()
         streakTextView = findViewById(R.id.tvStreakCount)
@@ -75,6 +112,8 @@ class HomeActivity : AppCompatActivity() {
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        createNotificationChannel()
+
         val user: FirebaseUser? = auth.currentUser
         val headerView = navigationView.getHeaderView(0)
         val navUsername = headerView.findViewById<TextView>(R.id.tvUsername)
@@ -83,7 +122,9 @@ class HomeActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> Toast.makeText(this, "Home Clicked", Toast.LENGTH_SHORT).show()
-                R.id.nav_profile -> Toast.makeText(this, "Profile Clicked", Toast.LENGTH_SHORT).show()
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                }
                 R.id.nav_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }
@@ -160,7 +201,50 @@ class HomeActivity : AppCompatActivity() {
 
         fetchStreakFromFirebase()
         fetchStreakHistory()
+
+        fetchProductivityThreshold()
+        sessionHandler.postDelayed(sessionRunnable, 60_000)
+
+        val screenIntentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+        }
+
+        screenReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    Intent.ACTION_SCREEN_OFF -> {
+                        println("📴 Screen off - Reset session timer")
+                        sessionMinutes = 0
+                        sessionHandler.removeCallbacks(sessionRunnable)
+                    }
+                    Intent.ACTION_SCREEN_ON -> {
+                        println("📱 Screen on - Start session timer")
+                        sessionHandler.postDelayed(sessionRunnable, 60_000)
+                    }
+                }
+            }
+        }
+        registerReceiver(screenReceiver, screenIntentFilter)
+
+
     }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "productivity_channel_id",
+                "Productivity Reminders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Reminders to check productivity after long screen time"
+            }
+
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
@@ -176,6 +260,12 @@ class HomeActivity : AppCompatActivity() {
                     1001
                 )
             }
+        }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("SHOW_PRODUCTIVITY_DIALOG", false)) {
+            showProductivityDialog()
         }
     }
 
@@ -263,6 +353,123 @@ class HomeActivity : AppCompatActivity() {
             checkUserStreakCriteria(userDocRef, currentStreak, today)
         }
     }
+
+    private fun fetchProductivityThreshold() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(user.uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                productivityThresholdMinutes = doc.getLong("productivityPromptMinutes")?.toInt() ?: 60
+                println("⏱ Productivity prompt threshold: $productivityThresholdMinutes minutes")
+            }
+            .addOnFailureListener {
+                println("⚠️ Could not fetch custom threshold, using default.")
+            }
+    }
+
+    private fun showProductivityDialog() {
+        // Always send a notification
+        showProductivityNotification()
+
+        // Also show dialog if app is in foreground
+        if (isAppInForeground()) {
+            runOnUiThread {
+                val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+                builder.setTitle("🧠 Are you being productive?")
+                builder.setMessage("You've been using your device for $productivityThresholdMinutes minutes.")
+
+                builder.setPositiveButton("✅ Yes") { _, _ ->
+                    logProductivityResponse(true)
+                }
+
+                builder.setNegativeButton("❌ No") { _, _ ->
+                    logProductivityResponse(false)
+                }
+
+                builder.setCancelable(true)
+                builder.show()
+            }
+        }
+    }
+
+    private fun showProductivityNotification() {
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra("SHOW_PRODUCTIVITY_DIALOG", true)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(this, "productivity_channel_id")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("🧠 Productivity Check")
+            .setContentText("You've been using your phone for $productivityThresholdMinutes minutes. Being productive?")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            with(NotificationManagerCompat.from(this)) {
+                notify(101, builder.build())
+            }
+        }
+    }
+
+
+
+
+    private fun isAppInForeground(): Boolean {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        val appProcesses = activityManager.runningAppProcesses ?: return false
+        val packageName = applicationContext.packageName
+
+        for (appProcess in appProcesses) {
+            if (appProcess.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                appProcess.processName == packageName) {
+                return true
+            }
+        }
+        return false
+    }
+
+
+    private fun logProductivityResponse(isProductive: Boolean) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+        val now = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+
+        val data = mapOf(
+            "timestamp" to now,
+            "isProductive" to isProductive
+        )
+
+        db.collection("users")
+            .document(user.uid)
+            .collection("productivityCheck")
+            .add(data)
+            .addOnSuccessListener {
+                println("📘 Logged productivity response: $isProductive")
+            }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sessionHandler.removeCallbacks(sessionRunnable)
+        unregisterReceiver(screenReceiver)
+    }
+
+
+
+
 
     /**
      * ✅ Checks if user met the streak criteria and updates accordingly.

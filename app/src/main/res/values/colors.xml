@@ -17,4 +17,6 @@
 
     <color name="warningColor">#FF7F7F</color> <!-- Light Red -->
 
+    <color name="tealColor">#008080</color> <!-- Teal -->
+
 </resources>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/backgroundColor">
+
+    <!-- 🔹 Friends count label -->
+    <TextView
+        android:id="@+id/tvFriendCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Friends: 0"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/textPrimaryColor"
+        android:layout_marginBottom="24dp" />
+
+    <!-- 🔹 Productivity interval label -->
+    <TextView
+        android:id="@+id/tvCustomThresholdLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Productivity Check Interval (in minutes)"
+        android:textSize="16sp"
+        android:textColor="@color/textPrimaryColor"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 🔹 EditText for minutes -->
+    <EditText
+        android:id="@+id/etCustomThreshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:inputType="number"
+        android:hint="Enter time in minutes"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/textPrimaryColor"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 🔹 Save button -->
+    <Button
+        android:id="@+id/btnSaveThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:padding="12dp"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 🔹 Add Friends Button -->
+    <Button
+        android:id="@+id/btnAddFriends"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Friends"
+        android:padding="12dp"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/btnManageSections"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage Sections"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"/>
+
+
+</LinearLayout>

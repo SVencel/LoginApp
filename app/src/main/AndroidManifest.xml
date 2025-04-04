@@ -65,6 +65,18 @@
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <activity android:name=".ProfileActivity"
+            android:exported="false"/>
+
+        <activity android:name=".OnboardingQuestionsActivity"
+            android:exported="false"/>
+
+        <activity android:name=".AddFriendActivity"
+            android:exported="false"/>
+
+        <activity android:name=".CreateSectionActivity"
+            android:exported="false"/>
+
 
         <service
             android:name=".AppUsageService"
