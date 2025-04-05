@@ -2,6 +2,7 @@ package com.example.login.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -17,21 +18,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 class FocusFragment : Fragment() {
 
     private lateinit var toggleOffline: Switch
+    private lateinit var switchDoomscroll: Switch
+    private lateinit var tvDoomscrollLimit: TextView
     private lateinit var btnSchedule: Button
     private lateinit var btnManageSections: Button
     private lateinit var quoteText: TextView
     private lateinit var rvSections: RecyclerView
     private lateinit var sectionAdapter: SectionAdapter
 
-    data class Section(
-        val name: String,
-        val apps: List<String>,
-        val fromTime: String,
-        val toTime: String
-    )
     private val sectionList = mutableListOf<Section>()
-
-
 
     private val quotes = listOf(
         "“You can't do big things if you're distracted by small things.”",
@@ -41,7 +36,18 @@ class FocusFragment : Fragment() {
         "“STAY HARD”"
     )
 
+    data class Section(
+        val name: String,
+        val apps: List<String>,
+        val fromTime: String,
+        val toTime: String
+    )
+
     private val PREF_KEY = "offlineMode"
+    private val DOOM_PREFS = "doomPrefs"
+    private val KEY_ENABLED = "doomEnabled"
+    private val KEY_SCROLLS = "doomScrolls"
+    private val KEY_WINDOW = "doomWindow"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -49,6 +55,8 @@ class FocusFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_focus, container, false)
 
         toggleOffline = view.findViewById(R.id.switchGoOffline)
+        switchDoomscroll = view.findViewById(R.id.switchDoomscroll)
+        tvDoomscrollLimit = view.findViewById(R.id.tvDoomscrollLimit)
         btnSchedule = view.findViewById(R.id.btnLockScheduler)
         btnManageSections = view.findViewById(R.id.btnManageSections)
         quoteText = view.findViewById(R.id.tvMotivationQuote)
@@ -69,17 +77,74 @@ class FocusFragment : Fragment() {
         toggleOffline.isChecked = isOffline
 
         toggleOffline.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             prefs.edit().putBoolean(PREF_KEY, isChecked).apply()
+
+            if (isChecked) {
+                Toast.makeText(requireContext(), "🚫 Going offline...", Toast.LENGTH_SHORT).show()
+                goOffline()
+            } else {
+                Toast.makeText(requireContext(), "✅ You're back online!", Toast.LENGTH_SHORT).show()
+                goOnline()
+            }
+        }
+
+
+        setupDoomscrollingUI()
+        setupSectionList()
+
+        return view
+    }
+
+    private fun goOffline() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // For Wi-Fi toggle (works only on Android 9 and below)
+            val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+            wifiManager.isWifiEnabled = false
+        } else {
+            // For Android 10+, direct toggling is not allowed, open Wi-Fi settings
+            startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
+            Toast.makeText(requireContext(), "Please disable Wi-Fi manually", Toast.LENGTH_LONG).show()
+        }
+
+        // Open Mobile Data settings
+        val intent = Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS)
+        startActivity(intent)
+        Toast.makeText(requireContext(), "Please disable Mobile Data manually", Toast.LENGTH_LONG).show()
+    }
+
+    private fun goOnline() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+            wifiManager.isWifiEnabled = true
+        } else {
+            startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
+            Toast.makeText(requireContext(), "Enable Wi-Fi manually", Toast.LENGTH_SHORT).show()
+        }
+
+        startActivity(Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS))
+        Toast.makeText(requireContext(), "Enable Mobile Data manually", Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun setupDoomscrollingUI() {
+        val prefs = requireContext().getSharedPreferences(DOOM_PREFS, Context.MODE_PRIVATE)
+
+        val isEnabled = prefs.getBoolean(KEY_ENABLED, true)
+        val scrolls = prefs.getInt(KEY_SCROLLS, 5)
+        val window = prefs.getInt(KEY_WINDOW, 10)
+
+        switchDoomscroll.isChecked = isEnabled
+        tvDoomscrollLimit.text = "Limit: $scrolls scrolls in $window minutes"
+
+        switchDoomscroll.setOnCheckedChangeListener { _, checked ->
+            prefs.edit().putBoolean(KEY_ENABLED, checked).apply()
             Toast.makeText(
                 requireContext(),
-                if (isChecked) "🚫 Offline mode ON" else "✅ You're back online!",
+                if (checked) "☠️ Doomscroll detection ON" else "🛑 Doomscroll detection OFF",
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-        setupSectionList() // ✅ Don't forget to call this
-
-        return view
     }
 
     private fun setupSectionList() {
@@ -115,10 +180,7 @@ class FocusFragment : Fragment() {
                 }
                 sectionAdapter.notifyDataSetChanged()
             }
-
-
     }
-
 
     class SectionAdapter(private val sections: List<Section>) :
         RecyclerView.Adapter<SectionAdapter.SectionViewHolder>() {
@@ -169,5 +231,4 @@ class FocusFragment : Fragment() {
 
         override fun getItemCount(): Int = sections.size
     }
-
 }

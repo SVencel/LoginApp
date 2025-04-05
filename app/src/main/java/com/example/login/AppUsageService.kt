@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.CountDownLatch
 
 class AppUsageService : AccessibilityService() {
 
@@ -50,7 +49,6 @@ class AppUsageService : AccessibilityService() {
                 return@isAppBlockedBySectionAsync
             }
 
-            // Rest of your logic goes here:
             handleEventAfterBlockingCheck(event, packageName)
         }
     }
@@ -58,7 +56,7 @@ class AppUsageService : AccessibilityService() {
     private fun handleEventAfterBlockingCheck(event: AccessibilityEvent, packageName: String) {
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                if (isMonitoredForDoomscrolling(packageName)) {
+                if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastScrollTime >= minScrollInterval) {
                         scrollCount++
@@ -84,6 +82,11 @@ class AppUsageService : AccessibilityService() {
         trackDailyUsage()
     }
 
+    private fun isDoomscrollingEnabled(): Boolean {
+        val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("doomEnabled", true)
+    }
+
 
     override fun onInterrupt() {}
 
@@ -95,7 +98,9 @@ class AppUsageService : AccessibilityService() {
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val stats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY, System.currentTimeMillis() - usageLimit, System.currentTimeMillis()
+            UsageStatsManager.INTERVAL_DAILY,
+            System.currentTimeMillis() - usageLimit,
+            System.currentTimeMillis()
         )
 
         var totalTime = 0L
@@ -163,7 +168,6 @@ class AppUsageService : AccessibilityService() {
         manager.notify(2, notification)
     }
 
-    // ✅ Check if app is in a blocked section based on time + app match
     private fun isAppBlockedBySectionAsync(packageName: String, onResult: (Boolean) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser ?: return onResult(false)
         val db = FirebaseFirestore.getInstance()
@@ -205,9 +209,6 @@ class AppUsageService : AccessibilityService() {
                 onResult(false)
             }
     }
-
-
-
 
     private fun isMonitoredForDoomscrolling(packageName: String): Boolean {
         val monitored = listOf(

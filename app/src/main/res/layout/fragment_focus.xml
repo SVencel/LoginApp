@@ -23,6 +23,30 @@
         android:text="🚫 Go Offline (Block distractions)"
         android:textSize="16sp"
         android:padding="8dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="24dp">
+
+        <Switch
+            android:id="@+id/switchDoomscroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="☠️ Detect Doomscrolling"
+            android:minHeight="48dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvDoomscrollLimit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Limit: 5 scrolls in 10 minutes"
+            android:paddingTop="8dp"
+            android:textColor="#666"
+            android:textSize="14sp" />
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/btnLockScheduler"
