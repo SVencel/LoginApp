@@ -16,6 +16,15 @@
             android:textSize="16sp"
             android:layout_marginBottom="24dp" />
 
+        <TextView
+            android:id="@+id/tvPermissionStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Checking permissions..."
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
         <EditText
             android:id="@+id/etThreshold"
             android:layout_width="match_parent"

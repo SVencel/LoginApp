@@ -1,5 +1,6 @@
 package com.example.login.fragments
 
+import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +12,8 @@ import com.example.login.MainActivity
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.provider.Settings
+
 
 class ProfileFragment : Fragment() {
 
@@ -19,8 +22,7 @@ class ProfileFragment : Fragment() {
     private lateinit var logoutButton: Button
     private lateinit var quoteInput: EditText
     private lateinit var userInfoText: TextView
-    private lateinit var friendCountText: TextView
-
+    private lateinit var permissionStatusText: TextView
 
 
 
@@ -56,6 +58,8 @@ class ProfileFragment : Fragment() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
+        permissionStatusText = view.findViewById(R.id.tvPermissionStatus)
+        updatePermissionStatus()
 
 
         return view
@@ -101,5 +105,29 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "❌ Error saving", Toast.LENGTH_SHORT).show()
             }
     }
+
+    private fun updatePermissionStatus() {
+        val context = requireContext()
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val usageAccess = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(),
+            context.packageName
+        ) == AppOpsManager.MODE_ALLOWED
+
+        val accessibility = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )?.contains(context.packageName) == true
+
+        val status = """
+        🔐 Permissions:
+        • Usage Access: ${if (usageAccess) "✅ Enabled" else "❌ Not Enabled"}
+        • Accessibility: ${if (accessibility) "✅ Enabled" else "❌ Not Enabled"}
+    """.trimIndent()
+
+        permissionStatusText.text = status
+    }
+
 
 }

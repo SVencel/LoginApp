@@ -37,7 +37,19 @@
         android:id="@+id/btnManageSections"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Manage Focus Sections"
+        android:text="New Focus Section"
         android:backgroundTint="@color/primaryColor"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- ✅ New RecyclerView for displaying sections -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSections"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
 </LinearLayout>

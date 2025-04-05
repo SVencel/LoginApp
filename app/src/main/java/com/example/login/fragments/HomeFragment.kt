@@ -81,14 +81,19 @@ class HomeFragment : Fragment() {
         )
         val accessibilityGranted = enabledServices?.contains(context.packageName) == true
 
-        val shouldPrompt = !usageAccessGranted && !accessibilityGranted
+        val shouldPrompt = !usageAccessGranted || !accessibilityGranted
 
         if (shouldPrompt) {
             AlertDialog.Builder(context)
                 .setTitle("Enable Monitoring")
                 .setMessage("To track app usage and limit distractions, please enable Usage Access and Accessibility permissions.")
                 .setPositiveButton("Go to Settings") { _, _ ->
-                    startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                    val intent = if (!usageAccessGranted) {
+                        Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                    } else {
+                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    }
+                    startActivity(intent)
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
