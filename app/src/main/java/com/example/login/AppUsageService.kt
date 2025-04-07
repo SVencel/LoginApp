@@ -178,6 +178,8 @@ class AppUsageService : AccessibilityService() {
             .addOnSuccessListener { sections ->
                 val now = Calendar.getInstance()
                 val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+                val currentDay = now.get(Calendar.DAY_OF_WEEK)
+                val adjustedDay = if (currentDay == Calendar.SUNDAY) 7 else currentDay - 1
 
                 for (doc in sections) {
                     val apps = doc.get("apps") as? List<*> ?: continue
@@ -187,6 +189,7 @@ class AppUsageService : AccessibilityService() {
                     val startM = (doc.getLong("startMinute") ?: 0L).toInt()
                     val endH = (doc.getLong("endHour") ?: 0L).toInt()
                     val endM = (doc.getLong("endMinute") ?: 0L).toInt()
+                    val days = (doc.get("days") as? List<*>)?.mapNotNull { (it as? Long)?.toInt() } ?: emptyList()
 
                     val start = startH * 60 + startM
                     val end = endH * 60 + endM
@@ -197,7 +200,9 @@ class AppUsageService : AccessibilityService() {
                         currentMinutes >= start || currentMinutes < end
                     }
 
-                    if (inTimeRange) {
+                    // ✅ Check both day and time
+                    if (adjustedDay in days && inTimeRange) {
+                        Log.d("BLOCK_CHECK", "Blocked: $packageName by section '${doc.getString("name")}' on day $adjustedDay and time $currentMinutes")
                         onResult(true)
                         return@addOnSuccessListener
                     }
@@ -209,6 +214,7 @@ class AppUsageService : AccessibilityService() {
                 onResult(false)
             }
     }
+
 
     private fun isMonitoredForDoomscrolling(packageName: String): Boolean {
         val monitored = listOf(

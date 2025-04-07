@@ -7,11 +7,11 @@
     android:background="@drawable/card_bg"
     android:padding="16dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
+        <!-- Section Name -->
         <TextView
             android:id="@+id/tvSectionName"
             android:layout_width="wrap_content"
@@ -19,16 +19,22 @@
             android:text="Focus Section"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
 
+        <!-- Day Indicators -->
         <LinearLayout
-            android:id="@+id/llAppIcons"
+            android:id="@+id/dayIndicatorLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="horizontal"
+            android:layout_toEndOf="@id/tvSectionName"
+            android:layout_alignTop="@id/tvSectionName"
+            android:layout_marginStart="12dp"
             android:gravity="center_vertical" />
 
+        <!-- Time Range -->
         <TextView
             android:id="@+id/tvTimeRange"
             android:layout_width="wrap_content"
@@ -36,7 +42,31 @@
             android:text="08:00 - 18:00"
             android:textColor="#666666"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
+            android:layout_below="@id/tvSectionName"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="4dp" />
 
-    </LinearLayout>
+        <!-- App Icons -->
+        <LinearLayout
+            android:id="@+id/llAppIcons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_below="@id/tvTimeRange"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Gear Icon -->
+        <ImageView
+            android:id="@+id/ivSectionOptions"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_gear"
+            android:contentDescription="Options"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp" />
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>

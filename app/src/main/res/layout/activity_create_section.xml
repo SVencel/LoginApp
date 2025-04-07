@@ -15,6 +15,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
+            android:inputType="textCapWords|textNoSuggestions"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
             android:layout_marginBottom="12dp" />
 
         <Button
@@ -30,6 +33,92 @@
             android:layout_height="wrap_content"
             android:text="End Time"
             android:layout_marginBottom="16dp" />
+
+        <!-- 🔵 Day Selector -->
+        <LinearLayout
+            android:id="@+id/daySelectorLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            >
+
+            <ToggleButton
+                android:id="@+id/toggleMon"
+                style="@style/DayToggleStyle"
+                android:text="M"
+                android:textOn="M"
+                android:textOff="M"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleTue"
+                style="@style/DayToggleStyle"
+                android:text="T"
+                android:textOn="T"
+                android:textOff="T"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleWed"
+                style="@style/DayToggleStyle"
+                android:text="W"
+                android:textOn="W"
+                android:textOff="W"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleThu"
+                style="@style/DayToggleStyle"
+                android:text="T"
+                android:textOn="T"
+                android:textOff="T"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleFri"
+                style="@style/DayToggleStyle"
+                android:text="F"
+                android:textOn="F"
+                android:textOff="F"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleSat"
+                style="@style/DayToggleStyle"
+                android:text="S"
+                android:textOn="S"
+                android:textOff="S"
+                android:layout_marginHorizontal="4dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/toggleSun"
+                style="@style/DayToggleStyle"
+                android:text="S"
+                android:textOn="S"
+                android:textOff="S"
+                android:layout_marginHorizontal="4dp"
+                />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/searchAppInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search apps"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginTop="10dp"
+            />
 
         <TextView
             android:text="Select Apps:"
