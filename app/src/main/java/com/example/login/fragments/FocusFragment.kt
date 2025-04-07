@@ -1,5 +1,6 @@
 package com.example.login.fragments
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -97,23 +98,41 @@ class FocusFragment : Fragment() {
     }
 
     private fun goOffline() {
+        // Handle Do Not Disturb permission and apply filter
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (!notificationManager.isNotificationPolicyAccessGranted) {
+                startActivity(Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                Toast.makeText(requireContext(), "Grant Do Not Disturb access", Toast.LENGTH_LONG).show()
+                return
+            }
+
+            // Allow only calls and alarms
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        }
+
+        // Open Wi-Fi & Mobile Data settings for manual toggling (Android 10+ limitations)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // For Wi-Fi toggle (works only on Android 9 and below)
             val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
             wifiManager.isWifiEnabled = false
         } else {
-            // For Android 10+, direct toggling is not allowed, open Wi-Fi settings
             startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
             Toast.makeText(requireContext(), "Please disable Wi-Fi manually", Toast.LENGTH_LONG).show()
         }
 
-        // Open Mobile Data settings
-        val intent = Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS)
-        startActivity(intent)
+        startActivity(Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS))
         Toast.makeText(requireContext(), "Please disable Mobile Data manually", Toast.LENGTH_LONG).show()
     }
 
+
     private fun goOnline() {
+        // Restore normal notification settings
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
             wifiManager.isWifiEnabled = true
@@ -125,6 +144,7 @@ class FocusFragment : Fragment() {
         startActivity(Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS))
         Toast.makeText(requireContext(), "Enable Mobile Data manually", Toast.LENGTH_SHORT).show()
     }
+
 
 
     private fun setupDoomscrollingUI() {
