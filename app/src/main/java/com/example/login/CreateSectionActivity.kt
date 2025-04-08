@@ -157,21 +157,42 @@ class CreateSectionActivity : AppCompatActivity() {
         val packageManager = packageManager
         val installedApps = packageManager.getInstalledApplications(0)
 
-        appList.clear()
-        filteredAppList.clear()
+        // Step 1: Gather usage data
+        val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as android.app.usage.UsageStatsManager
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - 7 * 24 * 60 * 60 * 1000L // last 7 days
 
-        installedApps.forEach {
-            val appName = packageManager.getApplicationLabel(it).toString()
-            val packageName = it.packageName
-            if (packageManager.getLaunchIntentForPackage(packageName) != null) {
-                val appInfo = AppInfo(appName, packageName)
-                appList.add(appInfo)
-                filteredAppList.add(appInfo)
+        val usageStats = usageStatsManager.queryUsageStats(
+            android.app.usage.UsageStatsManager.INTERVAL_DAILY,
+            startTime,
+            endTime
+        )
+
+        val usageMap = usageStats
+            .filter { it.totalTimeInForeground > 0 }
+            .associateBy({ it.packageName }, { it.totalTimeInForeground })
+
+        // Step 2: Build the list with usage info
+        appList.clear()
+        installedApps.forEach { app ->
+            val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName)
+            if (launchIntent != null) {
+                val label = packageManager.getApplicationLabel(app).toString()
+                val usage = usageMap[app.packageName] ?: 0L
+                appList.add(AppInfo(label, app.packageName, usage))
             }
         }
 
+        // Step 3: Sort by usage (desc) then name (asc)
+        val topUsed = appList.sortedByDescending { it.usageTime }.take(5).map { it.copy(isTopUsed = true) }
+        val rest = appList.minus(topUsed.toSet()).sortedBy { it.name.lowercase(Locale.getDefault()) }
+
+        filteredAppList.clear()
+        filteredAppList.addAll(topUsed + rest)
+
         appAdapter.notifyDataSetChanged()
     }
+
 
     private fun filterApps(query: String) {
         filteredAppList.clear()

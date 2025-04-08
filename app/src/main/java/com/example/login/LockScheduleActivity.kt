@@ -192,4 +192,10 @@ class LockScheduleActivity : AppCompatActivity() {
 }
 
 // Data model for AppInfo
-data class AppInfo(val name: String, val packageName: String)
+data class AppInfo(
+    val name: String,
+    val packageName: String,
+    val usageTime: Long = 0L, // New field for usage tracking
+    val isTopUsed: Boolean = false
+    )
+
