@@ -2,21 +2,17 @@
     <color name="primaryColor">#228B22</color> <!-- Forest Green -->
     <color name="primaryLightColor">#8FBC8F</color> <!-- Moss Green -->
     <color name="primaryDarkColor">#556B2F</color> <!-- Olive Green -->
-
     <color name="secondaryColor">#8B4513</color> <!-- Earth Brown -->
     <color name="secondaryLightColor">#C2B280</color> <!-- Sand Beige -->
     <color name="secondaryDarkColor">#5C4033</color> <!-- Dark Earth Brown -->
-
     <color name="backgroundColor">#F5F5DC</color> <!-- Soft White -->
     <color name="textPrimaryColor">#2E2E2E</color> <!-- Dark Gray for Text -->
     <color name="textSecondaryColor">#6B6B6B</color> <!-- Light Gray for Text -->
-
     <color name="hintColor">#808080</color> <!-- A soft grey for hints -->
-
     <color name="white">#FFFFFF</color>
-
     <color name="warningColor">#FF7F7F</color> <!-- Light Red -->
-
     <color name="tealColor">#008080</color> <!-- Teal -->
-
+    <color name="section_active">#D0F5C9</color> <!-- light green -->
+    <color name="section_disabled">#EEEEEE</color> <!-- light gray -->
+    <color name="section_inactive">#FFECB3</color> <!-- light yellow -->
 </resources>

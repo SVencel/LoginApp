@@ -45,7 +45,7 @@ class AppUsageService : AccessibilityService() {
 
                 handler.postDelayed({
                     performGlobalAction(GLOBAL_ACTION_HOME)
-                }, 500)
+                }, 100)
                 return@isAppBlockedBySectionAsync
             }
 
@@ -183,6 +183,8 @@ class AppUsageService : AccessibilityService() {
 
                 for (doc in sections) {
                     val apps = doc.get("apps") as? List<*> ?: continue
+                    val enabled = doc.getBoolean("enabled") ?: true
+
                     if (!apps.any { it.toString() == packageName }) continue
 
                     val startH = (doc.getLong("startHour") ?: 0L).toInt()
@@ -201,7 +203,7 @@ class AppUsageService : AccessibilityService() {
                     }
 
                     // ✅ Check both day and time
-                    if (adjustedDay in days && inTimeRange) {
+                    if (enabled && adjustedDay in days && inTimeRange) {
                         Log.d("BLOCK_CHECK", "Blocked: $packageName by section '${doc.getString("name")}' on day $adjustedDay and time $currentMinutes")
                         onResult(true)
                         return@addOnSuccessListener

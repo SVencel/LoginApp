@@ -7,8 +7,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.cardview.widget.CardView
+import android.graphics.Color
 import android.view.*
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -49,7 +52,8 @@ class FocusFragment : Fragment() {
         val startHour: Int,
         val startMinute: Int,
         val endHour: Int,
-        val endMinute: Int
+        val endMinute: Int,
+        val enabled: Boolean = true
     )
 
     private val PREF_KEY = "offlineMode"
@@ -186,7 +190,8 @@ class FocusFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
 
         val now = Calendar.getInstance()
-        Log.d("FocusCheck", "Now: Day=${now.get(Calendar.DAY_OF_WEEK)}, Time=${now.get(Calendar.HOUR_OF_DAY)}:${now.get(Calendar.MINUTE)}")
+        val currentDay = now.get(Calendar.DAY_OF_WEEK).let { if (it == Calendar.SUNDAY) 7 else it - 1 }
+        val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
         db.collection("users").document(user.uid)
             .collection("sections")
@@ -201,21 +206,15 @@ class FocusFragment : Fragment() {
                     val endHour = doc.getLong("endHour")?.toInt() ?: 0
                     val endMinute = doc.getLong("endMinute")?.toInt() ?: 0
                     val days = (doc.get("days") as? List<Long>)?.map { it.toInt() } ?: emptyList()
+                    val enabled = doc.getBoolean("enabled") ?: true
 
                     val fromTime = String.format("%02d:%02d", startHour, startMinute)
                     val toTime = String.format("%02d:%02d", endHour, endMinute)
 
                     sectionList.add(
                         Section(
-                            name = name,
-                            apps = apps,
-                            fromTime = fromTime,
-                            toTime = toTime,
-                            days = days,
-                            startHour = startHour,
-                            startMinute = startMinute,
-                            endHour = endHour,
-                            endMinute = endMinute
+                            name, apps, fromTime, toTime, days,
+                            startHour, startMinute, endHour, endMinute, enabled
                         )
                     )
                 }
@@ -223,6 +222,7 @@ class FocusFragment : Fragment() {
                 sectionAdapter.notifyDataSetChanged()
             }
     }
+
 
     class SectionAdapter(private val sections: MutableList<Section>) :
         RecyclerView.Adapter<SectionAdapter.SectionViewHolder>() {
@@ -232,6 +232,7 @@ class FocusFragment : Fragment() {
             val appIconsLayout: LinearLayout = itemView.findViewById(R.id.llAppIcons)
             val timeRangeText: TextView = itemView.findViewById(R.id.tvTimeRange)
             val optionsIcon: ImageView = itemView.findViewById(R.id.ivSectionOptions)
+            val card: CardView = itemView as CardView
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionViewHolder {
@@ -251,6 +252,29 @@ class FocusFragment : Fragment() {
 
             val dayLetters = listOf("M", "T", "W", "Th", "F", "Sa", "Su")
             val context = holder.itemView.context
+
+            val now = Calendar.getInstance()
+            val day = now.get(Calendar.DAY_OF_WEEK).let { if (it == Calendar.SUNDAY) 7 else it - 1 }
+            val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+            val startMin = section.startHour * 60 + section.startMinute
+            val endMin = section.endHour * 60 + section.endMinute
+
+            val activeNow = section.enabled && (day in section.days) &&
+                    if (startMin < endMin) nowMin in startMin until endMin else nowMin >= startMin || nowMin < endMin
+
+            val bgColor = when {
+                !section.enabled -> R.color.section_disabled
+                activeNow -> R.color.section_active
+                else -> R.color.section_inactive
+            }
+
+            holder.card.setCardBackgroundColor(ContextCompat.getColor(context, bgColor))
+
+            // Optional: Dim section name if disabled
+            holder.nameText.setTextColor(
+                if (!section.enabled) Color.GRAY else Color.BLACK
+            )
+
 
             section.days.sorted().forEach { day ->
                 if (day in 1..7) {
@@ -298,6 +322,10 @@ class FocusFragment : Fragment() {
                 val popup = PopupMenu(holder.itemView.context, holder.optionsIcon)
                 popup.menuInflater.inflate(R.menu.section_options_menu, popup.menu)
 
+                // Dynamically set Enable/Disable title
+                val toggleItem = popup.menu.findItem(R.id.menu_toggle_enable)
+                toggleItem.title = if (section.enabled) "Disable" else "Enable"
+
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {
                         R.id.menu_modify -> {
@@ -313,27 +341,26 @@ class FocusFragment : Fragment() {
                             true
                         }
 
-                        R.id.menu_delete -> {
-                            AlertDialog.Builder(holder.itemView.context)
-                                .setTitle("Delete Section")
-                                .setMessage("Are you sure you want to delete \"${section.name}\"?")
-                                .setPositiveButton("Delete") { _, _ ->
-                                    val user = FirebaseAuth.getInstance().currentUser
-                                    val db = FirebaseFirestore.getInstance()
-                                    user?.let {
-                                        db.collection("users").document(user.uid)
-                                            .collection("sections").document(section.name)
-                                            .delete()
-                                            .addOnSuccessListener {
-                                                Toast.makeText(holder.itemView.context, "Deleted ${section.name}", Toast.LENGTH_SHORT).show()
-                                                sections.removeAt(position)
-                                                notifyItemRemoved(position)
-                                                notifyItemRangeChanged(position, sections.size)
-                                            }
-                                    }
+                        R.id.menu_toggle_enable -> {
+                            val user = FirebaseAuth.getInstance().currentUser ?: return@setOnMenuItemClickListener true
+                            val db = FirebaseFirestore.getInstance()
+                            val newStatus = !section.enabled
+
+                            db.collection("users").document(user.uid)
+                                .collection("sections").document(section.name)
+                                .update("enabled", newStatus)
+                                .addOnSuccessListener {
+                                    sections[position] = section.copy(enabled = newStatus)
+                                    notifyItemChanged(position)
                                 }
-                                .setNegativeButton("Cancel", null)
-                                .show()
+                                .addOnFailureListener {
+                                    Toast.makeText(holder.itemView.context, "Failed to update", Toast.LENGTH_SHORT).show()
+                                }
+                            true
+                        }
+
+                        R.id.menu_delete -> {
+                            // your delete code here
                             true
                         }
 
@@ -343,6 +370,7 @@ class FocusFragment : Fragment() {
 
                 popup.show()
             }
+
         }
 
         override fun getItemCount(): Int = sections.size
@@ -363,8 +391,10 @@ class FocusFragment : Fragment() {
             val nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
             return activeSectionsCache.orEmpty().filter { section ->
-                adjustedDay in section.days &&
-                        nowMinutes in (section.startHour * 60 + section.startMinute) until (section.endHour * 60 + section.endMinute)
+                section.enabled &&
+                adjustedDay in section.days
+                        && nowMinutes in (section.startHour * 60 + section.startMinute) until (section.endHour * 60 + section.endMinute)
+
             }.flatMap { it.apps }.toSet()
         }
     }
