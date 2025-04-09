@@ -1,12 +1,13 @@
 package com.example.login.fragments
 
-import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.app.NotificationManager.Policy
+
 import androidx.cardview.widget.CardView
 import android.graphics.Color
 import android.view.*
@@ -16,7 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.login.CreateSectionActivity
-import com.example.login.LockScheduleActivity
+import com.example.login.HardcoreModeService
 import com.example.login.R
 import java.util.Calendar
 import com.google.firebase.auth.FirebaseAuth
@@ -24,10 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class FocusFragment : Fragment() {
 
-    private lateinit var toggleOffline: Switch
+    private lateinit var switchHardcore: Switch
     private lateinit var switchDoomscroll: Switch
     private lateinit var tvDoomscrollLimit: TextView
-    private lateinit var btnSchedule: Button
     private lateinit var btnManageSections: Button
     private lateinit var quoteText: TextView
     private lateinit var rvSections: RecyclerView
@@ -56,7 +56,7 @@ class FocusFragment : Fragment() {
         val enabled: Boolean = true
     )
 
-    private val PREF_KEY = "offlineMode"
+    private val PREF_KEY = "hardcoreMode"
     private val DOOM_PREFS = "doomPrefs"
     private val KEY_ENABLED = "doomEnabled"
     private val KEY_SCROLLS = "doomScrolls"
@@ -67,38 +67,37 @@ class FocusFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_focus, container, false)
 
-        toggleOffline = view.findViewById(R.id.switchGoOffline)
+        switchHardcore = view.findViewById(R.id.switchHardcore)
         switchDoomscroll = view.findViewById(R.id.switchDoomscroll)
         tvDoomscrollLimit = view.findViewById(R.id.tvDoomscrollLimit)
-        btnSchedule = view.findViewById(R.id.btnLockScheduler)
         btnManageSections = view.findViewById(R.id.btnManageSections)
         quoteText = view.findViewById(R.id.tvMotivationQuote)
         rvSections = view.findViewById(R.id.rvSections)
 
         quoteText.text = quotes.random()
 
-        btnSchedule.setOnClickListener {
-            startActivity(Intent(requireContext(), LockScheduleActivity::class.java))
-        }
 
         btnManageSections.setOnClickListener {
             startActivityForResult(Intent(requireContext(), CreateSectionActivity::class.java), 101)
         }
 
         val prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val isOffline = prefs.getBoolean(PREF_KEY, false)
-        toggleOffline.isChecked = isOffline
+        val isHardcore = prefs.getBoolean(PREF_KEY, false)
+        switchHardcore.isChecked = isHardcore
 
-        toggleOffline.setOnCheckedChangeListener { _, isChecked ->
+        switchHardcore.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean(PREF_KEY, isChecked).apply()
             if (isChecked) {
-                Toast.makeText(requireContext(), "🚫 Going offline...", Toast.LENGTH_SHORT).show()
-                goOffline()
+                requireContext().startService(Intent(requireContext(), HardcoreModeService::class.java))
+                Toast.makeText(requireContext(), "☠️ HARDCORE MODE activated", Toast.LENGTH_SHORT).show()
+                enableHardcoreMode()
             } else {
-                Toast.makeText(requireContext(), "✅ You're back online!", Toast.LENGTH_SHORT).show()
-                goOnline()
+                requireContext().stopService(Intent(requireContext(), HardcoreModeService::class.java))
+                Toast.makeText(requireContext(), "✅ Welcome back to the chaos", Toast.LENGTH_SHORT).show()
+                disableHardcoreMode()
             }
         }
+
 
         setupDoomscrollingUI()
         setupSectionList()
@@ -118,46 +117,43 @@ class FocusFragment : Fragment() {
         }
     }
 
-    private fun goOffline() {
+    private fun enableHardcoreMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             if (!notificationManager.isNotificationPolicyAccessGranted) {
                 startActivity(Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
                 Toast.makeText(requireContext(), "Grant Do Not Disturb access", Toast.LENGTH_LONG).show()
                 return
             }
+
+            // Build the policy to allow calls, messages, and alarms
+            val policy = Policy(
+                Policy.PRIORITY_CATEGORY_CALLS or
+                        Policy.PRIORITY_CATEGORY_MESSAGES or
+                        Policy.PRIORITY_CATEGORY_ALARMS,
+                Policy.PRIORITY_CATEGORY_CALLS or
+                        Policy.PRIORITY_CATEGORY_MESSAGES or
+                        Policy.PRIORITY_CATEGORY_ALARMS,
+                0 // No visual suppression (same as SUPPRESS_NONE)
+            )
+
+            // Apply the policy and enable DND mode
+            notificationManager.notificationPolicy = policy
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-            wifiManager.isWifiEnabled = false
-        } else {
-            startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
-            Toast.makeText(requireContext(), "Please disable Wi-Fi manually", Toast.LENGTH_LONG).show()
-        }
-
-        startActivity(Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS))
-        Toast.makeText(requireContext(), "Please disable Mobile Data manually", Toast.LENGTH_LONG).show()
     }
 
-    private fun goOnline() {
+
+    private fun disableHardcoreMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-            wifiManager.isWifiEnabled = true
-        } else {
-            startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
-            Toast.makeText(requireContext(), "Enable Wi-Fi manually", Toast.LENGTH_SHORT).show()
-        }
-
-        startActivity(Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS))
-        Toast.makeText(requireContext(), "Enable Mobile Data manually", Toast.LENGTH_SHORT).show()
     }
+
+
 
     private fun setupDoomscrollingUI() {
         val prefs = requireContext().getSharedPreferences(DOOM_PREFS, Context.MODE_PRIVATE)

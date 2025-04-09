@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
 
@@ -59,17 +62,8 @@
         </activity>
 
         <activity
-            android:name=".LockScheduleActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".AppBlockSelectionActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".SettingsActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
 
         <activity android:name=".OnboardingQuestionsActivity"
             android:exported="false"/>
@@ -93,6 +87,13 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
+        <service
+            android:name=".HardcoreModeService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            />
+
 
     </application>
 

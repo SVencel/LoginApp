@@ -150,22 +150,19 @@ class AppUsageService : AccessibilityService() {
     }
 
     private fun showNotification(message: String) {
-        val channelId = "app_alerts"
+        val channelId = "hardcore_mode_channel"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "App Alerts", NotificationManager.IMPORTANCE_HIGH)
-            manager.createNotificationChannel(channel)
-        }
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("App Restriction")
+            .setContentTitle("App Alert")
             .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
             .build()
 
-        manager.notify(2, notification)
+        manager.notify(Random().nextInt(), notification)
     }
 
     private fun isAppBlockedBySectionAsync(packageName: String, onResult: (Boolean) -> Unit) {

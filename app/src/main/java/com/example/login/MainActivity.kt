@@ -1,5 +1,7 @@
 package com.example.login
 
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        createHardcoreNotificationChannel()
 
         bottomNav = findViewById(R.id.bottomNavigationView)
 
@@ -50,6 +54,7 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragment_container, fragment)
             .commit()
     }
+
 
     private fun observeProductivityThreshold() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
@@ -102,6 +107,24 @@ class MainActivity : AppCompatActivity() {
                 println("📘 Logged productivity response: $isProductive")
             }
     }
+
+    private fun createHardcoreNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "hardcore_mode_channel"
+            val name = "Hardcore Mode Alerts"
+            val descriptionText = "Notifications that are allowed during Hardcore Mode"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+
+            val channel = android.app.NotificationChannel(channelId, name, importance).apply {
+                description = descriptionText
+                setBypassDnd(true) // 🔥 THIS lets it break through DND
+            }
+
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

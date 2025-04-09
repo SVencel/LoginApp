@@ -15,14 +15,34 @@
         android:textSize="16sp"
         android:layout_marginBottom="24dp" />
 
-    <Switch
-        android:id="@+id/switchGoOffline"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="4dp">
+
+        <Switch
+        android:id="@+id/switchHardcore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:text="🚫 Go Offline (Block distractions)"
+        android:text="☠️ HARDCORE MODE"
         android:textSize="16sp"
         android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/tvHardcoreExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Allows calls, text messages, alarms. Everything else is silenced."
+        android:textSize="14sp"
+        android:textColor="#777"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="5dp" />
+    </LinearLayout>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,16 +66,6 @@
             android:textColor="#666"
             android:textSize="14sp" />
     </LinearLayout>
-
-
-    <Button
-        android:id="@+id/btnLockScheduler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="📆 Open Lock Schedule"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="24dp" />
 
     <Button
         android:id="@+id/btnManageSections"
