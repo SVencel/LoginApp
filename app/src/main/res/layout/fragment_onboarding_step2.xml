@@ -2,17 +2,23 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightGreen"
     android:padding="16dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="20dp"
+        android:layout_margin="8dp"
+        android:elevation="4dp">
 
         <!-- Q4 -->
         <TextView
             android:text="4. Which app takes up most of your time?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -23,12 +29,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
+            android:backgroundTint="@color/tealColor"
             android:importantForAccessibility="yes" />
 
         <!-- Q5 -->
         <TextView
             android:text="5. Do you often lose track of time on your phone?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -38,36 +46,17 @@
             android:id="@+id/rgLoseTrack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Yes, regularly" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Sometimes" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Rarely" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Never" />
+            <RadioButton android:text="Yes, regularly" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Rarely" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Never" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q6 -->
         <TextView
             android:text="6. Does phone use affect your sleep?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -77,39 +66,24 @@
             android:id="@+id/rgSleepImpact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Yes, I scroll instead of sleeping" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Sometimes" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="No" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="Not sure" />
+            <RadioButton android:text="Yes, I scroll instead of sleeping" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="No"  android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Not sure" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
         </RadioGroup>
 
         <!-- Next Button -->
         <Button
             android:id="@+id/btnNextStep2"
             android:text="Next"
-            android:layout_marginTop="24dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/tealColor"
+            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:drawableEnd="@drawable/ic_baseline_navigate_next_24"
+            android:drawablePadding="8dp"
+            android:padding="12dp"/>
     </LinearLayout>
 </ScrollView>

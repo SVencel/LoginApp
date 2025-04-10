@@ -1,54 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/light_green_bg"
+    android:padding="16dp">
 
-    <!-- 🔵 Progress Indicator -->
-    <LinearLayout
-        android:id="@+id/progressIndicator"
+    <!-- 🔵 Progress Bar -->
+    <ProgressBar
+        android:id="@+id/onboardingProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center"
-        android:weightSum="3">
+        android:layout_height="8dp"
+        android:layout_marginTop="16dp"
+        android:indeterminate="false"
+        android:progress="0"
+        android:max="3"
+        android:progressDrawable="@drawable/progress_bar_custom" />
 
-        <TextView
-            android:id="@+id/progressStep1"
-            android:text="●"
-            android:textSize="24sp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#2196F3"/>
-
-        <TextView
-            android:id="@+id/progressStep2"
-            android:text="○"
-            android:textSize="24sp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#B0BEC5"/>
-
-        <TextView
-            android:id="@+id/progressStep3"
-            android:text="○"
-            android:textSize="24sp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#B0BEC5"/>
-    </LinearLayout>
-
-    <!-- 🔻 Fragment container (takes the rest of the screen) -->
+    <!-- 🔻 Fragment container -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent" />
+
+    <!-- ✳️ Skip Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSkipOnboarding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Skip"
+        android:layout_gravity="end"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/tealColor"
+        android:textColor="@android:color/white"
+        app:cornerRadius="24dp"
+        app:icon="@drawable/ic_baseline_navigate_next_24"
+        app:iconPadding="8dp"
+        app:iconGravity="textStart"
+        android:elevation="4dp" />
+
 </LinearLayout>

@@ -15,4 +15,8 @@
     <color name="section_active">#D0F5C9</color> <!-- light green -->
     <color name="section_disabled">#EEEEEE</color> <!-- light gray -->
     <color name="section_inactive">#FFECB3</color> <!-- light yellow -->
+    <color name="light_green_bg">#E9F5EC</color> <!-- pastel green vibe -->
+    <color name="gray">#B0BEC5</color> <!-- gray -->
+    <color name="lightGreen">#D0F5C9</color> <!-- light green -->
+
 </resources>

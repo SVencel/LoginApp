@@ -2,6 +2,8 @@ package com.example.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
 class OnboardingQuestionsActivity : AppCompatActivity() {
+
+    private lateinit var skipButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +25,16 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
                 .replace(R.id.fragmentContainer, OnboardingStep1Fragment())
                 .commit()
         }
+
+        findViewById<Button>(R.id.btnSkipOnboarding).setOnClickListener {
+            goToMain()
+        }
+
+        skipButton = findViewById(R.id.btnSkipOnboarding)
+        skipButton.setOnClickListener {
+            goToMain()
+        }
+
     }
 
     fun goToNext(fragment: Fragment) {
@@ -68,22 +82,17 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
             }
     }
     fun updateProgress(currentStep: Int) {
-        val steps = listOf(
-            findViewById<TextView>(R.id.progressStep1),
-            findViewById<TextView>(R.id.progressStep2),
-            findViewById<TextView>(R.id.progressStep3)
-        )
+        val progressBar = findViewById<ProgressBar>(R.id.onboardingProgressBar)
+        progressBar.progress = currentStep + 1  // Since progress bar starts from 0
 
-        steps.forEachIndexed { index, textView ->
-            if (index == currentStep) {
-                textView.text = "●"
-                textView.setTextColor(getColor(R.color.tealColor)) // or your primary color
-            } else {
-                textView.text = "○"
-                textView.setTextColor(getColor(android.R.color.darker_gray))
-            }
-        }
+    // ✅ Hide skip button on last step (step 2 here)
+        skipButton.visibility = if (currentStep == 2) Button.GONE else Button.VISIBLE
     }
 
+    private fun goToMain() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
 
 }

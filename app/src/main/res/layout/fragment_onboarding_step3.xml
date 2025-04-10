@@ -2,17 +2,24 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightGreen"
     android:padding="16dp">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="20dp"
+        android:layout_margin="8dp"
+        android:elevation="4dp">
 
         <!-- Q7 -->
         <TextView
             android:text="7. Why did you download BeAlive?"
             android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -52,14 +59,17 @@
         <TextView
             android:text="8. What would success look like in 30 days?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/etGoalText"
             android:hint="Type your goal..."
-            android:padding="8dp"
+            android:padding="12dp"
+            android:backgroundTint="@color/tealColor"
             android:minHeight="48dp"
             android:importantForAccessibility="yes"
             android:layout_width="match_parent"
@@ -69,9 +79,15 @@
         <Button
             android:id="@+id/btnFinishOnboarding"
             android:text="Finish"
-            android:layout_marginTop="24dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/tealColor"
+            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:drawableEnd="@drawable/ic_baseline_check_24"
+            android:drawablePadding="8dp"
+            android:padding="12dp" />
 
     </LinearLayout>
 </ScrollView>

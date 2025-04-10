@@ -2,17 +2,25 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightGreen"
     android:padding="16dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="20dp"
+        android:elevation="4dp"
+        android:layout_margin="8dp"
+        android:clipToPadding="false"
+        android:backgroundTint="@android:color/white">
 
         <!-- Q1 -->
         <TextView
             android:text="1. How many hours do you use your phone daily?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -21,19 +29,20 @@
             android:id="@+id/rgPhoneUsage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="1–2 hours" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="2–4 hours" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="4–6 hours" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="6+ hours" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="I don't know / I’d like to find out" android:minHeight="48dp" />
+            <RadioButton android:text="1–2 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="2–4 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="4–6 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="6+ hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="I don't know / I’d like to find out" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q2 -->
         <TextView
             android:text="2. When do you use your phone the most?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -41,18 +50,19 @@
             android:id="@+id/rgTimeOfDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Morning" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="During work/study" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Evening" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="All day" android:minHeight="48dp" />
+            <RadioButton android:text="Morning" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="During work/study" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Evening" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="All day" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q3 -->
         <TextView
             android:text="3. Why do you usually reach for your phone?"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -60,22 +70,27 @@
             android:id="@+id/rgPhoneReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Boredom" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Stress relief" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Social contact" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Social media" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Entertainment/games" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Work/study" android:minHeight="48dp" />
-            <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Just a habit" android:minHeight="48dp" />
+            <RadioButton android:text="Boredom" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Stress relief" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Social contact" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Social media" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Entertainment/games" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Work/study" android:layout_gravity="" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Just a habit" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
-        <!-- Next button -->
+        <!-- Button -->
         <Button
             android:id="@+id/btnNextStep1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Next"
             android:layout_marginTop="24dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:backgroundTint="@color/tealColor"
+            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:drawableEnd="@drawable/ic_baseline_navigate_next_24"
+            android:drawablePadding="8dp"
+            android:padding="12dp"/>
     </LinearLayout>
 </ScrollView>
