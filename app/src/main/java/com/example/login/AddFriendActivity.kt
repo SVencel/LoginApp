@@ -77,15 +77,20 @@ class AddFriendActivity : AppCompatActivity() {
             return
         }
 
-        val userRef = db.collection("users").document(currentUserId)
+        val receiverRef = db.collection("users").document(friendId)
 
-        userRef.update("friends", com.google.firebase.firestore.FieldValue.arrayUnion(friendId))
+        // Write a request into the receiver's document
+        val requestField = "friendRequests.$currentUserId"
+
+        receiverRef.update(requestField, true)
             .addOnSuccessListener {
-                Toast.makeText(this, "🎉 Friend added!", Toast.LENGTH_SHORT).show()
-                finish() // Close activity
+                Toast.makeText(this, "🎯 Friend request sent!", Toast.LENGTH_SHORT).show()
+                finish()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "❌ Failed to add friend", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { error ->
+                Toast.makeText(this, "❌ Failed to send request: ${error.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 }
