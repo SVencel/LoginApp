@@ -1,24 +1,14 @@
 package com.example.login
 
-import android.app.usage.UsageStatsManager
-import android.graphics.Color
 import android.content.Context
-import android.icu.util.Calendar
-import android.view.LayoutInflater
-import android.view.View
-import kotlin.math.roundToInt
-import android.view.ViewGroup
+import android.graphics.Color
+import android.view.*
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.utils.MPPointF
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<ChartPagerAdapter.ChartViewHolder>() {
 
@@ -37,156 +27,49 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         private val chart: BarChart = view.findViewById(R.id.barChart)
 
         fun bind(position: Int) {
+            // Show dummy data based on position
             when (position) {
-                0 -> loadStreakChart(chart)
-                1 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_DAILY)
-                2 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_WEEKLY)
-                3 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_MONTHLY)
+                0 -> loadDummyChart(chart, "Streak")
+                1 -> loadDummyChart(chart, "Daily")
+                2 -> loadDummyChart(chart, "Weekly")
+                3 -> loadDummyChart(chart, "Monthly")
             }
         }
 
         fun clearHighlight() {
-            chart.highlightValues(null)  // 💡 This removes the marker tooltip
+            chart.highlightValues(null)
         }
     }
 
-    private fun loadStreakChart(chart: BarChart) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
+    private fun loadDummyChart(chart: BarChart, label: String) {
+        val entries = listOf(
+            BarEntry(0f, 2f),
+            BarEntry(1f, 4f),
+            BarEntry(2f, 6f),
+            BarEntry(3f, 3f),
+            BarEntry(4f, 5f),
+        )
 
-        db.collection("users").document(user.uid).collection("streakHistory")
-            .get()
-            .addOnSuccessListener { documents ->
-                val entries = ArrayList<BarEntry>()
-                var index = 0
-                for (document in documents) {
-                    val streakValue = document.getLong("streak")?.toInt() ?: 0
-                    entries.add(BarEntry(index.toFloat(), streakValue.toFloat()))
-                    index++
-                }
+        val dataSet = BarDataSet(entries, "$label Data")
+        dataSet.color = Color.parseColor("#4CAF50")
 
-                val dataSet = BarDataSet(entries, "Streak Progress")
-                dataSet.color = Color.parseColor("#4CAF50")
-                val barData = BarData(dataSet)
-                chart.data = barData
-                chart.description.isEnabled = false
-                chart.invalidate()
-            }
-    }
-
-    private fun loadAppUsageChart(chart: BarChart, intervalType: Int) {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val calendar = Calendar.getInstance()
-        val endTime = calendar.timeInMillis
-        when (intervalType) {
-            UsageStatsManager.INTERVAL_DAILY -> calendar.add(Calendar.DAY_OF_YEAR, -1)
-            UsageStatsManager.INTERVAL_WEEKLY -> calendar.add(Calendar.WEEK_OF_YEAR, -1)
-            UsageStatsManager.INTERVAL_MONTHLY -> calendar.add(Calendar.MONTH, -1)
-        }
-        val startTime = calendar.timeInMillis
-        chart.setDrawMarkers(true)
-
-
-
-        val stats = usageStatsManager.queryUsageStats(intervalType, startTime, endTime)
-        val usageMap = mutableMapOf<String, Long>()
-
-        for (usageStat in stats) {
-            val totalTime = usageStat.totalTimeInForeground
-            if (totalTime >= 60000) { // Only show apps used more than 1 minute
-                usageMap[usageStat.packageName] = (usageMap[usageStat.packageName] ?: 0) + totalTime
-            }
-        }
-
-        val entries = mutableListOf<BarEntry>()
-        val labels = mutableListOf<String>()
-        val colors = mutableListOf<Int>()
-        var index = 0
-        val packageManager = context.packageManager
-
-        for ((packageName, time) in usageMap.toList().sortedByDescending { it.second }.take(10)) {
-            val label = try {
-                packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
-            } catch (e: Exception) {
-                packageName
-            }
-
-            val minutes = time / 60000f
-            entries.add(BarEntry(index.toFloat(), minutes))
-            labels.add(label)
-            colors.add(getColorForAppCategory(packageName))
-            index++
-        }
-
-        val dataSet = BarDataSet(entries, "App Usage (Minutes)")
-        dataSet.colors = colors
         val barData = BarData(dataSet)
         barData.barWidth = 0.9f
         chart.data = barData
 
+        val labels = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
         chart.xAxis.apply {
             valueFormatter = IndexAxisValueFormatter(labels)
-            granularity = 1f
-            isGranularityEnabled = true
-            labelRotationAngle = -30f
             position = XAxis.XAxisPosition.BOTTOM
+            granularity = 1f
             setDrawGridLines(false)
-            textSize = 10f
         }
 
         chart.axisLeft.textSize = 12f
         chart.axisRight.isEnabled = false
         chart.description.isEnabled = false
         chart.setFitBars(true)
-        chart.setTouchEnabled(true)
         chart.setDrawGridBackground(false)
         chart.invalidate()
-
-        val markerView = UsageMarkerView(context, labels)
-        markerView.chartView = chart
-        chart.marker = markerView
     }
-
-    private fun getColorForAppCategory(packageName: String): Int {
-        val pm = context.packageManager
-        return try {
-            val appInfo = pm.getApplicationInfo(packageName, 0)
-            val category = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                appInfo.category
-            } else null
-
-            when (category) {
-                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> Color.parseColor("#FF9800") // Orange
-                android.content.pm.ApplicationInfo.CATEGORY_GAME -> Color.parseColor("#4CAF50") // Green
-                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> Color.parseColor("#2196F3") // Blue
-                else -> Color.GRAY
-            }
-        } catch (e: Exception) {
-            Color.GRAY
-        }
-    }
-
-    class UsageMarkerView(context: Context, private val labels: List<String>) :
-        MarkerView(context, R.layout.marker_view) {
-
-        private val markerText: TextView = findViewById(R.id.markerText)
-
-        override fun refreshContent(e: Entry?, highlight: Highlight?) {
-            if (e != null && e.x >= 0 && e.x < labels.size) {
-                val index = e.x.roundToInt().coerceIn(0, labels.size - 1)
-                val label = labels[index]
-                val minutes = e.y.toInt()
-                markerText.text = "$label\n$minutes min"
-            } else {
-                markerText.text = "N/A"
-            }
-            super.refreshContent(e, highlight)
-        }
-
-        override fun getOffset(): MPPointF {
-            return MPPointF(-(width / 2f), -height.toFloat())
-        }
-    }
-
-
 }

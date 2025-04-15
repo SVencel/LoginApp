@@ -1,19 +1,14 @@
 package com.example.login
 
-import android.graphics.Color
 import android.view.*
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 
+
 class AppListAdapter(
     private val apps: List<AppInfo>,
     private val selectedApps: MutableSet<String>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    companion object {
-        private const val TYPE_APP = 0
-        private const val TYPE_DIVIDER = 1
-    }
+) : RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
 
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appName: TextView = itemView.findViewById(R.id.appNameText)
@@ -22,57 +17,28 @@ class AppListAdapter(
         val topTag: TextView = itemView.findViewById(R.id.topAppTag)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (apps.size > 5 && position == 5) TYPE_DIVIDER else TYPE_APP
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_app, parent, false)
+        return AppViewHolder(view)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TYPE_DIVIDER) {
-            val divider = View(parent.context).apply {
-                layoutParams = RecyclerView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    2
-                ).apply {
-                    setMargins(0, 16, 0, 16)
-                }
-                setBackgroundColor(Color.LTGRAY)
-            }
-            object : RecyclerView.ViewHolder(divider) {}
-        } else {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_app, parent, false)
-            AppViewHolder(view)
-        }
-    }
+    override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
+        val app = apps[position]
+        holder.appName.text = app.name
+        holder.appCheckbox.isChecked = selectedApps.contains(app.packageName)
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == TYPE_DIVIDER) return
-
-        val actualIndex = if (apps.size > 5 && position > 5) position - 1 else position
-        val app = apps[actualIndex]
-        val appHolder = holder as AppViewHolder
-
-        appHolder.appName.text = app.name
-        appHolder.appCheckbox.setOnCheckedChangeListener(null)
-        appHolder.appCheckbox.isChecked = selectedApps.contains(app.packageName)
-
-        appHolder.appCheckbox.setOnCheckedChangeListener { _, isChecked ->
+        // Toggle on click
+        holder.appCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) selectedApps.add(app.packageName)
             else selectedApps.remove(app.packageName)
         }
 
-        if (app.isTopUsed) {
-            appHolder.topTag.visibility = View.VISIBLE
-        } else {
-            appHolder.topTag.visibility = View.GONE
-        }
+        // Use placeholder icon
+        holder.appIcon.setImageResource(R.drawable.ic_launcher_foreground)
 
-        val pm = holder.itemView.context.packageManager
-        val appIcon = pm.getApplicationIcon(app.packageName)
-        appHolder.appIcon.setImageDrawable(appIcon)
+        holder.topTag.visibility = if (app.isTopUsed) View.VISIBLE else View.GONE
     }
 
-    override fun getItemCount(): Int {
-        return apps.size + if (apps.size > 5) 1 else 0
-    }
+    override fun getItemCount(): Int = apps.size
 }

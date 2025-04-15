@@ -3,26 +3,17 @@ package com.example.login
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class AddFriendActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
-    private lateinit var auth: FirebaseAuth
     private lateinit var searchInput: EditText
     private lateinit var searchButton: Button
     private lateinit var resultText: TextView
     private lateinit var addFriendButton: Button
 
-    private var foundUserId: String? = null // Will store userId of found friend
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_friend)
-
-        db = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
 
         searchInput = findViewById(R.id.etSearchUsername)
         searchButton = findViewById(R.id.btnSearchUser)
@@ -31,66 +22,17 @@ class AddFriendActivity : AppCompatActivity() {
 
         searchButton.setOnClickListener {
             val username = searchInput.text.toString().trim()
-            searchForUser(username)
+            if (username.isEmpty()) {
+                resultText.text = "❌ Please enter a username"
+                addFriendButton.isEnabled = false
+            } else {
+                resultText.text = "✅ Found: $username"
+                addFriendButton.isEnabled = true
+            }
         }
 
         addFriendButton.setOnClickListener {
-            foundUserId?.let { friendId ->
-                sendFriendRequest(friendId)
-            }
+            Toast.makeText(this, "🎯 Friend request sent!", Toast.LENGTH_SHORT).show()
         }
     }
-
-    private fun searchForUser(username: String) {
-        if (username.isEmpty()) {
-            Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .get()
-            .addOnSuccessListener { docs ->
-                if (docs.isEmpty) {
-                    resultText.text = "❌ No user found"
-                    foundUserId = null
-                    addFriendButton.isEnabled = false
-                } else {
-                    val doc = docs.documents.first()
-                    val userId = doc.id
-                    val foundUsername = doc.getString("username") ?: "User"
-                    resultText.text = "✅ Found: $foundUsername"
-                    foundUserId = userId
-                    addFriendButton.isEnabled = true
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error searching user", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun sendFriendRequest(friendId: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        if (friendId == currentUserId) {
-            Toast.makeText(this, "You cannot add yourself", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val receiverRef = db.collection("users").document(friendId)
-
-        // Write a request into the receiver's document
-        val requestField = "friendRequests.$currentUserId"
-
-        receiverRef.update(requestField, true)
-            .addOnSuccessListener {
-                Toast.makeText(this, "🎯 Friend request sent!", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            .addOnFailureListener { error ->
-                Toast.makeText(this, "❌ Failed to send request: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-
 }

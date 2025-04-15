@@ -8,26 +8,19 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.login.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
+
 
 class FriendsFragment : Fragment() {
 
     private lateinit var friendCountText: TextView
-    private lateinit var requestsTitle: TextView
     private lateinit var friendsTitle: TextView
-    private lateinit var rvRequests: RecyclerView
     private lateinit var rvFriends: RecyclerView
 
-    private val db = FirebaseFirestore.getInstance()
-    private val currentUser = FirebaseAuth.getInstance().currentUser
-
-    private val friendList = mutableListOf<Friend>()
-    private val requestList = mutableListOf<FriendRequest>()
-
-    private lateinit var friendsAdapter: FriendsAdapter
-    private lateinit var requestAdapter: FriendRequestAdapter
+    private val sampleFriends = listOf(
+        Friend("1", "Alice", 5, "💪 Keep going, Alice!"),
+        Friend("2", "Bob", 12, "🔥 You're crushing it!"),
+        Friend("3", "Charlie", 8, "👏 Stay strong!"),
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -35,117 +28,19 @@ class FriendsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_friends, container, false)
 
         friendCountText = view.findViewById(R.id.tvFriendCount)
-        requestsTitle = view.findViewById(R.id.tvFriendRequestsTitle)
         friendsTitle = view.findViewById(R.id.tvFriendsTitle)
-        rvRequests = view.findViewById(R.id.rvFriendRequests)
         rvFriends = view.findViewById(R.id.rvFriends)
 
-        rvRequests.layoutManager = LinearLayoutManager(requireContext())
         rvFriends.layoutManager = LinearLayoutManager(requireContext())
+        rvFriends.adapter = FriendsAdapter(sampleFriends) {}
 
-        requestAdapter = FriendRequestAdapter(
-            requestList,
-            onAccept = { senderId -> acceptFriend(senderId) },
-            onDecline = { senderId -> declineFriend(senderId) }
-        )
-        friendsAdapter = FriendsAdapter(friendList) { friend -> cheerFriend(friend) }
-
-        rvRequests.adapter = requestAdapter
-        rvFriends.adapter = friendsAdapter
+        friendCountText.text = "Friends: ${sampleFriends.size}"
 
         view.findViewById<Button>(R.id.btnAddNewFriend).setOnClickListener {
             startActivity(Intent(requireContext(), AddFriendActivity::class.java))
         }
 
-        loadFriendRequests()
-        loadFriends()
-
         return view
-    }
-
-    private fun loadFriendRequests() {
-        val user = currentUser ?: return
-        db.collection("users").document(user.uid).get()
-            .addOnSuccessListener { doc ->
-                val requests = doc.get("friendRequests") as? Map<*, *> ?: emptyMap<String, Boolean>()
-                requestList.clear()
-
-                if (requests.isNotEmpty()) {
-                    requestsTitle.visibility = View.VISIBLE
-                    rvRequests.visibility = View.VISIBLE
-                } else {
-                    requestsTitle.visibility = View.GONE
-                    rvRequests.visibility = View.GONE
-                }
-
-                for (senderId in requests.keys) {
-                    db.collection("users").document(senderId.toString()).get()
-                        .addOnSuccessListener { senderDoc ->
-                            val username = senderDoc.getString("username") ?: "Unknown"
-                            requestList.add(FriendRequest(senderId.toString(), username))
-                            requestAdapter.notifyDataSetChanged()
-                        }
-                }
-            }
-    }
-
-    private fun loadFriends() {
-        currentUser?.let { user ->
-            db.collection("users").document(user.uid).get().addOnSuccessListener { doc ->
-                val friends = doc.get("friends") as? List<*> ?: return@addOnSuccessListener
-                friendList.clear()
-
-                for (friendId in friends) {
-                    db.collection("users").document(friendId.toString()).get()
-                        .addOnSuccessListener { friendDoc ->
-                            val name = friendDoc.getString("username") ?: "Unknown"
-                            val streak = friendDoc.getLong("streakCount")?.toInt() ?: 0
-                            val cheer = friendDoc.getString("latestCheer") ?: ""
-
-                            friendList.add(Friend(friendId.toString(), name, streak, cheer))
-                            friendList.sortByDescending { it.streakCount }
-                            friendsAdapter.notifyDataSetChanged()
-                            friendCountText.text = "Friends: ${friendList.size}"
-                        }
-                }
-            }
-        }
-    }
-
-    private fun acceptFriend(senderId: String) {
-        val currentUserId = currentUser?.uid ?: return
-        val batch = db.batch()
-        val currentUserRef = db.collection("users").document(currentUserId)
-        val senderRef = db.collection("users").document(senderId)
-
-        batch.update(currentUserRef, "friends", FieldValue.arrayUnion(senderId))
-        batch.update(senderRef, "friends", FieldValue.arrayUnion(currentUserId))
-        batch.update(currentUserRef, "friendRequests.${senderId}", FieldValue.delete())
-
-        batch.commit().addOnSuccessListener {
-            Toast.makeText(requireContext(), "✅ Friend added!", Toast.LENGTH_SHORT).show()
-            loadFriendRequests()
-            loadFriends()
-        }
-    }
-
-    private fun declineFriend(senderId: String) {
-        val currentUserId = currentUser?.uid ?: return
-        db.collection("users").document(currentUserId)
-            .update("friendRequests.${senderId}", FieldValue.delete())
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "❌ Request declined", Toast.LENGTH_SHORT).show()
-                loadFriendRequests()
-            }
-    }
-
-    private fun cheerFriend(friend: Friend) {
-        val message = "💪 Keep going, ${friend.username}!"
-        db.collection("users").document(friend.uid)
-            .update("latestCheer", message)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "🎉 You cheered ${friend.username}", Toast.LENGTH_SHORT).show()
-            }
     }
 
     data class Friend(
@@ -154,4 +49,34 @@ class FriendsFragment : Fragment() {
         val streakCount: Int,
         val latestCheer: String
     )
+
+    class FriendsAdapter(
+        private val items: List<Friend>,
+        private val onCheerClick: (Friend) -> Unit
+    ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
+
+        inner class FriendViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val name: TextView = view.findViewById(R.id.tvFriendName)
+            val streak: TextView = view.findViewById(R.id.tvStreakCount)
+            val cheer: TextView = view.findViewById(R.id.tvCheerMessage)
+            val btnCheer: Button = view.findViewById(R.id.btnCheer)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_friend, parent, false)
+            return FriendViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
+            val friend = items[position]
+            holder.name.text = friend.username
+            holder.streak.text = "🔥 Streak: ${friend.streakCount} days"
+            holder.cheer.text = friend.latestCheer
+            holder.btnCheer.setOnClickListener { onCheerClick(friend) }
+        }
+
+        override fun getItemCount(): Int = items.size
+    }
+
 }

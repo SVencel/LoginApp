@@ -9,13 +9,13 @@ class HardcoreModeService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startHardcoreNotification()
+        showPlaceholderNotification()
     }
 
-    private fun startHardcoreNotification() {
+    private fun showPlaceholderNotification() {
         val channelId = "hardcore_mode_channel"
 
-        // Optional: add a tap action
+        // Notification tap returns to app (optional)
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
@@ -23,13 +23,12 @@ class HardcoreModeService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_skull) // this icon shows in the status bar
+            .setSmallIcon(R.drawable.ic_skull) // Placeholder icon for UI
             .setContentTitle("☠️ HARDCORE MODE IS ON")
             .setContentText("Only this app, calls, and SMS are allowed.")
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setOngoing(true) // this prevents swipe to remove
+            .setOngoing(true)
             .setAutoCancel(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()

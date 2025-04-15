@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.login.ChartPagerAdapter
 import com.example.login.R
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -30,7 +29,7 @@ class ProgressFragment : Fragment() {
         viewPager = view.findViewById(R.id.chartViewPager)
         tabLayout = view.findViewById(R.id.chartTabIndicator)
 
-        viewPager.adapter = ChartPagerAdapter(requireContext())
+        viewPager.adapter = DummyChartPagerAdapter()
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
@@ -41,14 +40,24 @@ class ProgressFragment : Fragment() {
                 else -> ""
             }
         }.attach()
+    }
 
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                val recyclerView = viewPager.getChildAt(0) as? RecyclerView
-                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-                        as? ChartPagerAdapter.ChartViewHolder
-                viewPager.postDelayed({ viewHolder?.clearHighlight() }, 50)
-            }
-        })
+    // ✅ Correctly extended Adapter
+    inner class DummyChartPagerAdapter :
+        RecyclerView.Adapter<DummyChartPagerAdapter.DummyViewHolder>() {
+
+        inner class DummyViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DummyViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_dummy_chart, parent, false)
+            return DummyViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: DummyViewHolder, position: Int) {
+            // Optionally set chart name or sample data here
+        }
+
+        override fun getItemCount(): Int = 4
     }
 }

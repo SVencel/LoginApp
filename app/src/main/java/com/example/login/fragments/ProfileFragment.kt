@@ -1,19 +1,10 @@
 package com.example.login.fragments
 
-import android.app.AppOpsManager
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.example.login.LoginActivity
-import com.example.login.MainActivity
 import com.example.login.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import android.provider.Settings
-
 
 class ProfileFragment : Fragment() {
 
@@ -23,11 +14,6 @@ class ProfileFragment : Fragment() {
     private lateinit var quoteInput: EditText
     private lateinit var userInfoText: TextView
     private lateinit var permissionStatusText: TextView
-
-
-
-    private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -39,95 +25,19 @@ class ProfileFragment : Fragment() {
         logoutButton = view.findViewById(R.id.btnLogout)
         quoteInput = view.findViewById(R.id.etQuote)
         userInfoText = view.findViewById(R.id.tvUserInfo)
-
-        loadUserSettings()
-
-        saveButton.setOnClickListener {
-            saveSettings()
-        }
-
-        logoutButton.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-
-            // 🔄 Optional: clear any saved login state if you use SharedPreferences
-            val prefs = requireActivity().getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
-            prefs.edit().clear().apply()
-
-            // 🚀 Navigate back to login screen
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-        }
         permissionStatusText = view.findViewById(R.id.tvPermissionStatus)
-        updatePermissionStatus()
 
+        // Sample static UI content
+        userInfoText.text = "Logged in as: design@example.com"
+        thresholdInput.setText("60")
+        quoteInput.setText("Keep grinding 💪")
+
+        permissionStatusText.text = """
+            🔐 Permissions:
+            • Usage Access: ✅ Enabled
+            • Accessibility: ✅ Enabled
+        """.trimIndent()
 
         return view
     }
-
-    private fun loadUserSettings() {
-        val user = auth.currentUser ?: return
-        userInfoText.text = "Logged in as: ${user.email}"
-
-        db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val threshold = doc.getLong("productivityPromptMinutes")?.toInt() ?: 60
-                val quote = doc.getString("customMotivation") ?: ""
-
-                thresholdInput.setText(threshold.toString())
-                quoteInput.setText(quote)
-            }
-    }
-
-    private fun saveSettings() {
-        val user = auth.currentUser ?: return
-        val thresholdStr = thresholdInput.text.toString().trim()
-        val customQuote = quoteInput.text.toString().trim()
-
-        val threshold = thresholdStr.toIntOrNull()
-        if (threshold == null || threshold <= 0) {
-            Toast.makeText(requireContext(), "Enter a valid number", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("users").document(user.uid)
-            .update(
-                mapOf(
-                    "productivityPromptMinutes" to threshold,
-                    "customMotivation" to customQuote
-                )
-            )
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "✅ Saved", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "❌ Error saving", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun updatePermissionStatus() {
-        val context = requireContext()
-        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-        val usageAccess = appOps.checkOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            android.os.Process.myUid(),
-            context.packageName
-        ) == AppOpsManager.MODE_ALLOWED
-
-        val accessibility = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )?.contains(context.packageName) == true
-
-        val status = """
-        🔐 Permissions:
-        • Usage Access: ${if (usageAccess) "✅ Enabled" else "❌ Not Enabled"}
-        • Accessibility: ${if (accessibility) "✅ Enabled" else "❌ Not Enabled"}
-    """.trimIndent()
-
-        permissionStatusText.text = status
-    }
-
-
 }
