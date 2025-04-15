@@ -22,18 +22,20 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
+            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <RadioGroup
             android:id="@+id/rgPhoneUsage"
             android:layout_width="match_parent"
+            android:textColor="@android:color/black"
             android:layout_height="wrap_content">
-            <RadioButton android:text="1–2 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="2–4 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="4–6 hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="6+ hours" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="I don't know / I’d like to find out" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="1–2 hours" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="2–4 hours" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="4–6 hours" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="6+ hours" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="I don't know / I’d like to find out" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q2 -->
@@ -42,6 +44,7 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -50,10 +53,10 @@
             android:id="@+id/rgTimeOfDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Morning" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="During work/study" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Evening" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="All day" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Morning" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="During work/study" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Evening" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="All day" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q3 -->
@@ -62,6 +65,7 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -70,13 +74,13 @@
             android:id="@+id/rgPhoneReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Boredom" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Stress relief" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Social contact" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Social media" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Entertainment/games" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Work/study" android:layout_gravity="" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Just a habit" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Boredom" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Stress relief" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Social contact" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Social media" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Entertainment/games" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Work/study" android:textColor="@android:color/black" android:layout_gravity="" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Just a habit" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Button -->

@@ -20,6 +20,7 @@ class OnboardingStep3Fragment : Fragment() {
         btnFinish.setOnClickListener {
             // Skip logic and simulate onboarding completion
             (activity as? OnboardingQuestionsActivity)?.finishOnboarding()
+
         }
 
         return view

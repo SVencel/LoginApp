@@ -2,6 +2,7 @@ package com.example.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
@@ -13,9 +14,12 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_onboarding_questions)
 
-        updateProgress(0)
+            setContentView(R.layout.activity_onboarding_questions)
+
+        Log.d("Onboarding", "OnboardingQuestionsActivity started")
+        skipButton = findViewById(R.id.btnSkipOnboarding) // 👈 initialize FIRST
+        updateProgress(0) // 👈 now it's safe to use it
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
@@ -23,11 +27,11 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
                 .commit()
         }
 
-        skipButton = findViewById(R.id.btnSkipOnboarding)
         skipButton.setOnClickListener {
             goToMain()
         }
     }
+
 
     fun goToNext(fragment: Fragment) {
         val nextStep = when (fragment) {

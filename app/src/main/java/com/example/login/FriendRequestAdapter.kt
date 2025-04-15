@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 
 class FriendRequestAdapter(
-    private val requests: List<FriendRequest>,
+    private val requests: List<FriendRequestsActivity.FriendRequest>,
     private val onAccept: (String) -> Unit = {},
     private val onDecline: (String) -> Unit = {}
 ) : RecyclerView.Adapter<FriendRequestAdapter.ViewHolder>() {

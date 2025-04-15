@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
+    android:textColor="@android:color/black"
     android:padding="16dp">
 
     <LinearLayout
@@ -19,6 +20,7 @@
             android:text="4. Which app takes up most of your time?"
             android:textStyle="bold"
             android:textSize="16sp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -27,6 +29,7 @@
             android:id="@+id/etAppUsed"
             android:hint="e.g. TikTok, Instagram..."
             android:layout_width="match_parent"
+            android:textColor="@android:color/black"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
             android:backgroundTint="@color/tealColor"
@@ -38,6 +41,7 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -46,10 +50,10 @@
             android:id="@+id/rgLoseTrack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, regularly" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Rarely" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Never" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Yes, regularly" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Rarely" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Never" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q6 -->
@@ -58,6 +62,7 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -66,10 +71,10 @@
             android:id="@+id/rgSleepImpact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, I scroll instead of sleeping" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
-            <RadioButton android:text="No"  android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Not sure" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="Yes, I scroll instead of sleeping" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="No" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Not sure" android:textColor="@android:color/black" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
         </RadioGroup>
 
         <!-- Next Button -->

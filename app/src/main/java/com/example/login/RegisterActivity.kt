@@ -20,11 +20,11 @@ class RegisterActivity : AppCompatActivity() {
         val backToLoginButton: Button = findViewById(R.id.btnBackToLogin)
 
         registerButton.setOnClickListener {
-            Toast.makeText(this, "📦 Registration preview", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
         }
 
         backToLoginButton.setOnClickListener {
-            startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }

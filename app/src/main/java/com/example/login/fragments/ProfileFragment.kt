@@ -1,9 +1,12 @@
 package com.example.login.fragments
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.example.login.LoginActivity
 import com.example.login.R
 
 class ProfileFragment : Fragment() {
@@ -38,6 +41,21 @@ class ProfileFragment : Fragment() {
             • Accessibility: ✅ Enabled
         """.trimIndent()
 
+        logoutButton.setOnClickListener {
+            // Optional: clear any local flags or prefs
+            val prefs = requireActivity().getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+
+            // Navigate back to login screen
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
+
+
         return view
     }
+
+
 }

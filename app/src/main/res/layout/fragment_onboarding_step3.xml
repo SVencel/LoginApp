@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
+    android:textColor="@android:color/black"
     android:padding="16dp">
 
     <LinearLayout
@@ -18,6 +19,7 @@
         <TextView
             android:text="7. Why did you download BeAlive?"
             android:textStyle="bold"
+            android:textColor="@android:color/black"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -28,12 +30,14 @@
             android:text="To spend less time on my phone"
             android:padding="8dp"
             android:minHeight="48dp"
+            android:textColor="@android:color/black"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <CheckBox
             android:id="@+id/cbReasonBetterSleep"
             android:text="To sleep better"
+            android:textColor="@android:color/black"
             android:padding="8dp"
             android:minHeight="48dp"
             android:layout_width="match_parent"
@@ -43,6 +47,7 @@
             android:id="@+id/cbReasonAddiction"
             android:text="To overcome social media addiction"
             android:padding="8dp"
+            android:textColor="@android:color/black"
             android:minHeight="48dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -53,6 +58,7 @@
             android:padding="8dp"
             android:minHeight="48dp"
             android:layout_width="match_parent"
+            android:textColor="@android:color/black"
             android:layout_height="wrap_content" />
 
         <!-- Q8 -->
@@ -63,6 +69,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
+            android:textColor="@android:color/black"
             android:layout_height="wrap_content" />
 
         <EditText
@@ -72,6 +79,7 @@
             android:backgroundTint="@color/tealColor"
             android:minHeight="48dp"
             android:importantForAccessibility="yes"
+            android:textColor="@android:color/black"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
