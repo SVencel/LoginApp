@@ -8,6 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.login.*
+import com.example.login.Friend
+import com.example.login.FriendsAdapter
+import androidx.appcompat.app.AlertDialog
+import com.example.login.FriendRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -48,7 +52,11 @@ class FriendsFragment : Fragment() {
             onAccept = { senderId -> acceptFriend(senderId) },
             onDecline = { senderId -> declineFriend(senderId) }
         )
-        friendsAdapter = FriendsAdapter(friendList) { friend -> cheerFriend(friend) }
+        friendsAdapter = FriendsAdapter(
+            friendList,
+            onCheerClick = { friend -> cheerFriend(friend) },
+            onRemoveClick = { friend -> confirmRemoveFriend(friend) }
+        )
 
         rvRequests.adapter = requestAdapter
         rvFriends.adapter = friendsAdapter
@@ -122,6 +130,10 @@ class FriendsFragment : Fragment() {
         batch.update(senderRef, "friends", FieldValue.arrayUnion(currentUserId))
         batch.update(currentUserRef, "friendRequests.${senderId}", FieldValue.delete())
 
+        // 👇 Clear UI state BEFORE reload for immediate feedback
+        requestList.removeAll { it.userId == senderId }
+        requestAdapter.notifyDataSetChanged()
+
         batch.commit().addOnSuccessListener {
             Toast.makeText(requireContext(), "✅ Friend added!", Toast.LENGTH_SHORT).show()
             loadFriendRequests()
@@ -131,6 +143,11 @@ class FriendsFragment : Fragment() {
 
     private fun declineFriend(senderId: String) {
         val currentUserId = currentUser?.uid ?: return
+
+        // 👇 Clear UI state BEFORE reload for immediate feedback
+        requestList.removeAll { it.userId == senderId }
+        requestAdapter.notifyDataSetChanged()
+
         db.collection("users").document(currentUserId)
             .update("friendRequests.${senderId}", FieldValue.delete())
             .addOnSuccessListener {
@@ -139,19 +156,46 @@ class FriendsFragment : Fragment() {
             }
     }
 
-    private fun cheerFriend(friend: Friend) {
-        val message = "💪 Keep going, ${friend.username}!"
-        db.collection("users").document(friend.uid)
-            .update("latestCheer", message)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "🎉 You cheered ${friend.username}", Toast.LENGTH_SHORT).show()
-            }
+    private fun confirmRemoveFriend(friend: Friend) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Remove Friend")
+            .setMessage("Are you sure you want to remove ${friend.username}?")
+            .setPositiveButton("Yes") { _, _ -> removeFriend(friend) }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
-    data class Friend(
-        val uid: String,
-        val username: String,
-        val streakCount: Int,
-        val latestCheer: String
-    )
+    private fun removeFriend(friend: Friend) {
+        val currentUserId = currentUser?.uid ?: return
+
+        val batch = db.batch()
+        val currentUserRef = db.collection("users").document(currentUserId)
+        val friendRef = db.collection("users").document(friend.uid)
+
+        batch.update(currentUserRef, "friends", FieldValue.arrayRemove(friend.uid))
+        batch.update(friendRef, "friends", FieldValue.arrayRemove(currentUserId))
+
+        batch.commit().addOnSuccessListener {
+            Toast.makeText(requireContext(), "❌ Removed ${friend.username}", Toast.LENGTH_SHORT).show()
+            loadFriends()
+        }
+    }
+
+
+    private fun cheerFriend(friend: Friend) {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(currentUser.uid).get()
+            .addOnSuccessListener { doc ->
+                val senderUsername = doc.getString("username") ?: "Someone"
+                val message = "💪 Keep going, ${friend.username}! From: $senderUsername"
+
+                db.collection("users").document(friend.uid)
+                    .update("latestCheer", message)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "🎉 You cheered ${friend.username}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+    }
 }
