@@ -4,11 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 
 class OnboardingQuestionsActivity : AppCompatActivity() {
 
@@ -26,19 +23,13 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
                 .commit()
         }
 
-        findViewById<Button>(R.id.btnSkipOnboarding).setOnClickListener {
-            goToMain()
-        }
-
         skipButton = findViewById(R.id.btnSkipOnboarding)
         skipButton.setOnClickListener {
             goToMain()
         }
-
     }
 
     fun goToNext(fragment: Fragment) {
-
         val nextStep = when (fragment) {
             is OnboardingStep1Fragment -> 0
             is OnboardingStep2Fragment -> 1
@@ -53,39 +44,15 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
             .addToBackStack(null)
             .commit()
     }
+
     fun finishOnboarding() {
-        val viewModel = ViewModelProvider(this)[OnboardingViewModel::class.java]
-        val answers = viewModel.getAllAnswers()
-
-        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-        val userDocRef = db.collection("users").document(user.uid)
-
-        userDocRef.collection("onboardingAnswers")
-            .document("initialSurvey").set(answers)
-            .addOnSuccessListener {
-                Toast.makeText(this, "🎉 Answers saved successfully!", Toast.LENGTH_SHORT).show()
-
-                // ✅ Launch HomeActivity and clear the backstack
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "❌ Failed to save answers.", Toast.LENGTH_SHORT).show()
-            }
+        // Just go to main activity without saving anything in design mode
+        goToMain()
     }
+
     fun updateProgress(currentStep: Int) {
         val progressBar = findViewById<ProgressBar>(R.id.onboardingProgressBar)
-        progressBar.progress = currentStep + 1  // Since progress bar starts from 0
-
-    // ✅ Hide skip button on last step (step 2 here)
+        progressBar.progress = currentStep + 1
         skipButton.visibility = if (currentStep == 2) Button.GONE else Button.VISIBLE
     }
 
@@ -94,5 +61,4 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
-
 }

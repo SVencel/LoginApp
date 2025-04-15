@@ -4,48 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 
 class OnboardingStep2Fragment : Fragment() {
-
-    private lateinit var viewModel: OnboardingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_onboarding_step2, container, false)
-        viewModel = ViewModelProvider(requireActivity())[OnboardingViewModel::class.java]
 
         val btnNext = view.findViewById<Button>(R.id.btnNextStep2)
 
         btnNext.setOnClickListener {
-            val etAppUsed = view.findViewById<EditText>(R.id.etAppUsed)
-            val rgLoseTrack = view.findViewById<RadioGroup>(R.id.rgLoseTrack)
-            val rgSleepImpact = view.findViewById<RadioGroup>(R.id.rgSleepImpact)
-
-            val appUsed = etAppUsed.text.toString()
-            val loseTrack = getSelectedText(rgLoseTrack)
-            val sleepImpact = getSelectedText(rgSleepImpact)
-
-            viewModel.setAnswer("most_used_app", appUsed)
-            viewModel.setAnswer("loses_track_of_time", loseTrack)
-            viewModel.setAnswer("sleep_affected_by_phone", sleepImpact)
-
+            // Skip logic and go straight to next step
             (activity as? OnboardingQuestionsActivity)?.goToNext(OnboardingStep3Fragment())
         }
 
         return view
-    }
-
-    private fun getSelectedText(radioGroup: RadioGroup): String {
-        val selectedId = radioGroup.checkedRadioButtonId
-        return if (selectedId != -1) {
-            radioGroup.findViewById<RadioButton>(selectedId)?.text?.toString() ?: ""
-        } else {
-            ""
-        }
     }
 }
