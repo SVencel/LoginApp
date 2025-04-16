@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     android:padding="16dp">
 
     <LinearLayout
@@ -31,6 +33,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
             android:backgroundTint="@color/tealColor"
             android:importantForAccessibility="yes" />
 

@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:padding="24dp">
 
     <LinearLayout
@@ -13,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
+            android:maxLines="1"
             android:inputType="textEmailAddress"
             android:minHeight="48dp"
             android:layout_marginBottom="16dp" />
@@ -22,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:maxLines="1"
             android:inputType="textPassword"
             android:minHeight="48dp"
             android:layout_marginBottom="24dp" />

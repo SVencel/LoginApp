@@ -5,6 +5,8 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     android:background="@color/backgroundColor">
 
     <EditText
@@ -13,6 +15,9 @@
         android:layout_height="56dp"
         android:hint="Enter username"
         android:padding="12dp"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:inputType="textPersonName"
         android:background="@drawable/rounded_edittext"
         android:textColor="@color/textPrimaryColor"
         android:layout_marginBottom="16dp"/>
@@ -22,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:hint="Enter Email"
+        android:maxLines="1"
         android:inputType="textEmailAddress"
         android:padding="12dp"
         android:background="@drawable/rounded_edittext"
@@ -35,6 +41,7 @@
         android:hint="Enter Password"
         android:inputType="textPassword"
         android:padding="12dp"
+        android:maxLines="1"
         android:background="@drawable/rounded_edittext"
         android:textColor="@color/textPrimaryColor"
         android:layout_marginBottom="24dp"/>

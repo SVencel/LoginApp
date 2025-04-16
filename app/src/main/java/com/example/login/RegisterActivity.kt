@@ -115,10 +115,12 @@ class RegisterActivity : AppCompatActivity() {
                 registerButton.text = "Sign Up"
 
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-                    if (userId != null) {
-                        saveUserToFirestore(userId, username, email)
+                    val intent = Intent(this, OnboardingQuestionsActivity::class.java).apply {
+                        putExtra("username", username)
+                        putExtra("email", email)
                     }
+                    startActivity(intent)
+                    finish()
                 } else {
                     showToast("Registration Failed: ${task.exception?.message}")
                 }
@@ -136,7 +138,8 @@ class RegisterActivity : AppCompatActivity() {
 
         db.collection("users").document(userId).set(userMap)
             .addOnSuccessListener {
-                sharedPref.edit().putBoolean("isLoggedIn", true).apply()
+                getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+                    .edit().putBoolean("isLoggedIn", true).apply()
                 showToast("✅ Registration successful!")
                 startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
                 finish()

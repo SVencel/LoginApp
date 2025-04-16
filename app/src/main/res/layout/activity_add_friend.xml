@@ -5,6 +5,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     android:gravity="center"
     android:background="@color/backgroundColor">
 
@@ -13,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
+        android:maxLines="1"
         android:hint="Search by username"
         android:padding="12dp"
         android:background="@drawable/rounded_edittext"

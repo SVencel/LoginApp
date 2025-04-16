@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     android:padding="16dp">
 
     <LinearLayout
@@ -72,12 +74,45 @@
             android:layout_height="wrap_content" />
 
         <EditText
-            android:id="@+id/etGoalText"
+            android:id="@+id/etGoalText1"
             style="@style/OnboardingText"
             android:hint="Type your goal..."
             android:padding="12dp"
             android:backgroundTint="@color/tealColor"
             android:minHeight="48dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionNext"
+            android:importantForAccessibility="yes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/etGoalText2"
+            style="@style/OnboardingText"
+            android:hint="Type your goal..."
+            android:textColor="@color/textPrimaryColor"
+            android:padding="12dp"
+            android:backgroundTint="@color/tealColor"
+            android:minHeight="48dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionNext"
+            android:importantForAccessibility="yes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/etGoalText3"
+            style="@style/OnboardingText"
+            android:hint="Type your goal..."
+            android:textColor="@color/textPrimaryColor"
+            android:padding="12dp"
+            android:backgroundTint="@color/tealColor"
+            android:minHeight="48dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
             android:importantForAccessibility="yes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

@@ -143,11 +143,6 @@ class AppUsageService : AccessibilityService() {
                                 handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
                                 extraMinuteTimerStarted = true
                                 Log.d("EXTRA_MINUTE", "Started idle timeout for 2 more minutes.")
-                            } else {
-                                // User is active again, reset the idle timer
-                                handler.removeCallbacks(autoCloseRunnable)
-                                handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
-                                Log.d("EXTRA_MINUTE", "Reset idle timeout due to scroll.")
                             }
                             return
                         }
@@ -331,10 +326,10 @@ class AppUsageService : AccessibilityService() {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle("😵 You might be doomscrolling on $packageName")
-            .setContentText("Take a break or allow 1 more minute.")
+            .setContentText("Take a break or allow 2 more minutes.")
             .addAction(
                 android.R.drawable.ic_menu_recent_history,
-                "Allow 1 More Minute",
+                "Allow 2 More Minutes",
                 pendingIntent
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
