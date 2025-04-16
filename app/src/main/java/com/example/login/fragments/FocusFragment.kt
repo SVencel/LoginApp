@@ -191,10 +191,10 @@ class FocusFragment : Fragment() {
 
     private fun getDoomscrollLimitText(level: Int): String {
         return when (level) {
-            0 -> "Limit: 7 scrolls in 15 minutes"
-            1 -> "Limit: 5 scrolls in 10 minutes"
-            2 -> "Limit: 3 scrolls in 5 minutes"
-            else -> "Limit: 5 scrolls in 10 minutes"
+            0 -> "Limit: 15 scrolls in 5 minutes"
+            1 -> "Limit: 9 scrolls in 5 minutes"
+            2 -> "Limit: 6 scrolls in 5 minutes"
+            else -> "Limit: 9 scrolls in 5 minutes"
         }
     }
 
@@ -202,8 +202,6 @@ class FocusFragment : Fragment() {
     private fun setupDoomscrollingUI() {
         val prefs = requireContext().getSharedPreferences(DOOM_PREFS, Context.MODE_PRIVATE)
         val isEnabled = prefs.getBoolean(KEY_ENABLED, true)
-        val scrolls = prefs.getInt(KEY_SCROLLS, 5)
-        val window = prefs.getInt(KEY_WINDOW, 10)
 
         switchDoomscroll.isChecked = isEnabled
         tvDoomscrollLimit.text = getDoomscrollLimitText(

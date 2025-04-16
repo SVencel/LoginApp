@@ -75,6 +75,7 @@
         <activity android:name=".CreateSectionActivity"
             android:exported="false"/>
 
+        <receiver android:name=".AppUsageService$DoomscrollActionReceiver" />
 
         <service
             android:name=".AppUsageService"

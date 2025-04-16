@@ -3,8 +3,11 @@ package com.example.login
 import android.accessibilityservice.AccessibilityService
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.usage.UsageStatsManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -21,19 +24,11 @@ class AppUsageService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var scrollCount = 0
     private var lastScrollTime = 0L
-    private val minScrollInterval = 1000L
+    private val minScrollInterval = 4000L
     private val resetDelay = 5000L
-
-    private val scrollThreshold: Int
-        get() {
-            val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-            return when (prefs.getInt("doomSensitivity", 1)) {
-                0 -> 10 // Soft
-                1 -> 5  // Medium (default)
-                2 -> 3  // Hardcore
-                else -> 5
-            }
-        }
+    private var hasWarned = false
+    private var lastAppOpenedTime = 0L
+    private val scrollCooldownAfterAppOpen = 3000L // 3 seconds cooldown
 
 
     private val usageLimit = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
@@ -41,6 +36,7 @@ class AppUsageService : AccessibilityService() {
 
     private val resetScrollCountRunnable = Runnable {
         scrollCount = 0
+        hasWarned = false
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -64,34 +60,79 @@ class AppUsageService : AccessibilityService() {
         }
     }
 
+    private fun getScrollLimitFromSensitivity(): Int {
+        val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+        return when (prefs.getInt("doomSensitivity", 1)) {
+            0 -> 15 // Soft
+            1 -> 9  // Medium
+            2 -> 6  // Hardcore
+            else -> 9
+        }
+    }
+
+    class DoomscrollActionReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == "ALLOW_EXTRA_SCROLLING") {
+                val prefs = context.getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+                prefs.edit().putLong("allowUntil", System.currentTimeMillis() + 60_000).apply()
+            }
+        }
+    }
+
     private fun handleEventAfterBlockingCheck(event: AccessibilityEvent, packageName: String) {
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
                 if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
+                    if (System.currentTimeMillis() - lastAppOpenedTime < scrollCooldownAfterAppOpen) {
+                        // Ignore scrolls right after opening app
+                        return
+                    }
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastScrollTime >= minScrollInterval) {
                         scrollCount++
+                        Log.d("SCROLL_DEBUG", "📜 Scroll detected in $packageName — count: $scrollCount")
                         lastScrollTime = currentTime
 
-                        if (scrollCount >= scrollThreshold) {
-                            showNotification("You might be doomscrolling on $packageName! Take a break.")
+                        val scrollLimit = getScrollLimitFromSensitivity()
+
+                        val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+                            .getLong("allowUntil", 0L)
+
+                        if (currentTime < allowUntil) {
+                            // Grace period active — skip everything
+                            return
+                        }
+
+                        if (!hasWarned && scrollCount == scrollLimit - 2) {
+                            hasWarned = true
+                            showNotification("⚠️ Heads up! You're 2 scrolls away from a doomscroll alert.")
+                        }
+
+                        if (scrollCount >= scrollLimit) {
+                            hasWarned = false // Reset warning
+                            showDoomscrollAlert(packageName)
                             incrementDoomscrollCount()
                         }
 
                         handler.removeCallbacks(resetScrollCountRunnable)
                         handler.postDelayed(resetScrollCountRunnable, resetDelay)
                     }
+                    else{
+                        Log.d("SCROLL_DEBUG", "🕒 Ignored scroll: too soon after last (${currentTime - lastScrollTime} ms)")
+                    }
                 }
             }
 
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 scrollCount = 0
+                lastAppOpenedTime = System.currentTimeMillis()
                 handler.removeCallbacks(resetScrollCountRunnable)
             }
         }
 
         trackDailyUsage()
     }
+
 
     private fun isDoomscrollingEnabled(): Boolean {
         val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
@@ -224,6 +265,37 @@ class AppUsageService : AccessibilityService() {
                 onResult(false)
             }
     }
+
+    private fun showDoomscrollAlert(packageName: String) {
+        val channelId = "hardcore_mode_channel"
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val allowIntent = Intent(this, DoomscrollActionReceiver::class.java).apply {
+            action = "ALLOW_EXTRA_SCROLLING"
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 0, allowIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("😵 You might be doomscrolling on $packageName")
+            .setContentText("Take a break or allow 1 more minute.")
+            .addAction(
+                android.R.drawable.ic_menu_recent_history,
+                "Allow 1 More Minute",
+                pendingIntent
+            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setAutoCancel(true)
+            .build()
+
+        manager.notify(Random().nextInt(), notification)
+    }
+
 
 
     private fun isMonitoredForDoomscrolling(packageName: String): Boolean {
