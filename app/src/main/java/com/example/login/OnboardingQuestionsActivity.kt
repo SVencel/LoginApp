@@ -18,6 +18,8 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding_questions)
 
+        skipButton = findViewById(R.id.btnSkipOnboarding)
+
         updateProgress(0)
 
         if (savedInstanceState == null) {
@@ -30,7 +32,6 @@ class OnboardingQuestionsActivity : AppCompatActivity() {
             goToMain()
         }
 
-        skipButton = findViewById(R.id.btnSkipOnboarding)
         skipButton.setOnClickListener {
             goToMain()
         }

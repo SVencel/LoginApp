@@ -17,6 +17,7 @@
         <!-- Q7 -->
         <TextView
             android:text="7. Why did you download BeAlive?"
+            style="@style/OnboardingText"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
@@ -25,6 +26,7 @@
 
         <CheckBox
             android:id="@+id/cbReasonLessPhone"
+            style="@style/OnboardingText"
             android:text="To spend less time on my phone"
             android:padding="8dp"
             android:minHeight="48dp"
@@ -33,6 +35,7 @@
 
         <CheckBox
             android:id="@+id/cbReasonBetterSleep"
+            style="@style/OnboardingText"
             android:text="To sleep better"
             android:padding="8dp"
             android:minHeight="48dp"
@@ -41,6 +44,7 @@
 
         <CheckBox
             android:id="@+id/cbReasonAddiction"
+            style="@style/OnboardingText"
             android:text="To overcome social media addiction"
             android:padding="8dp"
             android:minHeight="48dp"
@@ -49,6 +53,7 @@
 
         <CheckBox
             android:id="@+id/cbReasonRealLife"
+            style="@style/OnboardingText"
             android:text="To focus more on real life"
             android:padding="8dp"
             android:minHeight="48dp"
@@ -58,6 +63,7 @@
         <!-- Q8 -->
         <TextView
             android:text="8. What would success look like in 30 days?"
+            style="@style/OnboardingText"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
@@ -67,6 +73,7 @@
 
         <EditText
             android:id="@+id/etGoalText"
+            style="@style/OnboardingText"
             android:hint="Type your goal..."
             android:padding="12dp"
             android:backgroundTint="@color/tealColor"

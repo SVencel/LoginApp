@@ -57,7 +57,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         backToLoginButton.setOnClickListener {
-            startActivity(Intent(this, OnboardingQuestionsActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }

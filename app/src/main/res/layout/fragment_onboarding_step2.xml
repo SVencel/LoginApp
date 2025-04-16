@@ -17,6 +17,7 @@
         <!-- Q4 -->
         <TextView
             android:text="4. Which app takes up most of your time?"
+            style="@style/OnboardingText"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
@@ -25,6 +26,7 @@
 
         <EditText
             android:id="@+id/etAppUsed"
+            style="@style/OnboardingText"
             android:hint="e.g. TikTok, Instagram..."
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,6 +37,7 @@
         <!-- Q5 -->
         <TextView
             android:text="5. Do you often lose track of time on your phone?"
+            style="@style/OnboardingText"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
@@ -46,15 +49,16 @@
             android:id="@+id/rgLoseTrack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, regularly" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Rarely" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Never" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Yes, regularly" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Rarely" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Never" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
         </RadioGroup>
 
         <!-- Q6 -->
         <TextView
             android:text="6. Does phone use affect your sleep?"
+            style="@style/OnboardingText"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
@@ -66,10 +70,10 @@
             android:id="@+id/rgSleepImpact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, I scroll instead of sleeping" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
-            <RadioButton android:text="No"  android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Not sure" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="Yes, I scroll instead of sleeping" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Sometimes" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="No" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Not sure" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
         </RadioGroup>
 
         <!-- Next Button -->
