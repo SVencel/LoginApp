@@ -25,10 +25,21 @@ class AppUsageService : AccessibilityService() {
     private var scrollCount = 0
     private var lastScrollTime = 0L
     private val minScrollInterval = 4000L
-    private val resetDelay = 5000L
+    private val resetDelay = 30000L
     private var hasWarned = false
     private var lastAppOpenedTime = 0L
     private val scrollCooldownAfterAppOpen = 3000L // 3 seconds cooldown
+    private var extraMinuteTimerStarted = false
+    private val extraMinuteIdleTimeout = 30_000L // 30 seconds
+    private val autoCloseRunnable = Runnable {
+        Log.d("EXTRA_MINUTE", "User idle during 1 more minute. Going home.")
+        performGlobalAction(GLOBAL_ACTION_HOME)
+        extraMinuteTimerStarted = false
+
+        val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+        prefs.edit().putLong("allowUntil", 0L).apply()
+    }
+
 
 
     private val usageLimit = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
@@ -38,6 +49,14 @@ class AppUsageService : AccessibilityService() {
         scrollCount = 0
         hasWarned = false
     }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.getStringExtra("action") == "start_auto_close_timer") {
+            forceCloseAfterGracePeriod()
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
@@ -70,11 +89,31 @@ class AppUsageService : AccessibilityService() {
         }
     }
 
+    fun forceCloseAfterGracePeriod() {
+        handler.postDelayed({
+            val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+                .getLong("allowUntil", 0L)
+            if (System.currentTimeMillis() >= allowUntil) {
+                Log.d("EXTRA_MINUTE", "⏰ Grace period ended. Closing app.")
+                performGlobalAction(GLOBAL_ACTION_HOME)
+                val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+                prefs.edit().putLong("allowUntil", 0L).apply()
+                extraMinuteTimerStarted = false
+            }
+        }, 2 * 60_000)
+    }
+
+
     class DoomscrollActionReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == "ALLOW_EXTRA_SCROLLING") {
                 val prefs = context.getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-                prefs.edit().putLong("allowUntil", System.currentTimeMillis() + 60_000).apply()
+                prefs.edit().putLong("allowUntil", System.currentTimeMillis() + 2 * 60_000).apply()
+
+                // Trigger the service to schedule the auto-close
+                val intent = Intent(context, AppUsageService::class.java)
+                intent.putExtra("action", "start_auto_close_timer")
+                context.startService(intent)
             }
         }
     }
@@ -82,6 +121,10 @@ class AppUsageService : AccessibilityService() {
     private fun handleEventAfterBlockingCheck(event: AccessibilityEvent, packageName: String) {
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
+
+                val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+                    .getLong("allowUntil", 0L)
+
                 if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
                     if (System.currentTimeMillis() - lastAppOpenedTime < scrollCooldownAfterAppOpen) {
                         // Ignore scrolls right after opening app
@@ -95,11 +138,17 @@ class AppUsageService : AccessibilityService() {
 
                         val scrollLimit = getScrollLimitFromSensitivity()
 
-                        val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-                            .getLong("allowUntil", 0L)
-
                         if (currentTime < allowUntil) {
-                            // Grace period active — skip everything
+                            if (!extraMinuteTimerStarted) {
+                                handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
+                                extraMinuteTimerStarted = true
+                                Log.d("EXTRA_MINUTE", "Started idle timeout for 2 more minutes.")
+                            } else {
+                                // User is active again, reset the idle timer
+                                handler.removeCallbacks(autoCloseRunnable)
+                                handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
+                                Log.d("EXTRA_MINUTE", "Reset idle timeout due to scroll.")
+                            }
                             return
                         }
 
