@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.login.LoginActivity
 import com.example.login.MainActivity
+import androidx.appcompat.app.AlertDialog
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,6 +24,7 @@ class ProfileFragment : Fragment() {
     private lateinit var quoteInput: EditText
     private lateinit var userInfoText: TextView
     private lateinit var permissionStatusText: TextView
+    private lateinit var goalsTextView: TextView
 
 
 
@@ -39,6 +41,12 @@ class ProfileFragment : Fragment() {
         logoutButton = view.findViewById(R.id.btnLogout)
         quoteInput = view.findViewById(R.id.etQuote)
         userInfoText = view.findViewById(R.id.tvUserInfo)
+        goalsTextView = view.findViewById(R.id.tvGoals)
+
+
+        goalsTextView.setOnClickListener {
+            showAddGoalsDialog()
+        }
 
         loadUserSettings()
 
@@ -78,7 +86,81 @@ class ProfileFragment : Fragment() {
                 thresholdInput.setText(threshold.toString())
                 quoteInput.setText(quote)
             }
+
+
+        goalsTextView?.setOnClickListener {
+            showAddGoalsDialog()
+        }
+
+        db.collection("users").document(user.uid)
+            .collection("onboardingAnswers")
+            .document("initialSurvey")
+            .get()
+            .addOnSuccessListener { answers ->
+                val goalsList = answers.get("goal_30_days") as? List<*> ?: emptyList<Any>()
+
+                val hasGoals = goalsList.any { it.toString().isNotBlank() }
+
+                goalsTextView?.text = if (hasGoals) {
+                    goalsList
+                        .filter { it.toString().isNotBlank() }
+                        .joinToString("\n• ", prefix = "🎯 Your Goals:\n• ") { it.toString() }
+                } else {
+                    "🎯 No goals set yet. Tap to add."
+                }
+
+            }
     }
+
+    private fun showAddGoalsDialog() {
+        val context = requireContext()
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 24, 32, 8)
+        }
+
+        val goalInputs = List(3) { i ->
+            EditText(context).apply {
+                hint = "Goal ${i + 1}"
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 16, 0, 0) }
+                layout.addView(this)
+            }
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("Set Your Goals")
+            .setView(layout)
+            .setPositiveButton("Save") { _, _ ->
+                val goalMap = hashMapOf<String, Any>(
+                    "goal_30_days" to goalInputs.map { it.text.toString().trim() }.filter { it.isNotEmpty() }
+                )
+                goalInputs.forEachIndexed { index, editText ->
+                    val key = "goal_${index + 1}"
+                    val value = editText.text.toString().trim()
+                    if (value.isNotEmpty()) goalMap[key] = value
+                }
+
+                val user = FirebaseAuth.getInstance().currentUser ?: return@setPositiveButton
+                val db = FirebaseFirestore.getInstance()
+                db.collection("users").document(user.uid)
+                    .collection("onboardingAnswers")
+                    .document("initialSurvey")
+                    .update(goalMap)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "✅ Goals saved!", Toast.LENGTH_SHORT).show()
+                        loadUserSettings() // Refresh UI
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "❌ Failed to save goals.", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 
     private fun saveSettings() {
         val user = auth.currentUser ?: return

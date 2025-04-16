@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,7 +27,6 @@
             android:text="Checking permissions..."
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-
         <EditText
             android:id="@+id/etThreshold"
             android:layout_width="match_parent"
@@ -45,13 +45,31 @@
             android:hint="Custom motivational message"
             android:layout_marginBottom="16dp" />
 
+        <TextView
+            android:id="@+id/tvGoals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎯 Goals loading..."
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:padding="12dp"
+            android:minHeight="48dp"
+            android:background="@android:color/background_dark"
+            android:textColor="@android:color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_marginBottom="24dp" />
+
         <Button
             android:id="@+id/btnSaveSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="💾 Save" />
 
-        <View android:layout_height="32dp" android:layout_width="match_parent" />
+        <View
+            android:layout_height="32dp"
+            android:layout_width="match_parent" />
 
         <Button
             android:id="@+id/btnLogout"
