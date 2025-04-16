@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.app.NotificationManager.Policy
-
+import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import android.graphics.Color
 import android.view.*
@@ -32,6 +32,8 @@ class FocusFragment : Fragment() {
     private lateinit var quoteText: TextView
     private lateinit var rvSections: RecyclerView
     private lateinit var sectionAdapter: SectionAdapter
+    private lateinit var seekBarDoomSensitivity: SeekBar
+    private lateinit var tvSensitivityLabel: TextView
 
     private val sectionList = mutableListOf<Section>()
 
@@ -61,6 +63,9 @@ class FocusFragment : Fragment() {
     private val KEY_ENABLED = "doomEnabled"
     private val KEY_SCROLLS = "doomScrolls"
     private val KEY_WINDOW = "doomWindow"
+    private val KEY_SENSITIVITY = "doomSensitivity"
+    private val sensitivityLabels = listOf("Soft", "Medium", "Hardcore")
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -73,6 +78,9 @@ class FocusFragment : Fragment() {
         btnManageSections = view.findViewById(R.id.btnManageSections)
         quoteText = view.findViewById(R.id.tvMotivationQuote)
         rvSections = view.findViewById(R.id.rvSections)
+        seekBarDoomSensitivity = view.findViewById(R.id.seekBarDoomSensitivity)
+        tvSensitivityLabel = view.findViewById(R.id.tvSensitivityLabel)
+
 
         quoteText.text = quotes.random()
 
@@ -81,12 +89,15 @@ class FocusFragment : Fragment() {
             startActivityForResult(Intent(requireContext(), CreateSectionActivity::class.java), 101)
         }
 
-        val prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val isHardcore = prefs.getBoolean(PREF_KEY, false)
+        val generalPrefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val doomPrefs = requireContext().getSharedPreferences(DOOM_PREFS, Context.MODE_PRIVATE)
+
+// HARDCORE MODE INIT
+        val isHardcore = generalPrefs.getBoolean(PREF_KEY, false)
         switchHardcore.isChecked = isHardcore
 
         switchHardcore.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(PREF_KEY, isChecked).apply()
+            generalPrefs.edit().putBoolean(PREF_KEY, isChecked).apply()
             if (isChecked) {
                 requireContext().startService(Intent(requireContext(), HardcoreModeService::class.java))
                 Toast.makeText(requireContext(), "☠️ HARDCORE MODE activated", Toast.LENGTH_SHORT).show()
@@ -97,6 +108,31 @@ class FocusFragment : Fragment() {
                 disableHardcoreMode()
             }
         }
+        val infoIcon = view.findViewById<ImageView>(R.id.ivHardcoreInfo)
+        infoIcon.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("☠️ Hardcore Mode")
+                .setMessage("Allows calls, text messages, and alarms. Everything else is silenced.")
+                .setPositiveButton("OK", null)
+                .show()
+        }
+
+// DOOMSCROLL SENSITIVITY INIT
+        val savedSensitivity = doomPrefs.getInt(KEY_SENSITIVITY, 1)
+        seekBarDoomSensitivity.progress = savedSensitivity
+        tvSensitivityLabel.text = "Detection: ${sensitivityLabels[savedSensitivity]}"
+
+        seekBarDoomSensitivity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                doomPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
+                tvSensitivityLabel.text = "Detection: ${sensitivityLabels[progress]}"
+                tvDoomscrollLimit.text = getDoomscrollLimitText(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
 
 
         setupDoomscrollingUI()
@@ -153,6 +189,14 @@ class FocusFragment : Fragment() {
         }
     }
 
+    private fun getDoomscrollLimitText(level: Int): String {
+        return when (level) {
+            0 -> "Limit: 7 scrolls in 15 minutes"
+            1 -> "Limit: 5 scrolls in 10 minutes"
+            2 -> "Limit: 3 scrolls in 5 minutes"
+            else -> "Limit: 5 scrolls in 10 minutes"
+        }
+    }
 
 
     private fun setupDoomscrollingUI() {
@@ -162,7 +206,10 @@ class FocusFragment : Fragment() {
         val window = prefs.getInt(KEY_WINDOW, 10)
 
         switchDoomscroll.isChecked = isEnabled
-        tvDoomscrollLimit.text = "Limit: $scrolls scrolls in $window minutes"
+        tvDoomscrollLimit.text = getDoomscrollLimitText(
+            requireContext().getSharedPreferences(DOOM_PREFS, Context.MODE_PRIVATE)
+                .getInt(KEY_SENSITIVITY, 1)
+        )
 
         switchDoomscroll.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(KEY_ENABLED, checked).apply()

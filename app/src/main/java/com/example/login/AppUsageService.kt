@@ -20,10 +20,21 @@ class AppUsageService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var scrollCount = 0
-    private val scrollThreshold = 5
     private var lastScrollTime = 0L
     private val minScrollInterval = 1000L
     private val resetDelay = 5000L
+
+    private val scrollThreshold: Int
+        get() {
+            val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+            return when (prefs.getInt("doomSensitivity", 1)) {
+                0 -> 10 // Soft
+                1 -> 5  // Medium (default)
+                2 -> 3  // Hardcore
+                else -> 5
+            }
+        }
+
 
     private val usageLimit = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
     private val doomscrollLimit = 3
