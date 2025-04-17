@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:clipToPadding="false"
@@ -10,15 +11,36 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/chartViewPager"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="500dp"
         android:clipToPadding="false"
         android:overScrollMode="never" />
 
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/chartTabIndicator"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp" />
+        app:tabMode="fixed"
+        app:tabGravity="fill" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="16dp"
+        android:radius="12dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/tvNotificationCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔔 Notifications: 0"
+            android:textSize="16sp"
+            android:layout_margin="6dp"
+            android:textColor="@android:color/black" />
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

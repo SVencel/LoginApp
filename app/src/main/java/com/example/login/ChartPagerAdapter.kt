@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
@@ -19,6 +20,12 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import java.util.Locale
+
 
 class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<ChartPagerAdapter.ChartViewHolder>() {
 
@@ -34,55 +41,205 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
     override fun getItemCount(): Int = 4 // 0: Streak, 1: Daily, 2: Weekly, 3: Monthly
 
     inner class ChartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val chart: BarChart = view.findViewById(R.id.barChart)
-        private val notificationText: TextView = view.findViewById(R.id.tvNotificationCount)
+        private val barChart: BarChart = view.findViewById(R.id.barChart)
+        private val lineChart: LineChart = view.findViewById(R.id.lineChart)
+
 
         fun bind(position: Int) {
             when (position) {
                 0 -> {
-                    loadStreakChart(chart)
-                    notificationText.text = "" // Streak page doesn't show notifications
+                    barChart.visibility = View.VISIBLE
+                    lineChart.visibility = View.GONE
+                    loadStreakChart(barChart)
                 }
                 1 -> {
-                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_DAILY)
-                    loadNotificationCount(UsageStatsManager.INTERVAL_DAILY, notificationText)
+                    barChart.visibility = View.VISIBLE
+                    lineChart.visibility = View.GONE
+                    loadAppUsageChart(barChart, UsageStatsManager.INTERVAL_DAILY)
                 }
                 2 -> {
-                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_WEEKLY)
-                    loadNotificationCount(UsageStatsManager.INTERVAL_WEEKLY, notificationText)
+                    barChart.visibility = View.VISIBLE
+                    lineChart.visibility = View.GONE
+                    loadWeeklyStackedBarChart(barChart)
                 }
                 3 -> {
-                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_MONTHLY)
-                    loadNotificationCount(UsageStatsManager.INTERVAL_MONTHLY, notificationText)
+                    barChart.visibility = View.GONE
+                    lineChart.visibility = View.VISIBLE
+                    loadMonthlyLineChart(lineChart)
                 }
             }
         }
 
 
+        private fun getIntervalType(position: Int): Int {
+            return when (position) {
+                1 -> UsageStatsManager.INTERVAL_DAILY
+                2 -> UsageStatsManager.INTERVAL_WEEKLY
+                else -> UsageStatsManager.INTERVAL_DAILY
+            }
+        }
+
         fun clearHighlight() {
-            chart.highlightValues(null)  // 💡 This removes the marker tooltip
+            if (barChart.visibility == View.VISIBLE) {
+                barChart.highlightValues(null)
+            }
+            if (lineChart.visibility == View.VISIBLE) {
+                lineChart.highlightValues(null)
+            }
+        }
+
+    }
+
+    private fun loadMonthlyLineChart(chart: LineChart) {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance()
+        val endTime = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -30)
+        val startTime = calendar.timeInMillis
+
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+
+        val categoryMap = mutableMapOf<String, MutableList<Float>>() // Category -> 30 float values
+
+        val categories = listOf("Social", "Productivity", "Game", "Other")
+        categories.forEach { categoryMap[it] = MutableList(30) { 0f } }
+
+        for (stat in stats) {
+            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 29)
+            val time = stat.totalTimeInForeground
+            if (time < 60000) continue
+
+            val category = getCategoryName(stat.packageName)
+            val list = categoryMap[category] ?: continue
+            list[dayIndex] += time / 60000f // convert to minutes
+        }
+
+        val lineDataSets = mutableListOf<ILineDataSet>()
+
+        val colors = mapOf(
+            "Social" to Color.parseColor("#FF9800"),
+            "Productivity" to Color.parseColor("#2196F3"),
+            "Game" to Color.parseColor("#4CAF50"),
+            "Other" to Color.GRAY
+        )
+
+        for ((category, dataPoints) in categoryMap) {
+            val entries = dataPoints.mapIndexed { i, minutes -> Entry(i.toFloat(), minutes) }
+            val dataSet = LineDataSet(entries, category).apply {
+                color = colors[category] ?: Color.GRAY
+                lineWidth = 2f
+                setDrawCircles(false)
+                setDrawValues(false)
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+            }
+            lineDataSets.add(dataSet)
+        }
+
+        val lineData = LineData(lineDataSets)
+        chart.data = lineData
+
+        chart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter((1..30).map { it.toString() })
+            granularity = 1f
+            position = XAxis.XAxisPosition.BOTTOM
+            textSize = 10f
+        }
+
+        chart.axisLeft.textSize = 12f
+        chart.axisRight.isEnabled = false
+        chart.description.text = "App Usage (Minutes) in Past 30 Days"
+        chart.setTouchEnabled(true)
+        chart.invalidate()
+    }
+
+    private fun loadWeeklyStackedBarChart(chart: BarChart) {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance()
+        val endTime = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -6) // Past 7 days including today
+        val startTime = calendar.timeInMillis
+
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+
+        // Prepare per-day usage map: dayIndex (0-6) -> category -> minutes
+        val dayCategoryUsage = Array(7) { mutableMapOf<String, Float>() }
+
+        for (stat in stats) {
+            val time = stat.totalTimeInForeground
+            if (time < 60000) continue
+
+            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 6)
+            val category = getCategoryName(stat.packageName)
+            val minutes = time / 60000f
+            dayCategoryUsage[dayIndex][category] = (dayCategoryUsage[dayIndex][category] ?: 0f) + minutes
+        }
+
+        val categories = listOf("Social", "Productivity", "Game", "Other")
+        val colors = listOf(
+            Color.parseColor("#FF9800"), // Social - Orange
+            Color.parseColor("#2196F3"), // Productivity - Blue
+            Color.parseColor("#4CAF50"), // Game - Green
+            Color.GRAY                    // Other
+        )
+
+        val entries = mutableListOf<BarEntry>()
+        for (i in 0..6) {
+            val categoryValues = categories.map { dayCategoryUsage[i][it] ?: 0f }.toFloatArray()
+            entries.add(BarEntry(i.toFloat(), categoryValues))
+        }
+
+        val dataSet = BarDataSet(entries, "Weekly App Usage")
+        dataSet.colors = colors
+        dataSet.setStackLabels(categories.toTypedArray())
+
+        val barData = BarData(dataSet)
+        barData.barWidth = 0.8f
+        chart.data = barData
+
+        chart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(getPast7DayLabels())
+            granularity = 1f
+            position = XAxis.XAxisPosition.BOTTOM
+            setDrawGridLines(false)
+            textSize = 10f
+        }
+
+        chart.axisLeft.textSize = 12f
+        chart.axisRight.isEnabled = false
+        chart.description.text = "App Usage (Stacked by Category)"
+        chart.setFitBars(true)
+        chart.invalidate()
+    }
+
+    private fun getPast7DayLabels(): List<String> {
+        val format = java.text.SimpleDateFormat("EEE", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -6)
+        return List(7) {
+            val label = format.format(calendar.time)
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            label
         }
     }
 
-    private fun loadNotificationCount(intervalType: Int, textView: TextView) {
-        // Fake count for now — later replace with actual usage stats if available
-        val calendar = Calendar.getInstance()
-        val label = when (intervalType) {
-            UsageStatsManager.INTERVAL_DAILY -> "today"
-            UsageStatsManager.INTERVAL_WEEKLY -> "this week"
-            UsageStatsManager.INTERVAL_MONTHLY -> "this month"
-            else -> ""
-        }
 
-        // Placeholder value (replace with real NotificationListener data when ready)
-        val mockCount = when (intervalType) {
-            UsageStatsManager.INTERVAL_DAILY -> 42
-            UsageStatsManager.INTERVAL_WEEKLY -> 184
-            UsageStatsManager.INTERVAL_MONTHLY -> 730
-            else -> 0
-        }
+    private fun getCategoryName(packageName: String): String {
+        val pm = context.packageManager
+        return try {
+            val appInfo = pm.getApplicationInfo(packageName, 0)
+            val category = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                appInfo.category
+            } else null
 
-        textView.text = "🔔 Notifications $label: $mockCount"
+            when (category) {
+                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> "Social"
+                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> "Productivity"
+                android.content.pm.ApplicationInfo.CATEGORY_GAME -> "Game"
+                else -> "Other"
+            }
+        } catch (_: Exception) {
+            "Other"
+        }
     }
 
 

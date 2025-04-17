@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -29,17 +30,20 @@ class ProgressFragment : Fragment() {
 
         viewPager = view.findViewById(R.id.chartViewPager)
         tabLayout = view.findViewById(R.id.chartTabIndicator)
+        val tvNotificationCard: TextView = view.findViewById(R.id.tvNotificationCard)
 
         viewPager.adapter = ChartPagerAdapter(requireContext())
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
+            val label = when (position) {
                 0 -> "Streak"
                 1 -> "Daily"
                 2 -> "Weekly"
                 3 -> "Monthly"
                 else -> ""
             }
+            tab.text = label
+            tab.contentDescription = "$label tab"
         }.attach()
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -48,7 +52,32 @@ class ProgressFragment : Fragment() {
                 val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
                         as? ChartPagerAdapter.ChartViewHolder
                 viewPager.postDelayed({ viewHolder?.clearHighlight() }, 50)
+
+                // 🔔 Update the notification count based on tab
+                val label = when (position) {
+                    1 -> "today"
+                    2 -> "this week"
+                    3 -> "this month"
+                    else -> null
+                }
+
+                val fakeCount = when (position) {
+                    1 -> 42
+                    2 -> 184
+                    3 -> 730
+                    else -> null
+                }
+
+                if (label != null && fakeCount != null) {
+                    tvNotificationCard.text = "🔔 Notifications $label: $fakeCount"
+                } else {
+                    tvNotificationCard.text = ""
+                }
             }
         })
+
+        // Set initial
+        tvNotificationCard.text = "🔔 Notifications today: 42"
     }
+
 }
