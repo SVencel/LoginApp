@@ -63,6 +63,10 @@ class AppUsageService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
 
+        val pkg = event.packageName?.toString()
+        val type = event.eventType
+        Log.d("AC_EVENT", "pkg=$pkg, type=$type, class=${event.className}")
+
         isAppBlockedBySectionAsync(packageName) { isBlocked ->
             if (isBlocked) {
                 Log.w("AppUsageService", "🚫 $packageName is blocked by section! Resetting streak.")
@@ -119,64 +123,62 @@ class AppUsageService : AccessibilityService() {
     }
 
     private fun handleEventAfterBlockingCheck(event: AccessibilityEvent, packageName: String) {
-        when (event.eventType) {
-            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
+        val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+            .getLong("allowUntil", 0L)
 
-                val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-                    .getLong("allowUntil", 0L)
+        val currentTime = System.currentTimeMillis()
 
-                if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
-                    if (System.currentTimeMillis() - lastAppOpenedTime < scrollCooldownAfterAppOpen) {
-                        // Ignore scrolls right after opening app
+        if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
+
+            if (System.currentTimeMillis() - lastAppOpenedTime < scrollCooldownAfterAppOpen) return
+
+            val isYoutube = packageName == "com.google.android.youtube"
+            val isScrollEvent = event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED
+            val isContentChanged = event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isYoutube
+
+            if (isScrollEvent || isContentChanged) {
+                if (currentTime - lastScrollTime >= minScrollInterval) {
+                    scrollCount++
+                    lastScrollTime = currentTime
+                    Log.d("SCROLL_DEBUG", "📜 Scroll detected in $packageName — count: $scrollCount")
+
+                    val scrollLimit = getScrollLimitFromSensitivity()
+
+                    if (currentTime < allowUntil) {
+                        if (!extraMinuteTimerStarted) {
+                            handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
+                            extraMinuteTimerStarted = true
+                        }
                         return
                     }
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastScrollTime >= minScrollInterval) {
-                        scrollCount++
-                        Log.d("SCROLL_DEBUG", "📜 Scroll detected in $packageName — count: $scrollCount")
-                        lastScrollTime = currentTime
 
-                        val scrollLimit = getScrollLimitFromSensitivity()
-
-                        if (currentTime < allowUntil) {
-                            if (!extraMinuteTimerStarted) {
-                                handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
-                                extraMinuteTimerStarted = true
-                                Log.d("EXTRA_MINUTE", "Started idle timeout for 2 more minutes.")
-                            }
-                            return
-                        }
-
-                        if (!hasWarned && scrollCount == scrollLimit - 2) {
-                            hasWarned = true
-                            showNotification("⚠️ Heads up! You're 2 scrolls away from a doomscroll alert.")
-                        }
-
-                        if (scrollCount >= scrollLimit) {
-                            hasWarned = false // Reset warning
-                            showDoomscrollAlert(packageName)
-                            incrementDoomscrollCount()
-                        }
-
-                        handler.removeCallbacks(resetScrollCountRunnable)
-                        handler.postDelayed(resetScrollCountRunnable, resetDelay)
+                    if (!hasWarned && scrollCount == scrollLimit - 2) {
+                        hasWarned = true
+                        showNotification("⚠️ Heads up! You're 2 scrolls away from a doomscroll alert.")
                     }
-                    else{
-                        Log.d("SCROLL_DEBUG", "🕒 Ignored scroll: too soon after last (${currentTime - lastScrollTime} ms)")
+
+                    if (scrollCount >= scrollLimit) {
+                        hasWarned = false
+                        showDoomscrollAlert(packageName)
+                        incrementDoomscrollCount()
                     }
+
+                    handler.removeCallbacks(resetScrollCountRunnable)
+                    handler.postDelayed(resetScrollCountRunnable, resetDelay)
+                } else {
+                    Log.d("SCROLL_DEBUG", "🕒 Ignored scroll: too soon after last (${currentTime - lastScrollTime} ms)")
                 }
             }
+        }
 
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                scrollCount = 0
-                lastAppOpenedTime = System.currentTimeMillis()
-                handler.removeCallbacks(resetScrollCountRunnable)
-            }
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            scrollCount = 0
+            lastAppOpenedTime = currentTime
+            handler.removeCallbacks(resetScrollCountRunnable)
         }
 
         trackDailyUsage()
     }
-
 
     private fun isDoomscrollingEnabled(): Boolean {
         val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
@@ -349,7 +351,8 @@ class AppUsageService : AccessibilityService() {
             "com.twitter.android",
             "com.tiktok.android",
             "com.reddit.frontpage",
-            "com.snapchat.android"
+            "com.snapchat.android",
+            "com.google.android.youtube"
         )
         return packageName in monitored
     }

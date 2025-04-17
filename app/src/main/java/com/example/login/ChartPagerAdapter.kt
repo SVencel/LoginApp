@@ -35,20 +35,56 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
 
     inner class ChartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val chart: BarChart = view.findViewById(R.id.barChart)
+        private val notificationText: TextView = view.findViewById(R.id.tvNotificationCount)
 
         fun bind(position: Int) {
             when (position) {
-                0 -> loadStreakChart(chart)
-                1 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_DAILY)
-                2 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_WEEKLY)
-                3 -> loadAppUsageChart(chart, UsageStatsManager.INTERVAL_MONTHLY)
+                0 -> {
+                    loadStreakChart(chart)
+                    notificationText.text = "" // Streak page doesn't show notifications
+                }
+                1 -> {
+                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_DAILY)
+                    loadNotificationCount(UsageStatsManager.INTERVAL_DAILY, notificationText)
+                }
+                2 -> {
+                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_WEEKLY)
+                    loadNotificationCount(UsageStatsManager.INTERVAL_WEEKLY, notificationText)
+                }
+                3 -> {
+                    loadAppUsageChart(chart, UsageStatsManager.INTERVAL_MONTHLY)
+                    loadNotificationCount(UsageStatsManager.INTERVAL_MONTHLY, notificationText)
+                }
             }
         }
+
 
         fun clearHighlight() {
             chart.highlightValues(null)  // 💡 This removes the marker tooltip
         }
     }
+
+    private fun loadNotificationCount(intervalType: Int, textView: TextView) {
+        // Fake count for now — later replace with actual usage stats if available
+        val calendar = Calendar.getInstance()
+        val label = when (intervalType) {
+            UsageStatsManager.INTERVAL_DAILY -> "today"
+            UsageStatsManager.INTERVAL_WEEKLY -> "this week"
+            UsageStatsManager.INTERVAL_MONTHLY -> "this month"
+            else -> ""
+        }
+
+        // Placeholder value (replace with real NotificationListener data when ready)
+        val mockCount = when (intervalType) {
+            UsageStatsManager.INTERVAL_DAILY -> 42
+            UsageStatsManager.INTERVAL_WEEKLY -> 184
+            UsageStatsManager.INTERVAL_MONTHLY -> 730
+            else -> 0
+        }
+
+        textView.text = "🔔 Notifications $label: $mockCount"
+    }
+
 
     private fun loadStreakChart(chart: BarChart) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
