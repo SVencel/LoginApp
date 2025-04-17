@@ -64,7 +64,7 @@ class FocusFragment : Fragment() {
     private val KEY_SCROLLS = "doomScrolls"
     private val KEY_WINDOW = "doomWindow"
     private val KEY_SENSITIVITY = "doomSensitivity"
-    private val sensitivityLabels = listOf("Soft", "Medium", "Hardcore")
+    private val sensitivityLabels = listOf("Light", "Medium", "Hard")
 
 
     override fun onCreateView(

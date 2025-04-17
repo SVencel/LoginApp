@@ -132,7 +132,7 @@
         android:id="@+id/btnManageSections"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Focus Section"
+        android:text="New Focus Session"
         android:backgroundTint="@color/primaryColor"
         android:textColor="@android:color/white"
         android:layout_marginTop="16dp"

@@ -63,9 +63,19 @@ class AppUsageService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
 
-        val pkg = event.packageName?.toString()
-        val type = event.eventType
-        Log.d("AC_EVENT", "pkg=$pkg, type=$type, class=${event.className}")
+        // DEBUGGING YouTube UI Events
+        if (event.packageName == "com.google.android.youtube") {
+            Log.d("YT_DEBUG", "📦 pkg=${event.packageName}")
+            Log.d("YT_DEBUG", "🔹 className=${event.className}")
+            Log.d("YT_DEBUG", "🔸 text=${event.text}")
+            try {
+                val viewId = event.source?.viewIdResourceName
+                Log.d("YT_DEBUG", "🔻 viewId=${viewId}")
+            } catch (e: Exception) {
+                Log.d("YT_DEBUG", "❌ Could not access event.source (null or inaccessible)")
+            }
+        }
+
 
         isAppBlockedBySectionAsync(packageName) { isBlocked ->
             if (isBlocked) {

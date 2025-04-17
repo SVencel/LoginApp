@@ -13,7 +13,7 @@
 
         <EditText
             android:id="@+id/etSectionName"
-            android:hint="Section Name"
+            android:hint="Session Name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
@@ -53,7 +53,9 @@
                 android:text="M"
                 android:textOn="M"
                 android:textOff="M"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -62,7 +64,9 @@
                 android:text="T"
                 android:textOn="T"
                 android:textOff="T"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -71,7 +75,9 @@
                 android:text="W"
                 android:textOn="W"
                 android:textOff="W"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -80,7 +86,9 @@
                 android:text="T"
                 android:textOn="T"
                 android:textOff="T"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -89,7 +97,9 @@
                 android:text="F"
                 android:textOn="F"
                 android:textOff="F"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -98,7 +108,9 @@
                 android:text="S"
                 android:textOn="S"
                 android:textOff="S"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
 
             <ToggleButton
@@ -107,7 +119,9 @@
                 android:text="S"
                 android:textOn="S"
                 android:textOff="S"
-                android:layout_marginHorizontal="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
                 />
         </LinearLayout>
 
@@ -136,7 +150,7 @@
 
         <Button
             android:id="@+id/btnSaveSection"
-            android:text="Save Section"
+            android:text="Save Session"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
