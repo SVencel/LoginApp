@@ -31,6 +31,7 @@ class ProgressFragment : Fragment() {
         viewPager = view.findViewById(R.id.chartViewPager)
         tabLayout = view.findViewById(R.id.chartTabIndicator)
         val tvNotificationCard: TextView = view.findViewById(R.id.tvNotificationCard)
+        val tvPhoneOpenCount: TextView = view.findViewById(R.id.tvPhoneOpenCount)
 
         viewPager.adapter = ChartPagerAdapter(requireContext())
 
@@ -68,16 +69,29 @@ class ProgressFragment : Fragment() {
                     else -> null
                 }
 
-                if (label != null && fakeCount != null) {
+                val phoneOpenMock = when (position) {
+                    1 -> 30
+                    2 -> 145
+                    3 -> 612
+                    else -> null
+                }
+
+                if (label != null && fakeCount != null && phoneOpenMock != null) {
                     tvNotificationCard.text = "🔔 Notifications $label: $fakeCount"
+                    tvPhoneOpenCount.text = "📱 Phone Opened $label: $phoneOpenMock"
+
                 } else {
                     tvNotificationCard.text = ""
+                    tvPhoneOpenCount.text = ""
+
                 }
             }
         })
 
         // Set initial
         tvNotificationCard.text = "🔔 Notifications today: 42"
+        tvPhoneOpenCount.text = "📱 Phone Opened today: 30"
+
     }
 
 }

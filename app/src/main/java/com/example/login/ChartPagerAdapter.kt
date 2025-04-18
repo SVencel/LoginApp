@@ -70,15 +70,6 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
             }
         }
 
-
-        private fun getIntervalType(position: Int): Int {
-            return when (position) {
-                1 -> UsageStatsManager.INTERVAL_DAILY
-                2 -> UsageStatsManager.INTERVAL_WEEKLY
-                else -> UsageStatsManager.INTERVAL_DAILY
-            }
-        }
-
         fun clearHighlight() {
             if (barChart.visibility == View.VISIBLE) {
                 barChart.highlightValues(null)

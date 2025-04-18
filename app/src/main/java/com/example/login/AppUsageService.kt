@@ -40,6 +40,9 @@ class AppUsageService : AccessibilityService() {
         prefs.edit().putLong("allowUntil", 0L).apply()
     }
 
+    private var youtubeOpenedTimestamp = 0L
+    private var isYoutubeFullscreen = false
+    private var youtubeIdleRunnable: Runnable? = null
 
 
     private val usageLimit = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
@@ -64,17 +67,39 @@ class AppUsageService : AccessibilityService() {
         val packageName = event.packageName?.toString() ?: return
 
         // DEBUGGING YouTube UI Events
-        if (event.packageName == "com.google.android.youtube") {
-            Log.d("YT_DEBUG", "📦 pkg=${event.packageName}")
-            Log.d("YT_DEBUG", "🔹 className=${event.className}")
-            Log.d("YT_DEBUG", "🔸 text=${event.text}")
-            try {
-                val viewId = event.source?.viewIdResourceName
-                Log.d("YT_DEBUG", "🔻 viewId=${viewId}")
-            } catch (e: Exception) {
-                Log.d("YT_DEBUG", "❌ Could not access event.source (null or inaccessible)")
+        if (packageName == "com.google.android.youtube") {
+            val className = event.className?.toString() ?: ""
+            val textContent = event.text?.joinToString() ?: ""
+
+            Log.d("YT_DEBUG", "📦 pkg=$packageName")
+            Log.d("YT_DEBUG", "🔹 className=$className")
+            Log.d("YT_DEBUG", "🔸 text=$textContent")
+
+            // 📍 Trigger: YouTube just opened
+            if (className.contains("MainActivity") && textContent.contains("YouTube", ignoreCase = true)) {
+                youtubeOpenedTimestamp = System.currentTimeMillis()
+                isYoutubeFullscreen = false
+
+                // Start 5-minute idle doomscroll check
+                youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
+                youtubeIdleRunnable = Runnable {
+                    if (!isYoutubeFullscreen) {
+                        Log.w("YT_IDLE", "📉 Still in non-fullscreen mode after 5 mins — possible doomscroll")
+                        showDoomscrollAlert("YouTube")
+                        incrementDoomscrollCount()
+                    }
+                }
+                handler.postDelayed(youtubeIdleRunnable!!, 5 * 60_000)
+            }
+
+            // 🎬 Detect fullscreen (video or Shorts)
+            if (className.contains("DrawerLayout")) {
+                Log.d("YT_IDLE", "✅ Entered fullscreen — cancel timer")
+                isYoutubeFullscreen = true
+                youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
             }
         }
+
 
 
         isAppBlockedBySectionAsync(packageName) { isBlocked ->
@@ -188,6 +213,11 @@ class AppUsageService : AccessibilityService() {
         }
 
         trackDailyUsage()
+        if (packageName != "com.google.android.youtube") {
+            youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
+            isYoutubeFullscreen = false
+        }
+
     }
 
     private fun isDoomscrollingEnabled(): Boolean {
