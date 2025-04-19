@@ -71,9 +71,6 @@ class AppUsageService : AccessibilityService() {
             val className = event.className?.toString() ?: ""
             val textContent = event.text?.joinToString() ?: ""
 
-            Log.d("YT_DEBUG", "📦 pkg=$packageName")
-            Log.d("YT_DEBUG", "🔹 className=$className")
-            Log.d("YT_DEBUG", "🔸 text=$textContent")
 
             // 📍 Trigger: YouTube just opened
             if (className.contains("MainActivity") && textContent.contains("YouTube", ignoreCase = true)) {
@@ -88,8 +85,12 @@ class AppUsageService : AccessibilityService() {
                         showDoomscrollAlert("YouTube")
                         incrementDoomscrollCount()
                     }
+                    else {
+                        Log.d("YT_IDLE", "✅ Fullscreen was entered — no doomscroll detected.")
+                    }
                 }
-                handler.postDelayed(youtubeIdleRunnable!!, 5 * 60_000)
+                handler.postDelayed(youtubeIdleRunnable!!, 1 * 60_000)
+                Log.i("YT_IDLE", "🕐 YouTube opened. Starting 5 min non-fullscreen timer...")
             }
 
             // 🎬 Detect fullscreen (video or Shorts)
@@ -214,6 +215,9 @@ class AppUsageService : AccessibilityService() {
 
         trackDailyUsage()
         if (packageName != "com.google.android.youtube") {
+            if (youtubeIdleRunnable != null) {
+                Log.i("YT_IDLE", "🏃 Left YouTube. Cancelling any running idle timer.")
+            }
             youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
             isYoutubeFullscreen = false
         }
