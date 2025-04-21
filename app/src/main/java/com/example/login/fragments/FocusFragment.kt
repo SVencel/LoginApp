@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.app.NotificationManager.Policy
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
@@ -17,7 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.login.CreateSectionActivity
-import com.example.login.HardcoreModeService
+import com.example.login.hardcore.HardcoreModeService
 import com.example.login.R
 import java.util.Calendar
 import com.google.firebase.auth.FirebaseAuth
@@ -169,10 +168,9 @@ class FocusFragment : Fragment() {
                 Policy.PRIORITY_CATEGORY_CALLS or
                         Policy.PRIORITY_CATEGORY_MESSAGES or
                         Policy.PRIORITY_CATEGORY_ALARMS,
-                Policy.PRIORITY_CATEGORY_CALLS or
-                        Policy.PRIORITY_CATEGORY_MESSAGES or
-                        Policy.PRIORITY_CATEGORY_ALARMS,
-                0 // No visual suppression (same as SUPPRESS_NONE)
+
+                Policy.PRIORITY_SENDERS_ANY,
+                0 // No visual suppression
             )
 
             // Apply the policy and enable DND mode

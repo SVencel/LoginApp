@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
     <!-- Ensures app can query all installed apps -->
@@ -91,11 +92,18 @@
         </service>
 
         <service
-            android:name=".HardcoreModeService"
+            android:name=".hardcore.HardcoreModeService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
             />
 
+        <receiver android:name=".hardcore.HardcoreBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

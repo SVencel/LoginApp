@@ -1,9 +1,11 @@
-package com.example.login
+package com.example.login.hardcore
 
 import android.app.*
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.example.login.MainActivity
+import com.example.login.R
 
 class HardcoreModeService : Service() {
 
