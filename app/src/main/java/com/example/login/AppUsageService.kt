@@ -360,32 +360,59 @@ class AppUsageService : AccessibilityService() {
         val channelId = "hardcore_mode_channel"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val allowIntent = Intent(this, DoomscrollActionReceiver::class.java).apply {
-            action = "ALLOW_EXTRA_SCROLLING"
-        }
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
 
-        val pendingIntent = PendingIntent.getBroadcast(
-            this, 0, allowIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val bigText = "You've been scrolling in $packageName for a while.\nTake a break or allow 2 more minutes."
+        db.collection("users").document(user.uid)
+            .collection("onboardingAnswers")
+            .document("initialSurvey")
+            .get()
+            .addOnSuccessListener { doc ->
+                val allGoals = mutableListOf<String>()
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("😵 You might be doomscrolling on $packageName")
-            .setContentText("Take a break or allow 2 more minutes.")
-            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
-            .addAction(
-                android.R.drawable.ic_menu_recent_history,
-                "Allow 2 More Minutes",
-                pendingIntent
-            )
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setAutoCancel(true)
-            .build()
+                val listGoals = doc.get("goal_30_days") as? List<*> ?: emptyList<Any>()
+                allGoals.addAll(listGoals.mapNotNull { it?.toString()?.takeIf { it.isNotBlank() } })
 
-        manager.notify(Random().nextInt(), notification)
+                // Also check individual keys
+                listOf("goal_1", "goal_2", "goal_3").forEach { key ->
+                    doc.getString(key)?.takeIf { it.isNotBlank() }?.let { allGoals.add(it) }
+                }
+
+                val randomGoal = allGoals.randomOrNull() ?: "Stay focused and in control 💪"
+
+                val bigText = "You've been scrolling in $packageName for a while.\n" +
+                        "Take a break or allow 2 more minutes.\n\n" +
+                        "🎯 Remember your goal: \"$randomGoal\""
+
+                val allowIntent = Intent(this, DoomscrollActionReceiver::class.java).apply {
+                    action = "ALLOW_EXTRA_SCROLLING"
+                }
+
+                val pendingIntent = PendingIntent.getBroadcast(
+                    this, 0, allowIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                val notification = NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                    .setContentTitle("😵 You might be doomscrolling on $packageName")
+                    .setContentText("Take a break or allow 2 more minutes.")
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+                    .addAction(
+                        android.R.drawable.ic_menu_recent_history,
+                        "Allow 2 More Minutes",
+                        pendingIntent
+                    )
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setAutoCancel(true)
+                    .build()
+
+                manager.notify(Random().nextInt(), notification)
+            }
+            .addOnFailureListener {
+                Log.w("NOTIF_GOAL", "❌ Failed to fetch goals: ${it.message}")
+            }
     }
 
 

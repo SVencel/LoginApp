@@ -3,6 +3,7 @@ package com.example.login.fragments
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -14,6 +15,7 @@ import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 
 
 class ProfileFragment : Fragment() {
@@ -202,14 +204,39 @@ class ProfileFragment : Fragment() {
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )?.contains(context.packageName) == true
 
+        val notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+
         val status = """
         🔐 Permissions:
         • Usage Access: ${if (usageAccess) "✅ Enabled" else "❌ Not Enabled"}
         • Accessibility: ${if (accessibility) "✅ Enabled" else "❌ Not Enabled"}
+        • Notifications: ${if (notificationsEnabled) "✅ Enabled" else "❌ Not Enabled"}
     """.trimIndent()
 
         permissionStatusText.text = status
+
+        if (!notificationsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission()
+        }
     }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
+    }
+
+    @Deprecated("Deprecated API, consider using registerForActivityResult instead")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1001) {
+            updatePermissionStatus()
+        }
+    }
 
 }
