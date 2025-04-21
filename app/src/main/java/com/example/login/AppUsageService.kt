@@ -368,11 +368,13 @@ class AppUsageService : AccessibilityService() {
             this, 0, allowIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val bigText = "You've been scrolling in $packageName for a while.\nTake a break or allow 2 more minutes."
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle("😵 You might be doomscrolling on $packageName")
             .setContentText("Take a break or allow 2 more minutes.")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
             .addAction(
                 android.R.drawable.ic_menu_recent_history,
                 "Allow 2 More Minutes",
