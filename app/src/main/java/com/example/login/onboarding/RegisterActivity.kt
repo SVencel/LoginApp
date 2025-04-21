@@ -1,4 +1,4 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,6 +14,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import com.example.login.R
 
 class RegisterActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 
 class ForgotPasswordActivity : ComponentActivity() {

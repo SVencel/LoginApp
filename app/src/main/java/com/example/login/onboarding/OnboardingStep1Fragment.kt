@@ -1,4 +1,4 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.login.OnboardingViewModel
+import com.example.login.R
 
 class OnboardingStep1Fragment : Fragment() {
 

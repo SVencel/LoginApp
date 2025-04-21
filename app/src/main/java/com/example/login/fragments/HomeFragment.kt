@@ -91,7 +91,7 @@
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             )?.contains(context.packageName) == true
 
-            // Check Notification permission
+            // Check POST_NOTIFICATIONS
             val notificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ContextCompat.checkSelfPermission(
                     context,
@@ -101,17 +101,21 @@
                 NotificationManagerCompat.from(context).areNotificationsEnabled()
             }
 
+            // 🔔 Check Notification Listener Access
+            val notificationListenerGranted = isNotificationAccessEnabled(context)
+
             // If any of them is missing
-            if (!usageGranted || !accessibilityGranted || !notificationGranted) {
+            if (!usageGranted || !accessibilityGranted || !notificationGranted || !notificationListenerGranted) {
                 val missing = buildList {
                     if (!usageGranted) add("Usage Access")
                     if (!accessibilityGranted) add("Accessibility")
                     if (!notificationGranted) add("Notifications")
+                    if (!notificationListenerGranted) add("Notification Access")
                 }.joinToString(", ")
 
                 AlertDialog.Builder(context)
                     .setTitle("Enable Permissions")
-                    .setMessage("To monitor and help reduce distractions, please enable the following:\n\n$missing.")
+                    .setMessage("To monitor distractions and provide insights, please enable:\n\n$missing.")
                     .setPositiveButton("Go to Settings") { _, _ ->
                         when {
                             !usageGranted -> startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
@@ -128,12 +132,27 @@
                                     })
                                 }
                             }
+                            !notificationListenerGranted -> {
+                                startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                            }
                         }
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
             }
         }
+
+
+
+        private fun isNotificationAccessEnabled(context: Context): Boolean {
+            val packageName = context.packageName
+            val enabledListeners = Settings.Secure.getString(
+                context.contentResolver,
+                "enabled_notification_listeners"
+            )
+            return enabledListeners?.contains(packageName) == true
+        }
+
 
         @Deprecated("Use registerForActivityResult instead in the future")
         override fun onRequestPermissionsResult(

@@ -1,4 +1,4 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +8,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.login.OnboardingViewModel
+import com.example.login.R
 
 class OnboardingStep3Fragment : Fragment() {
 

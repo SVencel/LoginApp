@@ -1,8 +1,9 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.login.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LauncherActivity : AppCompatActivity() {

@@ -37,14 +37,14 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".onboarding.ForgotPasswordActivity"
             android:exported="false" />
 
         <activity
-            android:name=".RegisterActivity"
+            android:name=".onboarding.RegisterActivity"
             android:exported="false" />
 
-        <activity android:name=".LoginActivity"
+        <activity android:name=".onboarding.LoginActivity"
             android:exported="false"/>
 
         <activity android:name=".MainActivity"
@@ -52,7 +52,7 @@
 
 
         <activity
-            android:name=".LauncherActivity"
+            android:name=".onboarding.LauncherActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat">
@@ -66,7 +66,7 @@
             android:name=".AppBlockSelectionActivity"
             android:exported="false" />
 
-        <activity android:name=".OnboardingQuestionsActivity"
+        <activity android:name=".onboarding.OnboardingQuestionsActivity"
             android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
             android:exported="false"/>
 
@@ -97,11 +97,27 @@
             android:foregroundServiceType="specialUse"
             />
 
+        <service
+            android:name=".NotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver android:name=".hardcore.HardcoreBootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".PhoneUnlockReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT"/>
             </intent-filter>
         </receiver>
 

@@ -8,8 +8,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.example.login.LoginActivity
-import com.example.login.MainActivity
+import com.example.login.onboarding.LoginActivity
 import androidx.appcompat.app.AlertDialog
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth

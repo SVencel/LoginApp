@@ -1,5 +1,6 @@
 package com.example.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,11 +18,13 @@ class ProgressFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
+    private lateinit var tvNotificationCard: TextView
+    private lateinit var tvPhoneOpenCount: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_progress, container, false)
     }
 
@@ -30,68 +33,94 @@ class ProgressFragment : Fragment() {
 
         viewPager = view.findViewById(R.id.chartViewPager)
         tabLayout = view.findViewById(R.id.chartTabIndicator)
-        val tvNotificationCard: TextView = view.findViewById(R.id.tvNotificationCard)
-        val tvPhoneOpenCount: TextView = view.findViewById(R.id.tvPhoneOpenCount)
+        tvNotificationCard = view.findViewById(R.id.tvNotificationCard)
+        tvPhoneOpenCount = view.findViewById(R.id.tvPhoneOpenCount)
 
         viewPager.adapter = ChartPagerAdapter(requireContext())
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            val label = when (position) {
+            tab.text = when (position) {
                 0 -> "Streak"
                 1 -> "Daily"
                 2 -> "Weekly"
                 3 -> "Monthly"
                 else -> ""
             }
-            tab.text = label
-            tab.contentDescription = "$label tab"
         }.attach()
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                val recyclerView = viewPager.getChildAt(0) as? RecyclerView
-                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-                        as? ChartPagerAdapter.ChartViewHolder
-                viewPager.postDelayed({ viewHolder?.clearHighlight() }, 50)
-
-                // 🔔 Update the notification count based on tab
-                val label = when (position) {
-                    1 -> "today"
-                    2 -> "this week"
-                    3 -> "this month"
-                    else -> null
-                }
-
-                val fakeCount = when (position) {
-                    1 -> 42
-                    2 -> 184
-                    3 -> 730
-                    else -> null
-                }
-
-                val phoneOpenMock = when (position) {
-                    1 -> 30
-                    2 -> 145
-                    3 -> 612
-                    else -> null
-                }
-
-                if (label != null && fakeCount != null && phoneOpenMock != null) {
-                    tvNotificationCard.text = "🔔 Notifications $label: $fakeCount"
-                    tvPhoneOpenCount.text = "📱 Phone Opened $label: $phoneOpenMock"
-
-                } else {
-                    tvNotificationCard.text = ""
-                    tvPhoneOpenCount.text = ""
-
-                }
+                updateStatsUI(position)
             }
         })
 
-        // Set initial
-        tvNotificationCard.text = "🔔 Notifications today: 42"
-        tvPhoneOpenCount.text = "📱 Phone Opened today: 30"
+        // Set initial display
+        updateStatsUI(1)
+    }
 
+    private fun updateStatsUI(position: Int) {
+        val label = when (position) {
+            1 -> "today"
+            2 -> "this week"
+            3 -> "this month"
+            else -> null
+        }
+
+        val notifCount = when (position) {
+            1 -> getNotificationCountForDays(requireContext(), 1)
+            2 -> getNotificationCountForDays(requireContext(), 7)
+            3 -> getNotificationCountForDays(requireContext(), 30)
+            else -> null
+        }
+
+        val phoneOpenCount = when (position) {
+            1 -> getPhoneOpensForDays(requireContext(), 1)
+            2 -> getPhoneOpensForDays(requireContext(), 7)
+            3 -> getPhoneOpensForDays(requireContext(), 30)
+            else -> null
+        }
+
+
+        if (label != null && notifCount != null && phoneOpenCount != null) {
+            tvNotificationCard.text = "🔔 Notifications $label: $notifCount"
+            tvPhoneOpenCount.text = "📱 Phone Opened $label: $phoneOpenCount"
+        } else {
+            tvNotificationCard.text = ""
+            tvPhoneOpenCount.text = ""
+        }
+    }
+
+
+    private fun getTodayNotificationCount(context: Context): Int {
+        val prefs = context.getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
+        val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+        val key = "notifCount_$today"
+        return prefs.getInt(key, 0)
+    }
+
+    private fun getNotificationCountForDays(context: Context, daysBack: Int): Int {
+        val prefs = context.getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
+        val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+
+        var total = 0
+        for (i in 0 until daysBack) {
+            val dayKey = "notifCount_${today - i}"
+            total += prefs.getInt(dayKey, 0)
+        }
+        return total
+    }
+
+
+    private fun getPhoneOpensForDays(context: Context, daysBack: Int): Int {
+        val prefs = context.getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
+        val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+
+        var total = 0
+        for (i in 0 until daysBack) {
+            val key = "phoneOpens_${today - i}"
+            total += prefs.getInt(key, 0)
+        }
+        return total
     }
 
 }

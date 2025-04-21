@@ -1,4 +1,4 @@
-package com.example.login
+package com.example.login.onboarding
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.login.MainActivity
+import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
