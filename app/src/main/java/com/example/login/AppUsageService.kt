@@ -255,13 +255,28 @@ class AppUsageService : AccessibilityService() {
 
             if (lastCheckedDate != currentDate) {
                 if (totalTime < usageLimit && doomscrollAlerts <= doomscrollLimit) {
+                    val newStreak = currentStreak + 1
+
                     userRef.update(
                         mapOf(
-                            "streakCount" to (currentStreak + 1),
+                            "streakCount" to newStreak,
                             "lastCheckedDate" to currentDate,
                             "doomscrollAlerts" to 0
                         )
                     )
+
+                    // 🔥 ADD TO HISTORY
+                    val historyData = mapOf(
+                        "streak" to newStreak,
+                        "date" to currentDate,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+
+                    db.collection("users").document(user.uid)
+                        .collection("streakHistory")
+                        .document(currentDate)
+                        .set(historyData)
+
                 } else {
                     resetStreakInFirebase()
                 }

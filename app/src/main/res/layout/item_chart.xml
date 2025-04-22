@@ -11,7 +11,7 @@
         android:id="@+id/tvChartTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="📊 App usage in minutes"
+        android:text="📊 Chart"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_gravity="start"

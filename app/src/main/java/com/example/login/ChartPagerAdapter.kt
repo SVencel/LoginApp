@@ -46,6 +46,15 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
 
 
         fun bind(position: Int) {
+            val titleView = itemView.findViewById<TextView>(R.id.tvChartTitle)
+            titleView.text = when (position) {
+                0 -> "🔥 Your Streak Progress"
+                1 -> "📊 App Usage Today"
+                2 -> "📊 App Usage This Week"
+                3 -> "📈 Monthly Usage Trends"
+                else -> "📊 Chart"
+            }
+
             when (position) {
                 0 -> {
                     barChart.visibility = View.VISIBLE
@@ -239,24 +248,68 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         val db = FirebaseFirestore.getInstance()
 
         db.collection("users").document(user.uid).collection("streakHistory")
+            .orderBy("timestamp") // Ensure correct order
             .get()
             .addOnSuccessListener { documents ->
                 val entries = ArrayList<BarEntry>()
+                val labels = ArrayList<String>()
                 var index = 0
+
                 for (document in documents) {
                     val streakValue = document.getLong("streak")?.toInt() ?: 0
+                    val dateLabel = document.getString("date") ?: "Day ${index + 1}"
                     entries.add(BarEntry(index.toFloat(), streakValue.toFloat()))
+                    labels.add(dateLabel)
                     index++
                 }
 
-                val dataSet = BarDataSet(entries, "Streak Progress")
-                dataSet.color = Color.parseColor("#4CAF50")
-                val barData = BarData(dataSet)
-                chart.data = barData
+                val dataSet = BarDataSet(entries, "Focus Streak").apply {
+                    color = Color.parseColor("#4CAF50") // Green
+                    valueTextSize = 12f
+                    valueTextColor = Color.BLACK
+                    highLightColor = Color.BLACK
+                }
+
+                val data = BarData(dataSet).apply {
+                    barWidth = 0.7f
+                }
+
+                chart.data = data
+                chart.setFitBars(true)
+                chart.setDrawValueAboveBar(true)
+
+                chart.xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(labels)
+                    granularity = 1f
+                    isGranularityEnabled = true
+                    position = XAxis.XAxisPosition.BOTTOM
+                    textSize = 10f
+                    setDrawGridLines(false)
+                    labelRotationAngle = -30f
+                }
+
+                chart.axisLeft.apply {
+                    axisMinimum = 0f
+                    textSize = 12f
+                }
+
+                chart.axisRight.isEnabled = false
+
                 chart.description.isEnabled = false
+                chart.legend.isEnabled = false
+
+                chart.animateY(1000)
+                chart.setTouchEnabled(true)
+                chart.setScaleEnabled(false)
+
+                val marker = UsageMarkerView(context, labels)
+                marker.chartView = chart
+                chart.marker = marker
+
                 chart.invalidate()
             }
     }
+
 
     private fun loadAppUsageChart(chart: BarChart, intervalType: Int) {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
