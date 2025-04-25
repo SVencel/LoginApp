@@ -35,5 +35,103 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
     </FrameLayout>
+    <LinearLayout
+        android:id="@+id/colorLegendDaily"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone"
+        android:paddingTop="12dp">
+
+        <!-- Social -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="16dp">
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:backgroundTint="#FF9800"
+                android:background="@drawable/color_circle" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Social"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- Productivity -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="16dp">
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:backgroundTint="#2196F3"
+                android:background="@drawable/color_circle" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Productivity"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- Game -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="16dp">
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:backgroundTint="#4CAF50"
+                android:background="@drawable/color_circle" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Game"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- Other -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:backgroundTint="#9E9E9E"
+                android:background="@drawable/color_circle" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Other"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </LinearLayout>

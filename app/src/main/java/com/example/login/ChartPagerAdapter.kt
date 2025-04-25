@@ -1,13 +1,13 @@
 package com.example.login
 
 import android.app.usage.UsageStatsManager
-import android.graphics.Color
 import android.content.Context
+import android.graphics.Color
 import android.icu.util.Calendar
 import android.view.LayoutInflater
 import android.view.View
-import kotlin.math.roundToInt
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.charts.BarChart
@@ -18,14 +18,9 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.util.Locale
-
+import kotlin.math.roundToInt
 
 class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<ChartPagerAdapter.ChartViewHolder>() {
 
@@ -38,15 +33,14 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         holder.bind(position)
     }
 
-    override fun getItemCount(): Int = 3 // 1: Daily, 2: Weekly, 3: Monthly
+    override fun getItemCount(): Int = 3
 
-    inner class ChartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val barChart: BarChart = view.findViewById(R.id.barChart)
-        private val lineChart: LineChart = view.findViewById(R.id.lineChart)
-
+    inner class ChartViewHolder(private val itemViewRoot: View) : RecyclerView.ViewHolder(itemViewRoot) {
+        private val barChart: BarChart = itemViewRoot.findViewById(R.id.barChart)
+        private val lineChart: LineChart = itemViewRoot.findViewById(R.id.lineChart)
 
         fun bind(position: Int) {
-            val titleView = itemView.findViewById<TextView>(R.id.tvChartTitle)
+            val titleView = itemViewRoot.findViewById<TextView>(R.id.tvChartTitle)
             titleView.text = when (position) {
                 0 -> "📊 App Usage Today in Minutes"
                 1 -> "📊 App Usage This Week in Minutes"
@@ -71,162 +65,45 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
                     loadMonthlyLineChart(lineChart)
                 }
             }
-        }
 
-    }
+            val colorLegendLayout = itemViewRoot.findViewById<LinearLayout>(R.id.colorLegendDaily)
+            colorLegendLayout.removeAllViews()
 
-    private fun loadMonthlyLineChart(chart: LineChart) {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val calendar = Calendar.getInstance()
-        val endTime = calendar.timeInMillis
-        calendar.add(Calendar.DAY_OF_YEAR, -30)
-        val startTime = calendar.timeInMillis
+            val categories = listOf("Social", "Productivity", "Game", "Other")
+            val colors = listOf(
+                Color.parseColor("#FF9800"),
+                Color.parseColor("#2196F3"),
+                Color.parseColor("#4CAF50"),
+                Color.GRAY
+            )
 
-        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+            for (i in categories.indices) {
+                val legendItem = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(16, 0, 16, 0)
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                }
 
-        val categoryMap = mutableMapOf<String, MutableList<Float>>() // Category -> 30 float values
+                val colorDot = View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(20, 20)
+                    background = context.getDrawable(R.drawable.color_circle)
+                    backgroundTintList = android.content.res.ColorStateList.valueOf(colors[i])
+                }
 
-        val categories = listOf("Social", "Productivity", "Game", "Other")
-        categories.forEach { categoryMap[it] = MutableList(30) { 0f } }
+                val label = TextView(context).apply {
+                    text = " ${categories[i]}"
+                    textSize = 14f
+                    setTextColor(context.getColor(R.color.textPrimaryColor))
+                }
 
-        for (stat in stats) {
-            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 29)
-            val time = stat.totalTimeInForeground
-            if (time < 60000) continue
-
-            val category = getCategoryName(stat.packageName)
-            val list = categoryMap[category] ?: continue
-            list[dayIndex] += time / 60000f // convert to minutes
-        }
-
-        val lineDataSets = mutableListOf<ILineDataSet>()
-
-        val colors = mapOf(
-            "Social" to Color.parseColor("#FF9800"),
-            "Productivity" to Color.parseColor("#2196F3"),
-            "Game" to Color.parseColor("#4CAF50"),
-            "Other" to Color.GRAY
-        )
-
-        for ((category, dataPoints) in categoryMap) {
-            val entries = dataPoints.mapIndexed { i, minutes -> Entry(i.toFloat(), minutes) }
-            val dataSet = LineDataSet(entries, category).apply {
-                color = colors[category] ?: Color.GRAY
-                lineWidth = 2f
-                setDrawCircles(false)
-                setDrawValues(false)
-                mode = LineDataSet.Mode.CUBIC_BEZIER
+                legendItem.addView(colorDot)
+                legendItem.addView(label)
+                colorLegendLayout.addView(legendItem)
             }
-            lineDataSets.add(dataSet)
-        }
 
-        val lineData = LineData(lineDataSets)
-        chart.data = lineData
-
-        chart.xAxis.apply {
-            valueFormatter = IndexAxisValueFormatter((1..30).map { it.toString() })
-            granularity = 1f
-            position = XAxis.XAxisPosition.BOTTOM
-            textSize = 10f
-        }
-
-        chart.axisLeft.textSize = 12f
-        chart.axisRight.isEnabled = false
-        chart.description.text = "App Usage (Minutes) in Past 30 Days"
-        chart.setTouchEnabled(true)
-        chart.invalidate()
-    }
-
-    private fun loadWeeklyStackedBarChart(chart: BarChart) {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val calendar = Calendar.getInstance()
-        val endTime = calendar.timeInMillis
-        calendar.add(Calendar.DAY_OF_YEAR, -6) // Past 7 days including today
-        val startTime = calendar.timeInMillis
-
-        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-
-        // Prepare per-day usage map: dayIndex (0-6) -> category -> minutes
-        val dayCategoryUsage = Array(7) { mutableMapOf<String, Float>() }
-
-        for (stat in stats) {
-            val time = stat.totalTimeInForeground
-            if (time < 60000) continue
-
-            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 6)
-            val category = getCategoryName(stat.packageName)
-            val minutes = time / 60000f
-            dayCategoryUsage[dayIndex][category] = (dayCategoryUsage[dayIndex][category] ?: 0f) + minutes
-        }
-
-        val categories = listOf("Social", "Productivity", "Game", "Other")
-        val colors = listOf(
-            Color.parseColor("#FF9800"), // Social - Orange
-            Color.parseColor("#2196F3"), // Productivity - Blue
-            Color.parseColor("#4CAF50"), // Game - Green
-            Color.GRAY                    // Other
-        )
-
-        val entries = mutableListOf<BarEntry>()
-        for (i in 0..6) {
-            val categoryValues = categories.map { dayCategoryUsage[i][it] ?: 0f }.toFloatArray()
-            entries.add(BarEntry(i.toFloat(), categoryValues))
-        }
-
-        val dataSet = BarDataSet(entries, "Weekly App Usage")
-        dataSet.colors = colors
-        dataSet.setStackLabels(categories.toTypedArray())
-
-        val barData = BarData(dataSet)
-        barData.barWidth = 0.8f
-        chart.data = barData
-
-        chart.xAxis.apply {
-            valueFormatter = IndexAxisValueFormatter(getPast7DayLabels())
-            granularity = 1f
-            position = XAxis.XAxisPosition.BOTTOM
-            setDrawGridLines(false)
-            textSize = 10f
-        }
-
-        chart.axisLeft.textSize = 12f
-        chart.axisRight.isEnabled = false
-        chart.description.text = "App Usage (Stacked by Category)"
-        chart.setFitBars(true)
-        chart.invalidate()
-    }
-
-    private fun getPast7DayLabels(): List<String> {
-        val format = java.text.SimpleDateFormat("EEE", Locale.getDefault())
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -6)
-        return List(7) {
-            val label = format.format(calendar.time)
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
-            label
+            colorLegendLayout.visibility = View.VISIBLE
         }
     }
-
-
-    private fun getCategoryName(packageName: String): String {
-        val pm = context.packageManager
-        return try {
-            val appInfo = pm.getApplicationInfo(packageName, 0)
-            val category = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                appInfo.category
-            } else null
-
-            when (category) {
-                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> "Social"
-                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> "Productivity"
-                android.content.pm.ApplicationInfo.CATEGORY_GAME -> "Game"
-                else -> "Other"
-            }
-        } catch (_: Exception) {
-            "Other"
-        }
-    }
-
 
     private fun loadAppUsageChart(chart: BarChart, intervalType: Int) {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -238,16 +115,13 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
             UsageStatsManager.INTERVAL_MONTHLY -> calendar.add(Calendar.MONTH, -1)
         }
         val startTime = calendar.timeInMillis
-        chart.setDrawMarkers(true)
-
-
 
         val stats = usageStatsManager.queryUsageStats(intervalType, startTime, endTime)
         val usageMap = mutableMapOf<String, Long>()
 
         for (usageStat in stats) {
             val totalTime = usageStat.totalTimeInForeground
-            if (totalTime >= 60000) { // Only show apps used more than 1 minute
+            if (totalTime >= 60000) {
                 usageMap[usageStat.packageName] = (usageMap[usageStat.packageName] ?: 0) + totalTime
             }
         }
@@ -301,6 +175,152 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         chart.marker = markerView
     }
 
+    private fun loadWeeklyStackedBarChart(chart: BarChart) {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance()
+        val endTime = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -6)
+        val startTime = calendar.timeInMillis
+
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+        val dayCategoryUsage = Array(7) { mutableMapOf<String, Float>() }
+
+        for (stat in stats) {
+            val time = stat.totalTimeInForeground
+            if (time < 60000) continue
+
+            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 6)
+            val category = getCategoryName(stat.packageName)
+            val minutes = time / 60000f
+            dayCategoryUsage[dayIndex][category] = (dayCategoryUsage[dayIndex][category] ?: 0f) + minutes
+        }
+
+        val categories = listOf("Social", "Productivity", "Game", "Other")
+        val colors = listOf(
+            Color.parseColor("#FF9800"),
+            Color.parseColor("#2196F3"),
+            Color.parseColor("#4CAF50"),
+            Color.GRAY
+        )
+
+        val entries = mutableListOf<BarEntry>()
+        for (i in 0..6) {
+            val categoryValues = categories.map { dayCategoryUsage[i][it] ?: 0f }.toFloatArray()
+            entries.add(BarEntry(i.toFloat(), categoryValues))
+        }
+
+        val dataSet = BarDataSet(entries, "Weekly App Usage")
+        dataSet.colors = colors
+        dataSet.setStackLabels(categories.toTypedArray())
+
+        val barData = BarData(dataSet)
+        barData.barWidth = 0.8f
+        chart.data = barData
+
+        chart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(getPast7DayLabels())
+            granularity = 1f
+            position = XAxis.XAxisPosition.BOTTOM
+            setDrawGridLines(false)
+            textSize = 10f
+        }
+
+        chart.axisLeft.textSize = 12f
+        chart.axisRight.isEnabled = false
+        chart.description.text = "App Usage (Stacked by Category)"
+        chart.setFitBars(true)
+        chart.invalidate()
+    }
+
+    private fun loadMonthlyLineChart(chart: LineChart) {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance()
+        val endTime = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -30)
+        val startTime = calendar.timeInMillis
+
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+        val categoryMap = mutableMapOf<String, MutableList<Float>>()
+        val categories = listOf("Social", "Productivity", "Game", "Other")
+        categories.forEach { categoryMap[it] = MutableList(30) { 0f } }
+
+        for (stat in stats) {
+            val dayIndex = (((stat.firstTimeStamp - startTime) / (1000 * 60 * 60 * 24)).toInt()).coerceIn(0, 29)
+            val time = stat.totalTimeInForeground
+            if (time < 60000) continue
+
+            val category = getCategoryName(stat.packageName)
+            val list = categoryMap[category] ?: continue
+            list[dayIndex] += time / 60000f
+        }
+
+        val lineDataSets = mutableListOf<ILineDataSet>()
+        val colors = mapOf(
+            "Social" to Color.parseColor("#FF9800"),
+            "Productivity" to Color.parseColor("#2196F3"),
+            "Game" to Color.parseColor("#4CAF50"),
+            "Other" to Color.GRAY
+        )
+
+        for ((category, dataPoints) in categoryMap) {
+            val entries = dataPoints.mapIndexed { i, minutes -> Entry(i.toFloat(), minutes) }
+            val dataSet = LineDataSet(entries, category).apply {
+                color = colors[category] ?: Color.GRAY
+                lineWidth = 2f
+                setDrawCircles(false)
+                setDrawValues(false)
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+            }
+            lineDataSets.add(dataSet)
+        }
+
+        val lineData = LineData(lineDataSets)
+        chart.data = lineData
+
+        chart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter((1..30).map { it.toString() })
+            granularity = 1f
+            position = XAxis.XAxisPosition.BOTTOM
+            textSize = 10f
+        }
+
+        chart.axisLeft.textSize = 12f
+        chart.axisRight.isEnabled = false
+        chart.description.text = "App Usage (Minutes) in Past 30 Days"
+        chart.setTouchEnabled(true)
+        chart.invalidate()
+    }
+
+    private fun getPast7DayLabels(): List<String> {
+        val format = java.text.SimpleDateFormat("EEE", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -6)
+        return List(7) {
+            val label = format.format(calendar.time)
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            label
+        }
+    }
+
+    private fun getCategoryName(packageName: String): String {
+        val pm = context.packageManager
+        return try {
+            val appInfo = pm.getApplicationInfo(packageName, 0)
+            val category = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                appInfo.category
+            } else null
+
+            when (category) {
+                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> "Social"
+                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> "Productivity"
+                android.content.pm.ApplicationInfo.CATEGORY_GAME -> "Game"
+                else -> "Other"
+            }
+        } catch (_: Exception) {
+            "Other"
+        }
+    }
+
     private fun getColorForAppCategory(packageName: String): Int {
         val pm = context.packageManager
         return try {
@@ -310,9 +330,9 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
             } else null
 
             when (category) {
-                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> Color.parseColor("#FF9800") // Orange
-                android.content.pm.ApplicationInfo.CATEGORY_GAME -> Color.parseColor("#4CAF50") // Green
-                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> Color.parseColor("#2196F3") // Blue
+                android.content.pm.ApplicationInfo.CATEGORY_SOCIAL -> Color.parseColor("#FF9800")
+                android.content.pm.ApplicationInfo.CATEGORY_GAME -> Color.parseColor("#4CAF50")
+                android.content.pm.ApplicationInfo.CATEGORY_PRODUCTIVITY -> Color.parseColor("#2196F3")
                 else -> Color.GRAY
             }
         } catch (e: Exception) {
@@ -341,6 +361,4 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
             return MPPointF(-(width / 2f), -height.toFloat())
         }
     }
-
-
 }
