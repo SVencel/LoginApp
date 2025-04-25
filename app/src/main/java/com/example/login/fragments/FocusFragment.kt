@@ -35,6 +35,9 @@ class FocusFragment : Fragment() {
     private lateinit var sectionAdapter: SectionAdapter
     private lateinit var seekBarDoomSensitivity: SeekBar
     private lateinit var tvSensitivityLabel: TextView
+    private lateinit var switchProductivity: SwitchCompat
+    private lateinit var seekBarProductivity: SeekBar
+    private lateinit var tvProductivityLabel: TextView
 
     private val sectionList = mutableListOf<Section>()
 
@@ -81,6 +84,9 @@ class FocusFragment : Fragment() {
         rvSections = view.findViewById(R.id.rvSections)
         seekBarDoomSensitivity = view.findViewById(R.id.seekBarDoomSensitivity)
         tvSensitivityLabel = view.findViewById(R.id.tvSensitivityLabel)
+        switchProductivity = view.findViewById(R.id.switchProductivity)
+        seekBarProductivity = view.findViewById(R.id.seekBarProductivity)
+        tvProductivityLabel = view.findViewById(R.id.tvProductivityLabel)
 
 
         quoteText.text = quotes.random()
@@ -128,6 +134,66 @@ class FocusFragment : Fragment() {
                 doomPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
                 tvSensitivityLabel.text = "Detection: ${sensitivityLabels[progress]}"
                 tvDoomscrollLimit.text = getDoomscrollLimitText(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        val headerHardcore = view.findViewById<LinearLayout>(R.id.headerHardcore)
+        val expandableHardcore = view.findViewById<LinearLayout>(R.id.expandableHardcore)
+
+        headerHardcore.setOnClickListener {
+            if (expandableHardcore.visibility == View.VISIBLE) {
+                expandableHardcore.visibility = View.GONE
+            } else {
+                expandableHardcore.visibility = View.VISIBLE
+            }
+        }
+
+        val headerDoomscroll = view.findViewById<LinearLayout>(R.id.headerDoomscroll)
+        val expandableDoomscroll = view.findViewById<LinearLayout>(R.id.expandableDoomscroll)
+
+        headerDoomscroll.setOnClickListener {
+            if (expandableDoomscroll.visibility == View.VISIBLE) {
+                expandableDoomscroll.visibility = View.GONE
+            } else {
+                expandableDoomscroll.visibility = View.VISIBLE
+            }
+        }
+        val headerProductivity = view.findViewById<LinearLayout>(R.id.headerProductivity)
+        val expandableProductivity = view.findViewById<LinearLayout>(R.id.expandableProductivity)
+
+        headerProductivity.setOnClickListener {
+            if (expandableProductivity.visibility == View.VISIBLE) {
+                expandableProductivity.visibility = View.GONE
+            } else {
+                expandableProductivity.visibility = View.VISIBLE
+            }
+        }
+
+
+        val prefs = requireContext().getSharedPreferences("productivityPrefs", Context.MODE_PRIVATE)
+
+        val detectionEnabled = prefs.getBoolean("detectionEnabled", true)
+        switchProductivity.isChecked = detectionEnabled
+
+        val savedMinutes = prefs.getInt("productivityPromptMinutes", 60).coerceIn(10, 120)
+        val progress = (savedMinutes - 10) / 5
+        seekBarProductivity.progress = progress
+        tvProductivityLabel.text = "Prompt after: $savedMinutes minutes"
+
+
+        switchProductivity.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("detectionEnabled", isChecked).apply()
+            Toast.makeText(requireContext(), if (isChecked) "🎯 Productivity detection ON" else "🎯 Productivity detection OFF", Toast.LENGTH_SHORT).show()
+        }
+
+        seekBarProductivity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val actualMinutes = 10 + (progress * 5)
+                prefs.edit().putInt("productivityPromptMinutes", actualMinutes).apply()
+                tvProductivityLabel.text = "Prompt after: $actualMinutes minutes"
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}

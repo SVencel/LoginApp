@@ -19,10 +19,8 @@ import androidx.core.app.NotificationManagerCompat
 
 class ProfileFragment : Fragment() {
 
-    private lateinit var thresholdInput: EditText
     private lateinit var saveButton: Button
     private lateinit var logoutButton: Button
-    private lateinit var quoteInput: EditText
     private lateinit var userInfoText: TextView
     private lateinit var permissionStatusText: TextView
     private lateinit var goalsTextView: TextView
@@ -37,10 +35,7 @@ class ProfileFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        thresholdInput = view.findViewById(R.id.etThreshold)
-        saveButton = view.findViewById(R.id.btnSaveSettings)
         logoutButton = view.findViewById(R.id.btnLogout)
-        quoteInput = view.findViewById(R.id.etQuote)
         userInfoText = view.findViewById(R.id.tvUserInfo)
         goalsTextView = view.findViewById(R.id.tvGoals)
 
@@ -50,10 +45,6 @@ class ProfileFragment : Fragment() {
         }
 
         loadUserSettings()
-
-        saveButton.setOnClickListener {
-            saveSettings()
-        }
 
         logoutButton.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
@@ -77,21 +68,6 @@ class ProfileFragment : Fragment() {
     private fun loadUserSettings() {
         val user = auth.currentUser ?: return
         userInfoText.text = "Logged in as: ${user.email}"
-
-        db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val threshold = doc.getLong("productivityPromptMinutes")?.toInt() ?: 60
-                val quote = doc.getString("customMotivation") ?: ""
-
-                thresholdInput.setText(threshold.toString())
-                quoteInput.setText(quote)
-            }
-
-
-        goalsTextView?.setOnClickListener {
-            showAddGoalsDialog()
-        }
 
         db.collection("users").document(user.uid)
             .collection("onboardingAnswers")
@@ -160,33 +136,6 @@ class ProfileFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-
-    private fun saveSettings() {
-        val user = auth.currentUser ?: return
-        val thresholdStr = thresholdInput.text.toString().trim()
-        val customQuote = quoteInput.text.toString().trim()
-
-        val threshold = thresholdStr.toIntOrNull()
-        if (threshold == null || threshold <= 0) {
-            Toast.makeText(requireContext(), "Enter a valid number", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("users").document(user.uid)
-            .update(
-                mapOf(
-                    "productivityPromptMinutes" to threshold,
-                    "customMotivation" to customQuote
-                )
-            )
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "✅ Saved", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "❌ Error saving", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun updatePermissionStatus() {

@@ -17,13 +17,22 @@ class ProductivitySessionManager(
         override fun run() {
             sessionMinutes++
             if (sessionMinutes >= thresholdMinutes) {
-                val now = System.currentTimeMillis()
-                if (now - lastPromptTime > thresholdMinutes * 60 * 1000) {
-                    lastPromptTime = now
-                    onThresholdReached()
+                val prefs = context.getSharedPreferences("productivityPrefs", Context.MODE_PRIVATE)
+                val detectionEnabled = prefs.getBoolean("detectionEnabled", true)
+
+                if (detectionEnabled) {
+                    val now = System.currentTimeMillis()
+                    if (now - lastPromptTime > thresholdMinutes * 60 * 1000) {
+                        lastPromptTime = now
+                        onThresholdReached()
+                        sessionMinutes = 0
+                    }
+                } else {
+                    // If detection is disabled, reset session
                     sessionMinutes = 0
                 }
             }
+
             handler.postDelayed(this, 60_000)
         }
     }

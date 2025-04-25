@@ -1,109 +1,72 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:orientation="vertical"
     android:background="@color/backgroundColor"
+    android:padding="24dp"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- User Info -->
+            <TextView
+                android:id="@+id/tvUserInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logged in as: "
+                android:textSize="16sp"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Permission Status -->
+            <TextView
+                android:id="@+id/tvPermissionStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Checking permissions..."
+                android:textColor="@color/textSecondaryColor"
+                android:padding="12dp"
+                android:background="@color/section_disabled"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Goals Summary -->
+            <TextView
+                android:id="@+id/tvGoals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎯 Goals loading..."
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="@color/primaryDarkColor"
+                android:padding="12dp"
+                android:minHeight="48dp"
+                android:layout_marginBottom="24dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Logout -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- User Info -->
-        <TextView
-            android:id="@+id/tvUserInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Logged in as: "
-            android:textSize="16sp"
-            android:textColor="@color/textPrimaryColor"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Permission Status -->
-        <TextView
-            android:id="@+id/tvPermissionStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Checking permissions..."
-            android:textColor="@color/textSecondaryColor"
-            android:padding="12dp"
-            android:background="@color/section_disabled"
-            android:textSize="14sp"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Productivity Threshold -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="Productivity threshold (minutes)"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/primaryColor"
-            app:hintTextColor="@color/hintColor">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etThreshold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:textColor="@color/textPrimaryColor" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Custom Motivation -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="Custom motivational message"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/primaryColor"
-            app:hintTextColor="@color/hintColor">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etQuote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:textColor="@color/textPrimaryColor" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Goals Summary -->
-        <TextView
-            android:id="@+id/tvGoals"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎯 Goals loading..."
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:background="@color/primaryDarkColor"
-            android:padding="12dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="24dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground" />
-
-        <!-- Save -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveSettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="💾 Save"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/primaryColor"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp" />
-
-        <!-- Logout -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🚪 Logout"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:textColor="@android:color/white"
-            app:cornerRadius="12dp" />
-    </LinearLayout>
-</ScrollView>
+        android:text="🚪 Logout"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:textColor="@android:color/white"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="8dp" />
+</LinearLayout>
