@@ -1,150 +1,146 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="24dp"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:gravity="top">
-
-    <TextView
-        android:id="@+id/tvMotivationQuote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="“Focus is a superpower.”"
-        android:textStyle="italic"
-        android:textColor="#444"
-        android:textSize="16sp"
-        android:layout_marginBottom="24dp" />
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@android:color/white"
-        android:elevation="2dp"
-        android:padding="16dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:backgroundTint="#F7F7F7"
-        android:clipToOutline="true"
-        android:backgroundTintMode="src_in"
-        android:shape="rectangle"
-        android:radius="8dp">
+        android:orientation="vertical">
 
-        <Switch
-            android:id="@+id/switchHardcore"
-            android:layout_width="match_parent"
+        <!-- Motivation -->
+        <TextView
+            android:id="@+id/tvMotivationQuote"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="☠️ HARDCORE MODE"
+            android:text="“Focus is a superpower.”"
+            android:textStyle="italic"
             android:textSize="16sp"
-            android:padding="8dp" />
+            android:textColor="@color/textSecondaryColor"
+            android:layout_marginBottom="24dp" />
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="start"
-            android:paddingTop="4dp">
+            android:layout_marginBottom="16dp"
+            android:padding="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
 
-            <ImageView
-                android:id="@+id/ivHardcoreInfo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_info_24"
-                android:contentDescription="Info"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="#777" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="What is Hardcore Mode?"
-                android:textColor="#777"
-                android:textSize="14sp"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="6dp" />
-        </LinearLayout>
+                android:orientation="vertical">
 
-    </LinearLayout>
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchHardcore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="☠️ HARDCORE MODE"
+                    android:textColor="@color/textPrimaryColor"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@android:color/white"
-        android:elevation="2dp"
-        android:padding="16dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:backgroundTint="#F7F7F7"
-        android:clipToOutline="true"
-        android:backgroundTintMode="src_in"
-        android:shape="rectangle"
-        android:radius="8dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-        <!-- Doomscroll toggle -->
-        <Switch
-            android:id="@+id/switchDoomscroll"
+                    <ImageView
+                        android:id="@+id/ivHardcoreInfo"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        app:tint="@color/textSecondaryColor"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="What is Hardcore Mode?"
+                        android:textSize="14sp"
+                        android:textColor="@color/textSecondaryColor" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="☠️ Detect Doomscrolling"
-            android:minHeight="48dp"
-            android:textSize="16sp" />
+            android:layout_marginBottom="16dp"
+            android:padding="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
 
-        <TextView
-            android:id="@+id/tvDoomscrollLimit"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchDoomscroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🌀 Doomscroll Detection"
+                    android:textColor="@color/textPrimaryColor"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvDoomscrollLimit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Limit: 9 scrolls in 5 minutes"
+                    android:textSize="14sp"
+                    android:textColor="@color/textSecondaryColor"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvSensitivityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Detection: Medium"
+                    android:textSize="14sp"
+                    android:textColor="@color/textSecondaryColor"
+                    android:layout_marginBottom="4dp" />
+
+                <SeekBar
+                    android:id="@+id/seekBarDoomSensitivity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="2"
+                    android:progress="1"
+                    android:thumbTint="@color/primaryColor"
+                    android:progressTint="@color/primaryColor" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- Manage Sections -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnManageSections"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Limit: 5 scrolls in 10 minutes"
+            android:text="New Focus Session"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Session List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:scrollbars="vertical"
             android:paddingTop="8dp"
-            android:textColor="#666"
-            android:textSize="14sp" />
-
-        <!-- Sensitivity slider (should be after the switch + label) -->
-        <TextView
-            android:id="@+id/tvSensitivityLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Detection: Medium"
-            android:textSize="14sp"
-            android:textColor="#666"
-            android:layout_marginTop="12dp" />
-
-        <SeekBar
-            android:id="@+id/seekBarDoomSensitivity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="2"
-            android:progress="1"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp"
-            android:thumbTint="@color/primaryColor"
-            android:progressTint="@color/primaryColor" />
+            android:layout_marginBottom="16dp" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btnManageSections"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="New Focus Session"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- ✅ New RecyclerView for displaying sections -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSections"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingTop="8dp"
-        android:clipToPadding="false"
-        android:scrollbars="vertical" />
-</LinearLayout>
+</ScrollView>

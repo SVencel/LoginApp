@@ -1,11 +1,13 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="@android:color/white"
+    android:layout_marginBottom="4dp">
 
+    <!-- 🔥 Top App Tag (optional) -->
     <TextView
         android:id="@+id/topAppTag"
         android:layout_width="wrap_content"
@@ -13,34 +15,38 @@
         android:text="🔥 Top"
         android:textSize="12sp"
         android:textColor="#FF5722"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/top_tag_bg"
         android:padding="4dp"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
+    <!-- App Icon -->
     <ImageView
         android:id="@+id/appIcon"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:scaleType="centerInside"
-        android:layout_marginEnd="10dp"/>
-    <!-- App Name Text -->
+        android:layout_marginEnd="12dp" />
+
+    <!-- App Name -->
     <TextView
         android:id="@+id/appNameText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:padding="8dp"/>
+        android:textColor="@color/textPrimaryColor"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
-    <!-- Checkbox (Larger Touch Area) -->
+    <!-- App Checkbox -->
     <CheckBox
         android:id="@+id/appCheckbox"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:buttonTint="@color/primaryColor"
-        android:gravity="center"
-        android:padding="12dp"/>
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center" />
 </LinearLayout>

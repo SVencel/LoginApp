@@ -17,7 +17,7 @@ class HardcoreModeService : Service() {
     private fun startHardcoreNotification() {
         val channelId = "hardcore_mode_channel"
 
-        // Optional: add a tap action
+// Optional: Add tap action
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
@@ -25,18 +25,29 @@ class HardcoreModeService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_skull) // this icon shows in the status bar
+            .setSmallIcon(R.drawable.ic_skull)
             .setContentTitle("☠️ HARDCORE MODE IS ON")
             .setContentText("Only this app, calls, and SMS are allowed.")
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(
+                        "Only this app, calls, and SMS are allowed.\n\n" +
+                                "Focus mode is activated — stay strong 💪.\n\n" +
+                                "All distracting apps are currently blocked.\n" +
+                                "To exit Hardcore Mode, go back to the app."
+                    )
+            )
+            .setColor(android.graphics.Color.RED)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setOngoing(true) // this prevents swipe to remove
+            .setOngoing(true)
             .setAutoCancel(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
 
         startForeground(1, notification)
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

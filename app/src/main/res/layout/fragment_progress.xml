@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@color/backgroundColor"
     android:fitsSystemWindows="true">
 
-    <!-- Optional Title -->
+    <!-- Title -->
     <TextView
         android:id="@+id/tvProgressTitle"
         android:layout_width="wrap_content"
@@ -14,30 +15,34 @@
         android:text="📊 Your Progress"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/primaryDarkColor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="12dp" />
 
-    <!-- Chart -->
+    <!-- Chart ViewPager -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/chartViewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         android:overScrollMode="never"
-        app:layout_constraintTop_toBottomOf="@+id/tvProgressTitle"
-        app:layout_constraintBottom_toTopOf="@+id/chartTabIndicator"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvProgressTitle"
+        app:layout_constraintBottom_toTopOf="@id/chartTabIndicator"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tabs -->
+    <!-- Tab Layout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/chartTabIndicator"
         android:layout_width="0dp"
+        android:contentDescription="Chart navigation tabs"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:tabIndicatorColor="@color/primaryColor"
+        app:tabSelectedTextColor="@color/primaryDarkColor"
+        app:tabTextColor="@color/textSecondaryColor"
         app:tabMode="fixed"
         app:tabGravity="fill"
         app:layout_constraintTop_toBottomOf="@id/chartViewPager"
@@ -45,15 +50,16 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Notifications Card -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardNotif"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp"
         android:padding="16dp"
-        android:radius="12dp"
-        android:elevation="4dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/chartTabIndicator"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -64,18 +70,19 @@
             android:layout_height="wrap_content"
             android:text="🔔 Notifications: 0"
             android:textSize="16sp"
-            android:textColor="@android:color/black" />
-    </androidx.cardview.widget.CardView>
+            android:textColor="@color/textPrimaryColor" />
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Phone Opens Card -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/phoneOpenCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:padding="16dp"
-        android:radius="12dp"
-        android:elevation="4dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/cardNotif"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,11 +92,9 @@
             android:id="@+id/tvPhoneOpenCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:text="📱 Phone Opened: 0"
             android:textSize="16sp"
-            android:textColor="@android:color/black" />
-    </androidx.cardview.widget.CardView>
-
+            android:textColor="@color/textPrimaryColor" />
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

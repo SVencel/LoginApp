@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,17 +12,15 @@
         android:orientation="vertical"
         android:background="@android:color/white"
         android:padding="20dp"
-        android:elevation="4dp"
         android:layout_margin="8dp"
-        android:clipToPadding="false"
-        android:backgroundTint="@android:color/white">
+        android:elevation="4dp"
+        android:clipToPadding="false">
 
         <!-- Q1 -->
         <TextView
             android:text="1. How many hours do you use your phone daily?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -32,11 +29,11 @@
             android:id="@+id/rgPhoneUsage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="1–2 hours" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="2–4 hours" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="4–6 hours" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="6+ hours"  style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="I don't know / I’d like to find out" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="1–2 hours" style="@style/OnboardingText"/>
+            <RadioButton android:text="2–4 hours" style="@style/OnboardingText"/>
+            <RadioButton android:text="4–6 hours" style="@style/OnboardingText"/>
+            <RadioButton android:text="6+ hours" style="@style/OnboardingText"/>
+            <RadioButton android:text="I don't know / I’d like to find out" style="@style/OnboardingText"/>
         </RadioGroup>
 
         <!-- Q2 -->
@@ -44,7 +41,6 @@
             android:text="2. When do you use your phone the most?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -54,10 +50,10 @@
             android:id="@+id/rgTimeOfDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Morning" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="During work/study" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Evening" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="All day" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Morning" style="@style/OnboardingText"/>
+            <RadioButton android:text="During work/study" style="@style/OnboardingText"/>
+            <RadioButton android:text="Evening" style="@style/OnboardingText"/>
+            <RadioButton android:text="All day" style="@style/OnboardingText"/>
         </RadioGroup>
 
         <!-- Q3 -->
@@ -65,7 +61,6 @@
             android:text="3. Why do you usually reach for your phone?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -75,27 +70,28 @@
             android:id="@+id/rgPhoneReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Boredom" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Stress relief" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Social contact" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Social media" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Entertainment/games" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Work/study" style="@style/OnboardingText" android:layout_gravity="" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Just a habit" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Boredom" style="@style/OnboardingText"/>
+            <RadioButton android:text="Stress relief" style="@style/OnboardingText"/>
+            <RadioButton android:text="Social contact" style="@style/OnboardingText"/>
+            <RadioButton android:text="Social media" style="@style/OnboardingText"/>
+            <RadioButton android:text="Entertainment/games" style="@style/OnboardingText"/>
+            <RadioButton android:text="Work/study" style="@style/OnboardingText"/>
+            <RadioButton android:text="Just a habit" style="@style/OnboardingText"/>
         </RadioGroup>
 
-        <!-- Button -->
-        <Button
+        <!-- Next Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNextStep1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Next"
+            android:textAllCaps="false"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/tealColor"
             android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            android:drawableEnd="@drawable/ic_baseline_navigate_next_24"
-            android:drawablePadding="8dp"
-            android:padding="12dp"/>
+            app:icon="@drawable/ic_baseline_navigate_next_24"
+            app:iconPadding="8dp"
+            app:iconGravity="textStart"
+            app:cornerRadius="24dp" />
     </LinearLayout>
 </ScrollView>

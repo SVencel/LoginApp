@@ -1,72 +1,90 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:background="@color/backgroundColor">
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
 
-    <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter username"
-        android:padding="12dp"
-        android:maxLines="1"
-        android:imeOptions="actionNext"
-        android:inputType="textPersonName"
-        android:background="@drawable/rounded_edittext"
-        android:textColor="@color/textPrimaryColor"
-        android:layout_marginBottom="16dp"/>
-
-    <EditText
-        android:id="@+id/etRegisterEmail"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter Email"
-        android:maxLines="1"
-        android:inputType="textEmailAddress"
-        android:padding="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:textColor="@color/textPrimaryColor"
-        android:layout_marginBottom="16dp"/>
-
-    <EditText
-        android:id="@+id/etRegisterPassword"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter Password"
-        android:inputType="textPassword"
-        android:padding="12dp"
-        android:maxLines="1"
-        android:background="@drawable/rounded_edittext"
-        android:textColor="@color/textPrimaryColor"
-        android:layout_marginBottom="24dp"/>
-
-    <Button
-        android:id="@+id/btnRegisterUser"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnBackToLogin"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="Back to Login"
-        android:textColor="@color/primaryDarkColor"
-        android:padding="12dp"
-        android:clickable="true"
-        android:textSize="14sp"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:layout_marginTop="24dp"/>
+        <!-- Username -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-</LinearLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter username"
+                android:inputType="textPersonName"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Email -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegisterEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Email"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegisterPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Password"
+                android:inputType="textPassword"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Sign Up -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRegisterUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign Up"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp" />
+
+        <!-- Back to Login -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBackToLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back to Login"
+            android:textColor="@color/primaryDarkColor"
+            android:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>

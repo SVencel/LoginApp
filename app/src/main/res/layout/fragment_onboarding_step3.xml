@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:orientation="vertical"
@@ -21,45 +20,40 @@
             android:text="7. Why did you download BeAlive?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <CheckBox
             android:id="@+id/cbReasonLessPhone"
-            style="@style/OnboardingText"
             android:text="To spend less time on my phone"
+            style="@style/OnboardingText"
             android:padding="8dp"
-            android:minHeight="48dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <CheckBox
             android:id="@+id/cbReasonBetterSleep"
-            style="@style/OnboardingText"
             android:text="To sleep better"
+            style="@style/OnboardingText"
             android:padding="8dp"
-            android:minHeight="48dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <CheckBox
             android:id="@+id/cbReasonAddiction"
-            style="@style/OnboardingText"
             android:text="To overcome social media addiction"
+            style="@style/OnboardingText"
             android:padding="8dp"
-            android:minHeight="48dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <CheckBox
             android:id="@+id/cbReasonRealLife"
-            style="@style/OnboardingText"
             android:text="To focus more on real life"
+            style="@style/OnboardingText"
             android:padding="8dp"
-            android:minHeight="48dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <!-- Q8 -->
@@ -67,69 +61,75 @@
             android:text="8. What would success look like in 30 days?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <EditText
-            android:id="@+id/etGoalText1"
-            style="@style/OnboardingText"
-            android:hint="Type your goal..."
-            android:padding="12dp"
-            android:backgroundTint="@color/tealColor"
-            android:minHeight="48dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:imeOptions="actionNext"
-            android:importantForAccessibility="yes"
+        <!-- Goal Inputs -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-        <EditText
-            android:id="@+id/etGoalText2"
-            style="@style/OnboardingText"
-            android:hint="Type your goal..."
-            android:textColor="@color/textPrimaryColor"
-            android:padding="12dp"
-            android:backgroundTint="@color/tealColor"
-            android:minHeight="48dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:imeOptions="actionNext"
-            android:importantForAccessibility="yes"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etGoalText1"
+                android:hint="Type your goal..."
+                android:inputType="text"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-        <EditText
-            android:id="@+id/etGoalText3"
-            style="@style/OnboardingText"
-            android:hint="Type your goal..."
-            android:textColor="@color/textPrimaryColor"
-            android:padding="12dp"
-            android:backgroundTint="@color/tealColor"
-            android:minHeight="48dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:imeOptions="actionDone"
-            android:importantForAccessibility="yes"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etGoalText2"
+                android:hint="Type your goal..."
+                android:inputType="text"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-        <!-- Finish -->
-        <Button
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etGoalText3"
+                android:hint="Type your goal..."
+                android:inputType="text"
+                android:textColor="@color/textPrimaryColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Finish Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFinishOnboarding"
             android:text="Finish"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAllCaps="false"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/tealColor"
             android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            android:drawableEnd="@drawable/ic_baseline_check_24"
-            android:drawablePadding="8dp"
-            android:padding="12dp" />
-
+            app:icon="@drawable/ic_baseline_check_24"
+            app:iconPadding="8dp"
+            app:iconGravity="textStart"
+            app:cornerRadius="24dp" />
     </LinearLayout>
 </ScrollView>

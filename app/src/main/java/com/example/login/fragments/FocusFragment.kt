@@ -18,14 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.login.CreateSectionActivity
 import com.example.login.hardcore.HardcoreModeService
 import com.example.login.R
+import com.google.android.material.materialswitch.MaterialSwitch
 import java.util.Calendar
+import androidx.appcompat.widget.SwitchCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FocusFragment : Fragment() {
 
-    private lateinit var switchHardcore: Switch
-    private lateinit var switchDoomscroll: Switch
+    private lateinit var switchHardcore: SwitchCompat
+    private lateinit var switchDoomscroll: SwitchCompat
     private lateinit var tvDoomscrollLimit: TextView
     private lateinit var btnManageSections: Button
     private lateinit var quoteText: TextView

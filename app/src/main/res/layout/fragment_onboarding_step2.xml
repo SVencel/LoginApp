@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,37 +13,40 @@
         android:background="@android:color/white"
         android:padding="20dp"
         android:layout_margin="8dp"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        android:clipToPadding="false">
 
         <!-- Q4 -->
         <TextView
             android:text="4. Which app takes up most of your time?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <EditText
-            android:id="@+id/etAppUsed"
-            style="@style/OnboardingText"
-            android:hint="e.g. TikTok, Instagram..."
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:imeOptions="actionDone"
-            android:backgroundTint="@color/tealColor"
-            android:importantForAccessibility="yes" />
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAppUsed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g. TikTok, Instagram..."
+                android:inputType="text"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Q5 -->
         <TextView
             android:text="5. Do you often lose track of time on your phone?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -54,10 +56,10 @@
             android:id="@+id/rgLoseTrack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, regularly" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Rarely" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Never" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+            <RadioButton android:text="Yes, regularly" style="@style/OnboardingText"/>
+            <RadioButton android:text="Sometimes" style="@style/OnboardingText"/>
+            <RadioButton android:text="Rarely" style="@style/OnboardingText"/>
+            <RadioButton android:text="Never" style="@style/OnboardingText"/>
         </RadioGroup>
 
         <!-- Q6 -->
@@ -65,7 +67,6 @@
             android:text="6. Does phone use affect your sleep?"
             style="@style/OnboardingText"
             android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:layout_width="wrap_content"
@@ -75,24 +76,25 @@
             android:id="@+id/rgSleepImpact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <RadioButton android:text="Yes, I scroll instead of sleeping" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Sometimes" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
-            <RadioButton android:text="No" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-            <RadioButton android:text="Not sure" style="@style/OnboardingText" android:minHeight="48dp" android:layout_height="wrap_content" android:layout_width="wrap_content" />
+            <RadioButton android:text="Yes, I scroll instead of sleeping" style="@style/OnboardingText"/>
+            <RadioButton android:text="Sometimes" style="@style/OnboardingText"/>
+            <RadioButton android:text="No" style="@style/OnboardingText"/>
+            <RadioButton android:text="Not sure" style="@style/OnboardingText"/>
         </RadioGroup>
 
         <!-- Next Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNextStep2"
-            android:text="Next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Next"
+            android:textAllCaps="false"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/tealColor"
             android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            android:drawableEnd="@drawable/ic_baseline_navigate_next_24"
-            android:drawablePadding="8dp"
-            android:padding="12dp"/>
+            app:icon="@drawable/ic_baseline_navigate_next_24"
+            app:iconPadding="8dp"
+            app:iconGravity="textStart"
+            app:cornerRadius="24dp" />
     </LinearLayout>
 </ScrollView>

@@ -1,52 +1,84 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/etEmail"
+        <!-- Email -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:maxLines="1"
-            android:inputType="textEmailAddress"
-            android:minHeight="48dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-        <EditText
-            android:id="@+id/etPassword"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:maxLines="1"
-            android:inputType="textPassword"
-            android:minHeight="48dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="24dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor"
+            app:hintTextColor="@color/hintColor">
 
-        <Button
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Sign In -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSignIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔐 Sign In" />
+            android:text="🔐 Sign In"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp" />
 
-        <View android:layout_height="16dp" android:layout_width="match_parent" />
-
-        <Button
+        <!-- Forgot Password -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnForgotPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Forgot Password?" />
+            android:text="Forgot Password?"
+            android:textColor="@color/primaryDarkColor"
+            android:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            android:textAllCaps="false"
+            android:layout_marginBottom="8dp" />
 
-        <Button
+        <!-- Register -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Don't have an account? Register" />
+            android:text="Don't have an account? Register"
+            android:textColor="@color/primaryDarkColor"
+            android:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            android:textAllCaps="false" />
     </LinearLayout>
 </ScrollView>

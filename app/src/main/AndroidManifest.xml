@@ -33,7 +33,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Login"
+        android:theme="@style/Theme.BeAlive"
         tools:targetApi="31">
 
         <activity
@@ -67,7 +67,7 @@
             android:exported="false" />
 
         <activity android:name=".onboarding.OnboardingQuestionsActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
+            android:theme="@style/Theme.BeAlive"
             android:exported="false"/>
 
         <activity android:name=".AddFriendActivity"

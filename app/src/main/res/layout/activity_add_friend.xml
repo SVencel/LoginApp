@@ -1,50 +1,63 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="24dp"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="false"
-    android:gravity="center"
-    android:background="@color/backgroundColor">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/backgroundColor"
+    android:padding="24dp"
+    android:fitsSystemWindows="true">
 
-    <EditText
-        android:id="@+id/etSearchUsername"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:maxLines="1"
-        android:hint="Search by username"
-        android:padding="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <Button
-        android:id="@+id/btnSearchUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white"
-        android:layout_marginBottom="24dp" />
+        <!-- Username Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primaryColor">
 
-    <TextView
-        android:id="@+id/tvSearchResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginBottom="16dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearchUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search by username"
+                android:textColor="@color/textPrimaryColor" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/btnAddFriend"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Friend"
-        android:enabled="false"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white" />
+        <!-- Search Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSearchUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            android:layout_marginBottom="24dp" />
 
-</LinearLayout>
+        <!-- Result Text -->
+        <TextView
+            android:id="@+id/tvSearchResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/textPrimaryColor"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Add Friend Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddFriend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Friend"
+            android:enabled="false"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+</ScrollView>

@@ -1,11 +1,31 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="Theme.Login" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">#6200EE</item>
-        <item name="colorPrimaryDark">#3700B3</item>
-        <item name="colorAccent">#03DAC5</item>
 
-        <item name="android:windowSoftInputMode">adjustResize</item>
+    <!-- Base Theme using Material Components -->
+    <style name="Theme.BeAlive" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorOnSurface">@android:color/black</item>
+        <item name="colorSurface">@android:color/white</item>
+        <item name="android:colorBackground">@color/backgroundColor</item>
+
+        <item name="android:textColorPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColorSecondary">@color/textSecondaryColor</item>
+        <item name="android:editTextColor">@color/textPrimaryColor</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MaterialComponents.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MaterialComponents.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MaterialComponents.LargeComponent</item>
+
+        <item name="materialThemeOverlay">@style/ThemeOverlay.MaterialComponents</item>
     </style>
+
+
+    <!-- Login/Register/Onboarding Variant -->
+    <style name="Theme.FocusApp.Login" parent="Theme.BeAlive">
+        <!-- Optional tweaks for auth screens -->
+        <!-- e.g., lighter bg or distinct accent color -->
+        <!-- Can override values here if needed -->
+    </style>
+
 </resources>
