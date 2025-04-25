@@ -19,6 +19,7 @@
     import java.text.SimpleDateFormat
     import android.provider.Settings
     import android.widget.Toast
+    import com.example.login.utils.StreakManager
     import java.util.*
 
     class HomeFragment : Fragment() {
@@ -27,6 +28,7 @@
         private lateinit var tvSummary: TextView
         private lateinit var tvQuote: TextView
         private var hasShownPermissionDialog = false
+        private var currentStreakCount = 0
 
         private val quotes = listOf(
             "“Small steps every day.”",
@@ -70,8 +72,10 @@
 
             db.collection("users").document(user.uid)
                 .get()
-                .addOnSuccessListener {
-                    val streak = it.getLong("streakCount")?.toInt() ?: 0
+                .addOnSuccessListener { document ->
+                    val streak = document.getLong("streakCount")?.toInt() ?: 0
+                    currentStreakCount = streak // ✅ Save to variable
+
                     tvStreakCount.text = "🔥 $streak-day streak"
                     tvSummary.text = when {
                         streak == 0 -> "Let’s get started today!"
@@ -79,8 +83,12 @@
                         streak < 7 -> "Great focus this week!"
                         else -> "You're on fire! 🔥"
                     }
+
+                    // ✅ After loading streak, now check auto save
+                    autoSaveTodayStreak()
                 }
         }
+
 
         private fun checkMonitoringStatus() {
             val context = requireContext()
@@ -177,5 +185,23 @@
                 }
             }
         }
+
+        private fun autoSaveTodayStreak() {
+            val user = FirebaseAuth.getInstance().currentUser ?: return
+            val db = FirebaseFirestore.getInstance()
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+            val streakDocRef = db.collection("users").document(user.uid)
+                .collection("streakHistory").document(today)
+
+            streakDocRef.get().addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    // 👌 Correct value available now
+                    StreakManager.saveTodayStreak(currentStreakCount)
+                }
+            }
+        }
+
+
 
     }

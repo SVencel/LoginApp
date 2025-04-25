@@ -13,6 +13,11 @@
     import com.example.login.R
     import com.google.android.material.tabs.TabLayout
     import com.google.android.material.tabs.TabLayoutMediator
+    import com.google.firebase.auth.FirebaseAuth
+    import com.google.firebase.firestore.FirebaseFirestore
+    import java.text.SimpleDateFormat
+    import java.util.Date
+    import java.util.Locale
 
     class ProgressFragment : Fragment() {
 
@@ -20,10 +25,9 @@
         private lateinit var tabLayout: TabLayout
         private lateinit var tvNotificationCard: TextView
         private lateinit var tvPhoneOpenCount: TextView
-        private lateinit var cardNotif: View
-        private lateinit var phoneOpenCard: View
-        private lateinit var streakSummaryCard: TextView
-        private lateinit var streakHistoryCard: TextView
+        private var lastLongestStreak: Int? = null
+        private var lastProductivityScore: Int? = null
+
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -44,10 +48,9 @@
 
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 tab.text = when (position) {
-                    0 -> "Streak"
-                    1 -> "Daily"
-                    2 -> "Weekly"
-                    3 -> "Monthly"
+                    0 -> "Daily"
+                    1 -> "Weekly"
+                    2 -> "Monthly"
                     else -> ""
                 }
             }.attach()
@@ -58,54 +61,47 @@
                 }
             })
 
-            // Set initial display
-            updateStatsUI(1)
+            viewPager.setCurrentItem(0, false) // No animation
+            updateStatsUI(0)
         }
+
+
+
+        private fun getTodayDate(): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return sdf.format(Date())
+        }
+
 
         private fun updateStatsUI(position: Int) {
-            val label = when (position) {
-                1 -> "today"
-                2 -> "this week"
-                3 -> "this month"
-                else -> null
-            }
+                val label = when (position) {
+                    1 -> "today"
+                    2 -> "this week"
+                    3 -> "this month"
+                    else -> null
+                }
 
-            // 🆕 Hide cards when on "Streak"
-            val showCards = position != 0
-            tvNotificationCard.visibility = if (showCards) View.VISIBLE else View.GONE
-            tvPhoneOpenCount.visibility = if (showCards) View.VISIBLE else View.GONE
+                val notifCount = when (position) {
+                    1 -> getNotificationCountForDays(requireContext(), 1)
+                    2 -> getNotificationCountForDays(requireContext(), 7)
+                    3 -> getNotificationCountForDays(requireContext(), 30)
+                    else -> null
+                }
 
-            val notifCount = when (position) {
-                1 -> getNotificationCountForDays(requireContext(), 1)
-                2 -> getNotificationCountForDays(requireContext(), 7)
-                3 -> getNotificationCountForDays(requireContext(), 30)
-                else -> null
-            }
+                val phoneOpenCount = when (position) {
+                    1 -> getPhoneOpensForDays(requireContext(), 1)
+                    2 -> getPhoneOpensForDays(requireContext(), 7)
+                    3 -> getPhoneOpensForDays(requireContext(), 30)
+                    else -> null
+                }
 
-            val phoneOpenCount = when (position) {
-                1 -> getPhoneOpensForDays(requireContext(), 1)
-                2 -> getPhoneOpensForDays(requireContext(), 7)
-                3 -> getPhoneOpensForDays(requireContext(), 30)
-                else -> null
-            }
+                if (label != null && notifCount != null && phoneOpenCount != null) {
+                    tvNotificationCard.text = "🔔 Notifications $label: $notifCount"
+                    tvPhoneOpenCount.text = "📱 Phone Opened $label: $phoneOpenCount"
+                }
 
-
-            if (label != null && notifCount != null && phoneOpenCount != null) {
-                tvNotificationCard.text = "🔔 Notifications $label: $notifCount"
-                tvPhoneOpenCount.text = "📱 Phone Opened $label: $phoneOpenCount"
-            } else {
-                tvNotificationCard.text = ""
-                tvPhoneOpenCount.text = ""
-            }
         }
 
-
-        private fun getTodayNotificationCount(context: Context): Int {
-            val prefs = context.getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
-            val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
-            val key = "notifCount_$today"
-            return prefs.getInt(key, 0)
-        }
 
         private fun getNotificationCountForDays(context: Context, daysBack: Int): Int {
             val prefs = context.getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)

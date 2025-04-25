@@ -31,7 +31,8 @@
         app:layout_constraintTop_toBottomOf="@id/tvProgressTitle"
         app:layout_constraintBottom_toTopOf="@id/chartTabIndicator"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_weight="1"/>
 
     <!-- Tab Layout -->
     <com.google.android.material.tabs.TabLayout
@@ -54,8 +55,9 @@
         android:id="@+id/cardNotif"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
+        android:minHeight="30dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
         android:padding="16dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="12dp"
@@ -64,13 +66,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tvNotificationCard"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔔 Notifications: 0"
-            android:textSize="16sp"
-            android:textColor="@color/textPrimaryColor" />
+            android:layout_gravity="center"
+            >
+
+            <TextView
+                android:id="@+id/tvNotificationCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔔 Notifications: 0"
+                android:textSize="17sp"
+                android:textColor="@color/textPrimaryColor"
+                app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Phone Opens Card -->
@@ -78,23 +93,38 @@
         android:id="@+id/phoneOpenCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:minHeight="30dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
         android:padding="16dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="12dp"
         app:cardBackgroundColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/cardNotif"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tvPhoneOpenCount"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📱 Phone Opened: 0"
-            android:textSize="16sp"
-            android:textColor="@color/textPrimaryColor" />
+            android:layout_gravity="center"
+            >
+
+            <TextView
+                android:id="@+id/tvPhoneOpenCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📱 Phone Opened: 0"
+                android:textSize="17sp"
+                android:textColor="@color/textPrimaryColor"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

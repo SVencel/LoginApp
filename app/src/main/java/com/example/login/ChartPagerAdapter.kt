@@ -38,7 +38,7 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         holder.bind(position)
     }
 
-    override fun getItemCount(): Int = 4 // 0: Streak, 1: Daily, 2: Weekly, 3: Monthly
+    override fun getItemCount(): Int = 3 // 1: Daily, 2: Weekly, 3: Monthly
 
     inner class ChartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val barChart: BarChart = view.findViewById(R.id.barChart)
@@ -48,10 +48,9 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         fun bind(position: Int) {
             val titleView = itemView.findViewById<TextView>(R.id.tvChartTitle)
             titleView.text = when (position) {
-                0 -> "🔥 Your Streak Progress"
-                1 -> "📊 App Usage Today"
-                2 -> "📊 App Usage This Week"
-                3 -> "📈 Monthly Usage Trends"
+                0 -> "📊 App Usage Today in Minutes"
+                1 -> "📊 App Usage This Week in Minutes"
+                2 -> "📈 Monthly Usage Trends in Minutes"
                 else -> "📊 Chart"
             }
 
@@ -59,32 +58,18 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
                 0 -> {
                     barChart.visibility = View.VISIBLE
                     lineChart.visibility = View.GONE
-                    loadStreakChart(barChart)
+                    loadAppUsageChart(barChart, UsageStatsManager.INTERVAL_DAILY)
                 }
                 1 -> {
                     barChart.visibility = View.VISIBLE
                     lineChart.visibility = View.GONE
-                    loadAppUsageChart(barChart, UsageStatsManager.INTERVAL_DAILY)
-                }
-                2 -> {
-                    barChart.visibility = View.VISIBLE
-                    lineChart.visibility = View.GONE
                     loadWeeklyStackedBarChart(barChart)
                 }
-                3 -> {
+                2 -> {
                     barChart.visibility = View.GONE
                     lineChart.visibility = View.VISIBLE
                     loadMonthlyLineChart(lineChart)
                 }
-            }
-        }
-
-        fun clearHighlight() {
-            if (barChart.visibility == View.VISIBLE) {
-                barChart.highlightValues(null)
-            }
-            if (lineChart.visibility == View.VISIBLE) {
-                lineChart.highlightValues(null)
             }
         }
 
@@ -240,74 +225,6 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
         } catch (_: Exception) {
             "Other"
         }
-    }
-
-
-    private fun loadStreakChart(chart: BarChart) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users").document(user.uid).collection("streakHistory")
-            .orderBy("timestamp") // Ensure correct order
-            .get()
-            .addOnSuccessListener { documents ->
-                val entries = ArrayList<BarEntry>()
-                val labels = ArrayList<String>()
-                var index = 0
-
-                for (document in documents) {
-                    val streakValue = document.getLong("streak")?.toInt() ?: 0
-                    val dateLabel = document.getString("date") ?: "Day ${index + 1}"
-                    entries.add(BarEntry(index.toFloat(), streakValue.toFloat()))
-                    labels.add(dateLabel)
-                    index++
-                }
-
-                val dataSet = BarDataSet(entries, "Focus Streak").apply {
-                    color = Color.parseColor("#4CAF50") // Green
-                    valueTextSize = 12f
-                    valueTextColor = Color.BLACK
-                    highLightColor = Color.BLACK
-                }
-
-                val data = BarData(dataSet).apply {
-                    barWidth = 0.7f
-                }
-
-                chart.data = data
-                chart.setFitBars(true)
-                chart.setDrawValueAboveBar(true)
-
-                chart.xAxis.apply {
-                    valueFormatter = IndexAxisValueFormatter(labels)
-                    granularity = 1f
-                    isGranularityEnabled = true
-                    position = XAxis.XAxisPosition.BOTTOM
-                    textSize = 10f
-                    setDrawGridLines(false)
-                    labelRotationAngle = -30f
-                }
-
-                chart.axisLeft.apply {
-                    axisMinimum = 0f
-                    textSize = 12f
-                }
-
-                chart.axisRight.isEnabled = false
-
-                chart.description.isEnabled = false
-                chart.legend.isEnabled = false
-
-                chart.animateY(1000)
-                chart.setTouchEnabled(true)
-                chart.setScaleEnabled(false)
-
-                val marker = UsageMarkerView(context, labels)
-                marker.chartView = chart
-                chart.marker = marker
-
-                chart.invalidate()
-            }
     }
 
 
