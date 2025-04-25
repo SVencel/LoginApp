@@ -34,4 +34,8 @@
     <color name="warningColor">#FF7F7F</color> <!-- Light Red -->
     <color name="tealColor">#008080</color> <!-- Teal -->
 
+    <!-- Day Choosing Toggle Colors -->
+    <color name="day_toggle_checked">#F44336</color>    <!-- Red -->
+    <color name="day_toggle_unchecked">#A5D6A7</color>  <!-- Light green -->
+
 </resources>

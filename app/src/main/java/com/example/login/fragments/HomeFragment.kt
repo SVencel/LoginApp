@@ -26,6 +26,7 @@
         private lateinit var tvStreakCount: TextView
         private lateinit var tvSummary: TextView
         private lateinit var tvQuote: TextView
+        private var hasShownPermissionDialog = false
 
         private val quotes = listOf(
             "“Small steps every day.”",
@@ -46,14 +47,21 @@
 
             tvQuote.text = quotes.random()
             fetchStreak()
-            checkMonitoringStatus()
+
+            if (!hasShownPermissionDialog) {
+                checkMonitoringStatus()
+                hasShownPermissionDialog = true
+            }
 
             return view
         }
 
         override fun onResume() {
             super.onResume()
-            checkMonitoringStatus()
+            if (!hasShownPermissionDialog) {
+                checkMonitoringStatus()
+                hasShownPermissionDialog = true
+            }
         }
 
         private fun fetchStreak() {

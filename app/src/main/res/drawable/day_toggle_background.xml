@@ -1,12 +1,15 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Checked (red) -->
     <item android:state_checked="true">
         <shape android:shape="oval">
-            <solid android:color="#3F51B5" />
+            <solid android:color="@color/day_toggle_checked" />
         </shape>
     </item>
+
+    <!-- Unchecked (green) -->
     <item>
         <shape android:shape="oval">
-            <solid android:color="#D3D3D3" />
+            <solid android:color="@color/day_toggle_unchecked" />
         </shape>
     </item>
 </selector>
