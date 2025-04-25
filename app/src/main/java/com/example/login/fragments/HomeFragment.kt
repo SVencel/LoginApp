@@ -21,6 +21,7 @@
     import android.widget.Toast
     import com.example.login.utils.StreakManager
     import java.util.*
+    import kotlin.math.max
 
     class HomeFragment : Fragment() {
 
@@ -29,6 +30,9 @@
         private lateinit var tvQuote: TextView
         private var hasShownPermissionDialog = false
         private var currentStreakCount = 0
+        private lateinit var tvLongestStreak: TextView
+        private lateinit var tvProductivityScore: TextView
+
 
         private val quotes = listOf(
             "“Small steps every day.”",
@@ -46,6 +50,10 @@
             tvStreakCount = view.findViewById(R.id.tvStreak)
             tvSummary = view.findViewById(R.id.tvSummary)
             tvQuote = view.findViewById(R.id.tvQuote)
+
+            tvLongestStreak = view.findViewById(R.id.tvLongestStreak)
+            tvProductivityScore = view.findViewById(R.id.tvProductivityScore)
+
 
             tvQuote.text = quotes.random()
             fetchStreak()
@@ -85,10 +93,55 @@
                     }
 
                     // ✅ After loading streak, now check auto save
+                    fetchAdditionalProgress()
                     autoSaveTodayStreak()
                 }
         }
+        private fun fetchAdditionalProgress() {
+            val user = FirebaseAuth.getInstance().currentUser ?: return
+            val db = FirebaseFirestore.getInstance()
 
+            db.collection("users")
+                .document(user.uid)
+                .collection("streakHistory")
+                .get()
+                .addOnSuccessListener { documents ->
+                    var longestStreak = 0
+                    var latestStreak = 0
+
+                    for (document in documents) {
+                        val streak = document.getLong("streak")?.toInt() ?: 0
+                        if (streak > longestStreak) {
+                            longestStreak = streak
+                        }
+                        if (document.getString("date") == getTodayDate()) {
+                            latestStreak = streak
+                        }
+                    }
+
+                    val productivityScore = max(0, (latestStreak * 10) - getTodayPhoneOpens() - (getTodayNotifications() / 2))
+
+                    tvLongestStreak.text = "🌟 Longest Streak: $longestStreak days"
+                    tvProductivityScore.text = "🔥 Productivity Score: $productivityScore"
+                }
+        }
+
+        private fun getTodayDate(): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return sdf.format(Date())
+        }
+
+        private fun getTodayPhoneOpens(): Int {
+            val prefs = requireContext().getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
+            val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+            return prefs.getInt("phoneOpens_$today", 0)
+        }
+
+        private fun getTodayNotifications(): Int {
+            val prefs = requireContext().getSharedPreferences("monitorPrefs", Context.MODE_PRIVATE)
+            val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+            return prefs.getInt("notifCount_$today", 0)
+        }
 
         private fun checkMonitoringStatus() {
             val context = requireContext()

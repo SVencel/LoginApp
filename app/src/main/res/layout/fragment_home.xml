@@ -1,59 +1,162 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
     android:background="@color/backgroundColor"
+    android:padding="24dp"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+    <!-- Scrollable Top Content -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomCardLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Streak -->
-        <TextView
-            android:id="@+id/tvStreak"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🔥 0-day streak"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/primaryDarkColor"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Summary -->
-        <TextView
-            android:id="@+id/tvSummary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Loading summary..."
-            android:textSize="16sp"
-            android:textColor="@color/textPrimaryColor"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Motivational Quote -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="12dp"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@android:color/white">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
             <TextView
-                android:id="@+id/tvQuote"
-                android:layout_width="match_parent"
+                android:id="@+id/tvStreak"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="🔥 0-day streak"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/primaryDarkColor"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading summary..."
+                android:textSize="16sp"
+                android:textColor="@color/textPrimaryColor"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <TextView
+                    android:id="@+id/tvQuote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:text="Quote will go here"
+                    android:textAlignment="center"
+                    android:textColor="@color/textSecondaryColor"
+                    android:textSize="20sp" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Cards & Info -->
+    <LinearLayout
+        android:id="@+id/bottomCardLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Longest Streak -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLongestStreak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
                 android:padding="16dp"
-                android:text="Quote will go here"
-                android:textColor="@color/textSecondaryColor"
-                android:textSize="14sp"
-                android:textAlignment="center" />
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvLongestStreak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🌟 Longest Streak: 0 days"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimaryColor"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Productivity Score -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardProductivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvProductivityScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔥 Productivity Score: 0"
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimaryColor"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Info Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_info_24"
+                android:contentDescription="Info"
+                app:tint="@color/textSecondaryColor" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Productivity Score is based on your streak and phone usage."
+                android:textSize="13sp"
+                android:textColor="@color/textSecondaryColor" />
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
