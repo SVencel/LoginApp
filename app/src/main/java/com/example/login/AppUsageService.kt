@@ -34,6 +34,9 @@ class AppUsageService : AccessibilityService() {
     private val autoCloseRunnable = Runnable {
         Log.d("EXTRA_MINUTE", "User idle during 1 more minute. Going home.")
         performGlobalAction(GLOBAL_ACTION_HOME)
+        handler.postDelayed({
+            performGlobalAction(GLOBAL_ACTION_HOME)
+        }, 100)
         extraMinuteTimerStarted = false
 
         val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
@@ -94,7 +97,9 @@ class AppUsageService : AccessibilityService() {
             }
 
             // 🎬 Detect fullscreen (video or Shorts)
-            if (className.contains("DrawerLayout")) {
+            if (className.contains("DrawerLayout") ||
+                className.contains("FrameLayout") ||
+                className.contains("SurfaceView")) {
                 Log.d("YT_IDLE", "✅ Entered fullscreen — cancel timer")
                 isYoutubeFullscreen = true
                 youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
@@ -164,13 +169,16 @@ class AppUsageService : AccessibilityService() {
 
         val currentTime = System.currentTimeMillis()
 
+        val isYoutube = packageName == "com.google.android.youtube"
+        val isScrollEvent = event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED
+        val isContentChanged = event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isYoutube
+
         if (isDoomscrollingEnabled() && isMonitoredForDoomscrolling(packageName)) {
+            if (currentTime - lastAppOpenedTime < scrollCooldownAfterAppOpen) return
 
-            if (System.currentTimeMillis() - lastAppOpenedTime < scrollCooldownAfterAppOpen) return
-
-            val isYoutube = packageName == "com.google.android.youtube"
-            val isScrollEvent = event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED
-            val isContentChanged = event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isYoutube
+            if (isYoutube) {
+                checkYoutubeIdleDoomscroll(event)
+            }
 
             if (isScrollEvent || isContentChanged) {
                 if (currentTime - lastScrollTime >= minScrollInterval) {
@@ -202,7 +210,7 @@ class AppUsageService : AccessibilityService() {
                     handler.removeCallbacks(resetScrollCountRunnable)
                     handler.postDelayed(resetScrollCountRunnable, resetDelay)
                 } else {
-                    Log.d("SCROLL_DEBUG", "🕒 Ignored scroll: too soon after last (${currentTime - lastScrollTime} ms)")
+                    Log.d("SCROLL_DEBUG", "🕒 Ignored scroll: too soon after last (\${currentTime - lastScrollTime} ms)")
                 }
             }
         }
@@ -214,15 +222,52 @@ class AppUsageService : AccessibilityService() {
         }
 
         trackDailyUsage()
-        if (packageName != "com.google.android.youtube") {
+
+        if (!isYoutube) {
             if (youtubeIdleRunnable != null) {
                 Log.i("YT_IDLE", "🏃 Left YouTube. Cancelling any running idle timer.")
             }
             youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
+            youtubeIdleRunnable = null
             isYoutubeFullscreen = false
         }
-
     }
+
+    private fun checkYoutubeIdleDoomscroll(event: AccessibilityEvent) {
+        val className = event.className?.toString() ?: ""
+        val textContent = event.text?.joinToString()?.lowercase() ?: ""
+
+        Log.d("YT_DEBUG", "class=$className, text=$textContent")
+
+        val isLikelyBrowsingShorts = textContent.contains("shorts")
+                || textContent.contains("explore")
+                || textContent.contains("home")
+                || textContent.contains("subscriptions")
+                || textContent.contains("browse")
+
+        val isPossibleFullscreen = className.contains("DrawerLayout")
+                || className.contains("FrameLayout")
+                || className.contains("SurfaceView")
+
+        if (isLikelyBrowsingShorts && !isPossibleFullscreen) {
+            if (youtubeIdleRunnable == null) {
+                youtubeIdleRunnable = Runnable {
+                    Log.w("YT_IDLE", "⏳ User still browsing non-fullscreen after 1 minute — doomscroll trigger")
+                    showDoomscrollAlert("YouTube")
+                    incrementDoomscrollCount()
+                }
+                handler.postDelayed(youtubeIdleRunnable!!, 60_000)
+                Log.i("YT_IDLE", "🕐 Starting 1-minute doomscroll timer for YouTube...")
+            }
+        }
+
+        if (isPossibleFullscreen) {
+            Log.d("YT_IDLE", "✅ User entered fullscreen — cancel timer")
+            youtubeIdleRunnable?.let { handler.removeCallbacks(it) }
+            youtubeIdleRunnable = null
+        }
+    }
+
 
     private fun isDoomscrollingEnabled(): Boolean {
         val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
@@ -424,6 +469,11 @@ class AppUsageService : AccessibilityService() {
                     .build()
 
                 manager.notify(Random().nextInt(), notification)
+
+                performGlobalAction(GLOBAL_ACTION_HOME)
+                handler.postDelayed({
+                    performGlobalAction(GLOBAL_ACTION_HOME)
+                }, 200)
             }
             .addOnFailureListener {
                 Log.w("NOTIF_GOAL", "❌ Failed to fetch goals: ${it.message}")
