@@ -222,6 +222,16 @@ class FocusFragment : Fragment() {
 
     private fun enableHardcoreMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            val packageName = requireContext().packageName
+            val pm = requireContext().getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = android.net.Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+            }
+
             val notificationManager =
                 requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
