@@ -9,6 +9,8 @@ import android.app.NotificationManager.Policy
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -222,14 +224,25 @@ class FocusFragment : Fragment() {
 
     private fun enableHardcoreMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
             val packageName = requireContext().packageName
             val pm = requireContext().getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                     data = android.net.Uri.parse("package:$packageName")
                 }
                 startActivity(intent)
+
+                // 🔁 Delay check to give time for user interaction
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                        Toast.makeText(
+                            requireContext(),
+                            "⚠️ Battery optimization still enabled — Hardcore Mode might not work properly.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }, 1000)
             }
 
             val notificationManager =
@@ -241,21 +254,19 @@ class FocusFragment : Fragment() {
                 return
             }
 
-            // Build the policy to allow calls, messages, and alarms
-            val policy = Policy(
-                Policy.PRIORITY_CATEGORY_CALLS or
-                        Policy.PRIORITY_CATEGORY_MESSAGES or
-                        Policy.PRIORITY_CATEGORY_ALARMS,
-
-                Policy.PRIORITY_SENDERS_ANY,
-                0 // No visual suppression
+            val policy = NotificationManager.Policy(
+                NotificationManager.Policy.PRIORITY_CATEGORY_CALLS or
+                        NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES or
+                        NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS,
+                NotificationManager.Policy.PRIORITY_SENDERS_ANY,
+                0
             )
 
-            // Apply the policy and enable DND mode
             notificationManager.notificationPolicy = policy
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
     }
+
 
 
     private fun disableHardcoreMode() {
