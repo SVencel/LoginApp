@@ -172,9 +172,20 @@ class CreateSectionActivity : AppCompatActivity() {
             .filter { it.totalTimeInForeground > 0 }
             .associateBy({ it.packageName }, { it.totalTimeInForeground })
 
+        val excludedPackages = listOf(
+            "com.android.settings",
+            "com.android.systemui",
+            packageName, // your own app
+            "com.google.android.packageinstaller",
+            "com.android.permissioncontroller"
+        )
+
+
         // Step 2: Build the list with usage info
         appList.clear()
         installedApps.forEach { app ->
+            if (app.packageName in excludedPackages) return@forEach
+
             val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName)
             if (launchIntent != null) {
                 val label = packageManager.getApplicationLabel(app).toString()
@@ -182,6 +193,7 @@ class CreateSectionActivity : AppCompatActivity() {
                 appList.add(AppInfo(label, app.packageName, usage))
             }
         }
+
 
         // Step 3: Sort by usage (desc) then name (asc)
         val topUsed = appList.sortedByDescending { it.usageTime }.take(5).map { it.copy(isTopUsed = true) }
