@@ -103,6 +103,13 @@ class FriendsFragment : Fragment() {
                 val friends = doc.get("friends") as? List<*> ?: return@addOnSuccessListener
                 friendList.clear()
 
+                if (friends.isEmpty()) {
+                    friendsAdapter.notifyDataSetChanged()
+                    friendCountText.text = "Friends: 0"
+                    return@addOnSuccessListener
+                }
+
+                var fetched = 0
                 for (friendId in friends) {
                     db.collection("users").document(friendId.toString()).get()
                         .addOnSuccessListener { friendDoc ->
@@ -111,9 +118,13 @@ class FriendsFragment : Fragment() {
                             val cheer = friendDoc.getString("latestCheer") ?: ""
 
                             friendList.add(Friend(friendId.toString(), name, streak, cheer))
-                            friendList.sortByDescending { it.streakCount }
-                            friendsAdapter.notifyDataSetChanged()
-                            friendCountText.text = "Friends: ${friendList.size}"
+                            fetched++
+
+                            if (fetched == friends.size) {
+                                friendList.sortByDescending { it.streakCount }
+                                friendsAdapter.notifyDataSetChanged()
+                                friendCountText.text = "Friends: ${friendList.size}"
+                            }
                         }
                 }
             }

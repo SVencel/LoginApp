@@ -1,6 +1,7 @@
 package com.example.login.utils
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 
@@ -15,20 +16,31 @@ class ProductivitySessionManager(
 
     private val sessionRunnable = object : Runnable {
         override fun run() {
-            sessionMinutes++
-            if (sessionMinutes >= thresholdMinutes) {
-                val prefs = context.getSharedPreferences("productivityPrefs", Context.MODE_PRIVATE)
-                val detectionEnabled = prefs.getBoolean("detectionEnabled", true)
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            val screenOn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+                powerManager.isInteractive
+            } else {
+                @Suppress("DEPRECATION")
+                powerManager.isScreenOn
+            }
 
-                if (detectionEnabled) {
-                    val now = System.currentTimeMillis()
-                    if (now - lastPromptTime > thresholdMinutes * 60 * 1000) {
-                        lastPromptTime = now
-                        onThresholdReached()
-                        sessionMinutes = 0
-                    }
-                } else {
-                    // If detection is disabled, reset session
+            if (!screenOn) {
+                // 🔁 Reset session if screen is off
+                sessionMinutes = 0
+                handler.postDelayed(this, 60_000)
+                return
+            }
+
+            sessionMinutes++
+
+            val prefs = context.getSharedPreferences("productivityPrefs", Context.MODE_PRIVATE)
+            val detectionEnabled = prefs.getBoolean("detectionEnabled", true)
+
+            if (detectionEnabled && sessionMinutes >= thresholdMinutes) {
+                val now = System.currentTimeMillis()
+                if (now - lastPromptTime > thresholdMinutes * 60 * 1000) {
+                    lastPromptTime = now
+                    onThresholdReached()
                     sessionMinutes = 0
                 }
             }
@@ -36,6 +48,7 @@ class ProductivitySessionManager(
             handler.postDelayed(this, 60_000)
         }
     }
+
 
     fun start() {
         handler.postDelayed(sessionRunnable, 60_000)
