@@ -71,10 +71,10 @@ class ChartPagerAdapter(private val context: Context) : RecyclerView.Adapter<Cha
 
             val categories = listOf("Social", "Productivity", "Game", "Other")
             val colors = listOf(
-                Color.parseColor("#FF9800"),
-                Color.parseColor("#2196F3"),
-                Color.parseColor("#4CAF50"),
-                Color.GRAY
+                Color.parseColor("#FF9800"), // Orange for Social
+                Color.parseColor("#2196F3"), // Blue for Productivity
+                Color.parseColor("#4CAF50"), // Green for Game
+                Color.parseColor("#673AB7")  // Deep Purple for Other
             )
 
             for (i in categories.indices) {
