@@ -60,6 +60,29 @@ class AppUsageService : AccessibilityService() {
             checkYoutubeIdleDoomscroll(event)
         }
 
+
+        // 🔒 Check if this app is blocked for today
+        val prefs = getSharedPreferences("blockedPrefs", Context.MODE_PRIVATE)
+        val todayKey = "blocked_${System.currentTimeMillis() / (1000 * 60 * 60 * 24)}"
+        val blockedApps = prefs.getStringSet(todayKey, setOf()) ?: setOf()
+
+        val allowUntilKey = "allowUntil_$packageName"
+        val allowUntil = prefs.getLong(allowUntilKey, 0L)
+        val now = System.currentTimeMillis()
+
+        if (packageName in blockedApps) {
+            if (now < allowUntil) {
+                // ✅ Temporary override active
+                return
+            } else {
+                // ⛔ Override expired or not set
+                showNotification("$packageName is blocked for the rest of the day.")
+                handler.postDelayed({ performGlobalAction(GLOBAL_ACTION_HOME) }, 200)
+                return
+            }
+        }
+
+
         isAppBlockedBySectionAsync(packageName) { isBlocked ->
             if (isBlocked) {
                 resetStreakInFirebase()
@@ -318,6 +341,13 @@ class AppUsageService : AccessibilityService() {
                 manager.notify(Random().nextInt(), notification)
 
                 if (count >= 3) {
+
+                    val prefs = getSharedPreferences("blockedPrefs", Context.MODE_PRIVATE)
+                    val todayKey = "blocked_${System.currentTimeMillis() / (1000 * 60 * 60 * 24)}"
+                    val blockedSet = prefs.getStringSet(todayKey, mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                    blockedSet.add(packageName)
+                    prefs.edit().putStringSet(todayKey, blockedSet).apply()
+
                     handler.postDelayed({
                         performGlobalAction(GLOBAL_ACTION_HOME)
                         handler.postDelayed({

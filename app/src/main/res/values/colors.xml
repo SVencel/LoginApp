@@ -38,4 +38,6 @@
     <color name="day_toggle_checked">#F44336</color>    <!-- Red -->
     <color name="day_toggle_unchecked">#A5D6A7</color>  <!-- Light green -->
 
+    <!-- Icon Tint -->
+    <color name="iconTint">#808080</color>
 </resources>

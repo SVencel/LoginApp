@@ -23,6 +23,7 @@ import com.example.login.R
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.util.Calendar
 import androidx.appcompat.widget.SwitchCompat
+import com.example.login.BlockedAppAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -40,6 +41,8 @@ class FocusFragment : Fragment() {
     private lateinit var switchProductivity: SwitchCompat
     private lateinit var seekBarProductivity: SeekBar
     private lateinit var tvProductivityLabel: TextView
+    private val overrideTimers = mutableMapOf<String, Long>()
+
 
     private val sectionList = mutableListOf<Section>()
 
@@ -174,7 +177,6 @@ class FocusFragment : Fragment() {
             }
         }
 
-
         val prefs = requireContext().getSharedPreferences("productivityPrefs", Context.MODE_PRIVATE)
 
         val detectionEnabled = prefs.getBoolean("detectionEnabled", true)
@@ -213,6 +215,7 @@ class FocusFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         fetchUserSections()
+        updateBlockedTodayUI()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -221,6 +224,100 @@ class FocusFragment : Fragment() {
             fetchUserSections()
         }
     }
+
+    private fun updateBlockedTodayUI() {
+        val prefs = requireContext().getSharedPreferences("blockedPrefs", Context.MODE_PRIVATE)
+        val todayKey = "blocked_${System.currentTimeMillis() / (1000 * 60 * 60 * 24)}"
+        val blockedSet = prefs.getStringSet(todayKey, emptySet()) ?: emptySet()
+
+        val expandable = view?.findViewById<LinearLayout>(R.id.expandableBlocked)
+        val infoText = view?.findViewById<TextView>(R.id.tvBlockedInfo)
+        val listContainer = view?.findViewById<LinearLayout>(R.id.blockedAppList)
+
+        val timerText = view?.findViewById<TextView>(R.id.tvAllowOverrideTimer)
+        if (overrideTimers.isNotEmpty()) {
+            timerText?.visibility = View.VISIBLE
+            val now = System.currentTimeMillis()
+            val shortest = overrideTimers.values.minOrNull() ?: now
+            val remaining = ((shortest - now) / 1000).coerceAtLeast(0)
+            val minutes = remaining / 60
+            val seconds = remaining % 60
+            timerText?.text = "⏳ Override ends in: %02d:%02d".format(minutes, seconds)
+
+            // Auto refresh every second (or 10 seconds if you prefer)
+            Handler(Looper.getMainLooper()).postDelayed({ updateBlockedTodayUI() }, 1000)
+        } else {
+            timerText?.visibility = View.GONE
+        }
+
+
+        if (blockedSet.isEmpty()) {
+            infoText?.text = "No apps blocked today"
+            listContainer?.removeAllViews()
+            return
+        }
+
+        infoText?.text = "Blocked apps (${blockedSet.size}):"
+        listContainer?.removeAllViews()
+
+        overrideTimers.clear()
+        for (packageName in blockedSet) {
+            val allowUntil = prefs.getLong("allowUntil_$packageName", 0L)
+            if (allowUntil > System.currentTimeMillis()) {
+                overrideTimers[packageName] = allowUntil
+            }
+        }
+
+        val inflater = LayoutInflater.from(requireContext())
+        for (packageName in blockedSet) {
+            val itemView = inflater.inflate(R.layout.item_blocked_app, listContainer, false)
+            val iconView = itemView.findViewById<ImageView>(R.id.imgBlockedAppIcon)
+            val labelView = itemView.findViewById<TextView>(R.id.tvBlockedAppLabel)
+
+            val allowUntil = prefs.getLong("allowUntil_$packageName", 0L)
+            val now = System.currentTimeMillis()
+
+            iconView.alpha = if (allowUntil > now) 0.4f else 1.0f
+
+            val pm = requireContext().packageManager
+            val appLabel = try {
+                val appInfo = pm.getApplicationInfo(packageName, 0)
+                iconView.setImageDrawable(pm.getApplicationIcon(appInfo))
+                pm.getApplicationLabel(appInfo).toString()
+            } catch (e: Exception) {
+                iconView.setImageResource(android.R.drawable.ic_dialog_alert)
+                packageName
+            }
+
+            labelView.text = appLabel
+
+            if (allowUntil > now) {
+                itemView.isClickable = false
+                itemView.isEnabled = false
+                itemView.alpha = 0.7f // Optional: dim entire view for clarity
+            } else {
+                itemView.setOnClickListener {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("⏳ 10 More Minutes?")
+                        .setMessage("Allow 10 more minutes for \"$appLabel\"?")
+                        .setPositiveButton("Yes") { _, _ ->
+                            val newExpiry = System.currentTimeMillis() + 10 * 60 * 1000
+                            prefs.edit().putLong("allowUntil_$packageName", newExpiry).apply()
+                            Toast.makeText(requireContext(), "$appLabel allowed for 10 more minutes", Toast.LENGTH_SHORT).show()
+                            updateBlockedTodayUI() // refresh right away
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
+            }
+
+
+            listContainer?.addView(itemView)
+        }
+
+    }
+
+
 
     private fun enableHardcoreMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

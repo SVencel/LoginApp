@@ -252,6 +252,82 @@
         </com.google.android.material.card.MaterialCardView>
 
 
+        <!-- 🚫 BLOCKED TODAY CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:elevation="6dp"
+            app:cardCornerRadius="16dp"
+            app:strokeWidth="1dp"
+            android:id="@+id/cardBlockedToday">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Header -->
+                <LinearLayout
+                    android:id="@+id/headerBlocked"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="⛔ Blocked Today"
+                        android:textSize="16sp"
+                        android:textColor="@color/textPrimaryColor"
+                        android:paddingStart="12dp" />
+
+                </LinearLayout>
+
+                <!-- Expandable content -->
+                <LinearLayout
+                    android:id="@+id/expandableBlocked"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tvBlockedInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No apps blocked today"
+                        android:textSize="14sp"
+                        android:textColor="@color/textSecondaryColor"
+                        android:paddingBottom="8dp" />
+
+                    <LinearLayout
+                        android:id="@+id/blockedAppList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:wrapContent="true"
+                        android:paddingTop="8dp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tvAllowOverrideTimer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/holo_orange_light"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Manage Sections -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnManageSections"
