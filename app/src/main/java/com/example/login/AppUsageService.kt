@@ -25,7 +25,6 @@ class AppUsageService : AccessibilityService() {
     private val minScrollInterval = 4000L
     private val resetDelay = 30000L
     private val scrollCooldownAfterAppOpen = 3000L
-    private val extraMinuteIdleTimeout = 30_000L
     private val usageLimit = 2 * 60 * 60 * 1000L
     private val doomscrollLimit = 3
 
@@ -34,7 +33,6 @@ class AppUsageService : AccessibilityService() {
     private var lastScrollTime = 0L
     private var lastAppOpenedTime = 0L
     private var hasWarned = false
-    private var extraMinuteTimerStarted = false
     private var isYoutubeFullscreen = false
     private var youtubeIdleRunnable: Runnable? = null
 
@@ -46,7 +44,6 @@ class AppUsageService : AccessibilityService() {
     private val autoCloseRunnable = Runnable {
         performGlobalAction(GLOBAL_ACTION_HOME)
         handler.postDelayed({ performGlobalAction(GLOBAL_ACTION_HOME) }, 200)
-        extraMinuteTimerStarted = false
         getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
             .edit().putLong("allowUntil", 0L).apply()
     }
@@ -96,10 +93,6 @@ class AppUsageService : AccessibilityService() {
                     val scrollLimit = getScrollLimitFromSensitivity()
 
                     if (currentTime < allowUntil) {
-                        if (!extraMinuteTimerStarted) {
-                            handler.postDelayed(autoCloseRunnable, extraMinuteIdleTimeout)
-                            extraMinuteTimerStarted = true
-                        }
                         return
                     }
 
@@ -182,19 +175,6 @@ class AppUsageService : AccessibilityService() {
             2 -> 6
             else -> 9
         }
-    }
-
-    fun forceCloseAfterGracePeriod() {
-        handler.postDelayed({
-            val allowUntil = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-                .getLong("allowUntil", 0L)
-            if (System.currentTimeMillis() >= allowUntil) {
-                performGlobalAction(GLOBAL_ACTION_HOME)
-                getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
-                    .edit().putLong("allowUntil", 0L).apply()
-                extraMinuteTimerStarted = false
-            }
-        }, 2 * 60_000)
     }
 
     private fun isDoomscrollingEnabled(): Boolean {
@@ -284,6 +264,12 @@ class AppUsageService : AccessibilityService() {
     }
 
     private fun showDoomscrollAlert(packageName: String) {
+        val prefs = getSharedPreferences("doomPrefs", Context.MODE_PRIVATE)
+        val today = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+        val key = "doomWarningCount_$today"
+        val count = prefs.getInt(key, 0) + 1
+        prefs.edit().putInt(key, count).apply()
+
         val channelId = "hardcore_mode_channel"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val user = FirebaseAuth.getInstance().currentUser ?: return
@@ -302,7 +288,12 @@ class AppUsageService : AccessibilityService() {
                 }
 
                 val randomGoal = allGoals.randomOrNull() ?: "Stay focused and in control 💪"
-                val bigText = "You've been scrolling in $packageName for a while.\nTake a break or allow 2 more minutes.\n\n🎯 Goal: \"$randomGoal\""
+                val bigText = "You've been scrolling in $packageName.\n" +
+                        if (count < 3) {
+                            "⚠️ This is warning $count of 3.\n\n🎯 Goal: \"$randomGoal\""
+                        } else {
+                            "⏳ Time's up. The app will now close.\n\n🎯 Goal: \"$randomGoal\""
+                        }
 
                 val allowIntent = Intent(this, DoomscrollActionReceiver::class.java).apply {
                     action = "ALLOW_EXTRA_SCROLLING"
@@ -318,24 +309,28 @@ class AppUsageService : AccessibilityService() {
                     .setContentTitle("😵 You might be doomscrolling on $packageName")
                     .setContentText("Take a break or allow 2 more minutes.")
                     .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
-                    .addAction(
-                        android.R.drawable.ic_menu_recent_history,
-                        "Allow 2 More Minutes",
-                        pendingIntent
-                    )
+                    .addAction(android.R.drawable.ic_menu_recent_history, "Allow 2 More Minutes", pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setAutoCancel(true)
                     .build()
 
                 manager.notify(Random().nextInt(), notification)
-                performGlobalAction(GLOBAL_ACTION_HOME)
-                handler.postDelayed({ performGlobalAction(GLOBAL_ACTION_HOME) }, 200)
+
+                if (count >= 3) {
+                    handler.postDelayed({
+                        performGlobalAction(GLOBAL_ACTION_HOME)
+                        handler.postDelayed({
+                            performGlobalAction(GLOBAL_ACTION_HOME)
+                        }, 200)
+                    }, 1500) // delay to let notification show
+                }
             }
             .addOnFailureListener {
                 Log.w("NOTIF_GOAL", "❌ Failed to fetch goals: ${it.message}")
             }
     }
+
 
     private fun isAppBlockedBySectionAsync(packageName: String, onResult: (Boolean) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser ?: return onResult(false)
